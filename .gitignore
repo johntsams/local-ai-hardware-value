@@ -1,0 +1,21 @@
+# Python Virtual Environment & Bytecode
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE & Editor Settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS Artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Output / Temp Logs
+*.log

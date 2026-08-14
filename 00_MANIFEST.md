@@ -1,0 +1,21 @@
+# Package manifest
+
+- `01_TO_AI.md`
+- `02_TO_HUMAN.md`
+- `03_plot_local_ai_value.py`
+- `04_GRAPHING_LESSONS.md`
+- `05_PARALLELISM_REFERENCE.md`
+- `06_CHARTS/01_current_layout_snapshot.png`
+- `06_CHARTS/02_single_device_current_data.png`
+- `06_CHARTS/02_single_device_current_data_system_context.png`
+- `06_CHARTS/03_capacity_sharded_current_data.png`
+- `07_DATA/SOURCES.md`
+- `07_DATA/devices.csv`
+- `07_DATA/devices.json`
+- `07_DATA/models_artificial_analysis.csv`
+- `07_DATA/models_artificial_analysis.json`
+- `dashboard/index.html`
+- `dashboard/styles.css`
+- `dashboard/app.js`
+- `run_dashboard.py`
+- `scrape_models.py`
