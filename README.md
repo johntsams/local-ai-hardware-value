@@ -2,6 +2,14 @@
 
 An open-source interactive analysis suite, multi-factor scoring engine, and hardware-model fit matrix for local AI and Large Language Model (LLM) inference.
 
+**Repository:** [github.com/johntsams/local-ai-hardware-value](https://github.com/johntsams/local-ai-hardware-value)
+
+## Quickest Way to Use or Share
+
+- **Use the hosted dashboard:** open the repository's GitHub Pages site if it is enabled for this repository. No Python installation is required.
+- **Download the latest copy:** on GitHub, select **Code → Download ZIP**, extract it, and open the included files.
+- **Run everything locally:** follow the setup below. The local launcher is the most reliable option because it serves the data files and dashboard from one local web server.
+
 ---
 
 ## 🌟 Highlights & Features
@@ -57,6 +65,8 @@ pip install -r requirements.txt
 python run_dashboard.py
 ```
 *Opens `http://localhost:8000/dashboard/index.html` in your default browser.*
+
+> If the browser does not open automatically, paste that address into a browser after starting the launcher. Keep the terminal window open while using the dashboard.
 
 ### 3. Generate High-Res Static Charts
 
@@ -150,4 +160,4 @@ local-ai-hardware-value/
 
 ## 📜 License
 
-MIT License. Open source and free for research, commercial, and personal evaluation.
+MIT License. See [`LICENSE`](LICENSE) for the full text. Open source and free for research, commercial, and personal evaluation.
