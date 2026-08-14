@@ -1,83 +1,11 @@
 /**
  * Local-AI Hardware Value & Model Fit Dashboard
- * Enhanced with Interactive Zoom & Pan, Adaptive Decluttered Annotations,
- * and Unsloth Quantization Accuracy Loss & Fit Matrix.
+ * Enhanced with:
+ * 1. Vendor Color Theming (Green for NVIDIA, Silver for Apple, Red for AMD, Cyan for ASUS)
+ * 2. Intelligence-Throughput (IQ-tok/s) Metric & Evaluator
+ * 3. Cost-per-Difficult-Task & Local vs Cloud Break-Even Economics Engine
+ * 4. Interactive Zoom/Pan & Adaptive Smart Annotations
  */
-
-// Global Application State
-const state = {
-  rawDevices: [],
-  rawModels: [],
-  filteredDevices: [],
-  processedPoints: [],
-  selectedDeviceId: null,
-  
-  // Display & Parallelism Settings
-  chartMode: 'singles', // 'singles' | 'capacity' | 'tp-ceiling'
-  
-  // System Context & Host Overhead Settings (USER REQUEST)
-  useSystemContext: true,
-  hostCostUsd: 650,
-  macOsOverheadGb: 8,
-  
-  // Multi-Factor Weighted Scoring Settings
-  weightMem: 1.0,
-  weightBw: 1.0,
-  weightFlops: 0.3,
-  cudaBoost: 1.25,
-  tpEfficiency: 0.85,
-  
-  // Chart Settings & Zoom/Pan State
-  isLogScale: true,
-  includeModded: true,
-  includeDatacenter: true,
-  allowedVendors: new Set(['NVIDIA', 'Apple', 'AMD', 'ASUS']),
-  
-  // Zoom & Pan
-  zoomScale: 1.0,
-  panX: 0,
-  panY: 0,
-  isDragging: false,
-  dragStartX: 0,
-  dragStartY: 0,
-  labelMode: 'auto', // 'auto' | 'pareto' | 'all' | 'none'
-  
-  // Model Fit Matrix Settings
-  matrixContextTokens: 8192,
-  modelClassFilter: 'all',
-  quantAccuracyFilter: 'all',
-  selectedExplorerModelId: null,
-  selectedExplorerHardwareId: null
-};
-
-// Preset Multi-Factor Weight Configurations
-const PRESETS = {
-  'memory-heavy': { wMem: 1.0, wBw: 1.0, wFlops: 0.3, cuda: 1.25, name: 'LLM Memory-First' },
-  'balanced':     { wMem: 0.8, wBw: 0.8, wFlops: 0.6, cuda: 1.20, name: 'Balanced Value' },
-  'throughput':   { wMem: 0.5, wBw: 1.2, wFlops: 1.0, cuda: 1.30, name: 'High-Throughput' },
-  'legacy':       { wMem: 1.0, wBw: 1.0, wFlops: 0.0, cuda: 1.00, name: 'Legacy C × B' }
-};
-
-// Unsloth Quantization Accuracy Retention Reference Table
-const UNSLOTH_INFO = {
-  fp16:  { label: 'FP16 / BF16', acc: '100%', ppl: '+0.00', quality: 'Full baseline (Zero loss)' },
-  q8_0:  { label: 'Q8 / FP8',    acc: '99.8%', ppl: '+0.02', quality: 'Near-lossless (99.8% acc)' },
-  q6_k:  { label: 'Q6_K',        acc: '99.3%', ppl: '+0.04', quality: 'High quality (99.3% acc)' },
-  q5_k_m:{ label: 'Q5_K_M',      acc: '98.6%', ppl: '+0.09', quality: 'Sweet spot <14B (98.6% acc)' },
-  q4_k_m:{ label: 'Q4_K_M',      acc: '97.4%', ppl: '+0.18', quality: 'Unsloth standard (97.4% acc)' },
-  q3_k_m:{ label: 'Q3_K_M',      acc: '93.0%', ppl: '+0.48', quality: 'Low VRAM (93% acc on 70B+)' },
-  q2_k:  { label: 'Q2_K',        acc: '87.0%', ppl: '+1.15', quality: 'Extreme MoE fit (87% acc)' }
-};
-
-// ================= INITIALIZATION & DATA FETCHING =================
-document.addEventListener('DOMContentLoaded', async () => {
-  initTabs();
-  initControlListeners();
-  initZoomPanListeners();
-  await loadData();
-  recalculateAndRender();
-});
-
 
 // Embedded Fallback Data for offline file:/// protocol loading
 const EMBEDDED_DEVICES = [
@@ -1003,1986 +931,1104 @@ const EMBEDDED_DEVICES = [
 
 const EMBEDDED_MODELS = [
   {
-    "id": "deepseek_v4_pro",
-    "name": "DeepSeek V4 Pro 0813 (max)",
-    "creator": "DeepSeek",
-    "category": "MoE",
-    "total_params_b": 1600.0,
-    "active_params_b": 49.0,
-    "context_window_tokens": 1048576,
-    "context_window_str": "1M",
-    "intelligence_index": 53.2,
-    "briefcase_elo": 1610,
-    "output_speed_tok_s": 80.0,
-    "latency_ttft_s": 0.85,
-    "openness_index": 85.0,
-    "license": "DeepSeek Open License",
-    "description": "Ultra-scale flagship mixture-of-experts model with 49B active parameters per token.",
-    "memory_req_gb": {
-      "fp16": 3485.6,
-      "q8_0": 1855.5,
-      "q6_k": 1442.5,
-      "q5_k_m": 1203.4,
-      "q4_k_m": 986.1,
-      "q3_k_m": 747.0,
-      "q2_k": 551.4
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 100.0,
-      "q4_k_m": 99.9,
-      "q3_k_m": 95.5,
-      "q2_k": 89.5
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "deepseek_v4_flash",
-    "name": "DeepSeek V4 Flash 0731 (max)",
-    "creator": "DeepSeek",
-    "category": "MoE",
-    "total_params_b": 671.0,
-    "active_params_b": 37.0,
-    "context_window_tokens": 1048576,
-    "context_window_str": "1M",
-    "intelligence_index": 52.0,
-    "briefcase_elo": 1585,
-    "output_speed_tok_s": 120.0,
-    "latency_ttft_s": 0.62,
-    "openness_index": 85.0,
-    "license": "DeepSeek Open License",
-    "description": "High-speed reasoning MoE model with exceptional performance per active parameter.",
-    "memory_req_gb": {
-      "fp16": 1466.4,
-      "q8_0": 782.8,
-      "q6_k": 609.6,
-      "q5_k_m": 509.3,
-      "q4_k_m": 418.2,
-      "q3_k_m": 317.9,
-      "q2_k": 235.9
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 100.0,
-      "q4_k_m": 99.9,
-      "q3_k_m": 95.5,
-      "q2_k": 89.5
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "deepseek_r1_671b",
-    "name": "DeepSeek R1 (671B MoE)",
-    "creator": "DeepSeek",
-    "category": "MoE",
-    "total_params_b": 671.0,
-    "active_params_b": 37.0,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 50.8,
-    "briefcase_elo": 1565,
-    "output_speed_tok_s": 95.0,
-    "latency_ttft_s": 0.72,
-    "openness_index": 88.0,
-    "license": "MIT",
-    "description": "Groundbreaking open-weights reasoning model with 671B total params and 37B active per token.",
-    "memory_req_gb": {
-      "fp16": 1466.4,
-      "q8_0": 782.8,
-      "q6_k": 609.6,
-      "q5_k_m": 509.3,
-      "q4_k_m": 418.2,
-      "q3_k_m": 317.9,
-      "q2_k": 235.9
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 100.0,
-      "q4_k_m": 99.9,
-      "q3_k_m": 95.5,
-      "q2_k": 89.5
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "deepseek_v3_671b",
-    "name": "DeepSeek V3 (671B MoE)",
-    "creator": "DeepSeek",
-    "category": "MoE",
-    "total_params_b": 671.0,
-    "active_params_b": 37.0,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 49.6,
-    "briefcase_elo": 1545,
-    "output_speed_tok_s": 100.0,
-    "latency_ttft_s": 0.68,
-    "openness_index": 88.0,
-    "license": "MIT",
-    "description": "Frontier general-purpose 671B MoE model offering GPT-4o class performance.",
-    "memory_req_gb": {
-      "fp16": 1466.4,
-      "q8_0": 782.8,
-      "q6_k": 609.6,
-      "q5_k_m": 509.3,
-      "q4_k_m": 418.2,
-      "q3_k_m": 317.9,
-      "q2_k": 235.9
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 100.0,
-      "q4_k_m": 99.9,
-      "q3_k_m": 95.5,
-      "q2_k": 89.5
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "deepseek_r1_distill_70b",
-    "name": "DeepSeek R1 Distill Llama 70B",
-    "creator": "DeepSeek / Meta",
-    "category": "Dense",
-    "total_params_b": 70.6,
-    "active_params_b": 70.6,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 48.7,
-    "briefcase_elo": 1520,
-    "output_speed_tok_s": 72.0,
-    "latency_ttft_s": 0.56,
-    "openness_index": 86.0,
-    "license": "Llama 3.3 License",
-    "description": "Llama 70B fine-tuned with DeepSeek R1 reasoning traces, state-of-the-art math and code.",
-    "memory_req_gb": {
-      "fp16": 156.1,
-      "q8_0": 84.2,
-      "q6_k": 66.0,
-      "q5_k_m": 55.4,
-      "q4_k_m": 45.8,
-      "q3_k_m": 35.3,
-      "q2_k": 26.7
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 99.4,
-      "q4_k_m": 98.2,
-      "q3_k_m": 93.8,
-      "q2_k": 87.8
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "deepseek_r1_distill_32b",
-    "name": "DeepSeek R1 Distill Qwen 32B",
-    "creator": "DeepSeek / Alibaba",
-    "category": "Dense",
+    "id": "qwq_32b_preview",
+    "name": "QwQ 32B Preview (Reasoning)",
+    "creator": "Alibaba Qwen",
+    "category": "Dense Reasoning",
     "total_params_b": 32.5,
     "active_params_b": 32.5,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 45.8,
-    "briefcase_elo": 1485,
-    "output_speed_tok_s": 90.0,
-    "latency_ttft_s": 0.4,
-    "openness_index": 86.0,
-    "license": "Apache 2.0",
-    "description": "Distilled 32B model punching far above its weight class in competitive programming and logic.",
+    "context_window_str": "32k",
+    "intelligence_index": 52.4,
+    "output_speed_tok_s": 46,
+    "description": "State-of-the-art open reasoning model using Chain-of-Thought; rivals OpenAI o1-preview on MATH 500 and GPQA Diamond.",
     "memory_req_gb": {
-      "fp16": 72.5,
-      "q8_0": 39.4,
-      "q6_k": 31.0,
-      "q5_k_m": 26.1,
-      "q4_k_m": 21.7,
-      "q3_k_m": 16.8,
-      "q2_k": 13.0
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 99.8,
-      "q6_k": 99.3,
-      "q5_k_m": 98.6,
-      "q4_k_m": 97.4,
-      "q3_k_m": 93.0,
-      "q2_k": 87.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "deepseek_r1_distill_8b",
-    "name": "DeepSeek R1 Distill Llama 8B",
-    "creator": "DeepSeek / Meta",
-    "category": "Dense",
-    "total_params_b": 8.03,
-    "active_params_b": 8.03,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 37.8,
-    "briefcase_elo": 1365,
-    "output_speed_tok_s": 160.0,
-    "latency_ttft_s": 0.29,
-    "openness_index": 86.0,
-    "license": "Llama 3.1 License",
-    "description": "High-speed 8B reasoning model with distilled step-by-step thinking capability.",
-    "memory_req_gb": {
-      "fp16": 18.4,
-      "q8_0": 10.4,
-      "q6_k": 8.4,
-      "q5_k_m": 7.2,
-      "q4_k_m": 6.1,
-      "q3_k_m": 5.0,
-      "q2_k": 4.0
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 99.8,
-      "q6_k": 99.3,
-      "q5_k_m": 98.6,
-      "q4_k_m": 97.4,
-      "q3_k_m": 93.0,
-      "q2_k": 87.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "llama_4_scout",
-    "name": "Llama 4 Scout (109B 10M)",
-    "creator": "Meta",
-    "category": "Dense",
-    "total_params_b": 109.0,
-    "active_params_b": 109.0,
-    "context_window_tokens": 10485760,
-    "context_window_str": "10M",
-    "intelligence_index": 54.5,
-    "briefcase_elo": 1625,
-    "output_speed_tok_s": 68.0,
-    "latency_ttft_s": 0.78,
-    "openness_index": 82.0,
-    "license": "Llama Community License",
-    "description": "Meta's next-generation open weights architecture featuring a 10M token context window.",
-    "memory_req_gb": {
-      "fp16": 240.3,
-      "q8_0": 129.2,
-      "q6_k": 101.1,
-      "q5_k_m": 84.8,
-      "q4_k_m": 70.0,
-      "q3_k_m": 53.7,
-      "q2_k": 40.4
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 99.8,
-      "q4_k_m": 98.6,
-      "q3_k_m": 94.2,
-      "q2_k": 88.2
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "llama_3_3_70b",
-    "name": "Llama 3.3 70B Instruct",
-    "creator": "Meta",
-    "category": "Dense",
-    "total_params_b": 70.6,
-    "active_params_b": 70.6,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 48.4,
-    "briefcase_elo": 1510,
-    "output_speed_tok_s": 75.0,
-    "latency_ttft_s": 0.54,
-    "openness_index": 84.0,
-    "license": "Llama 3.3 Community License",
-    "description": "The gold standard open-weights workhorse model, delivering 405B-class performance in 70B.",
-    "memory_req_gb": {
-      "fp16": 156.1,
-      "q8_0": 84.2,
-      "q6_k": 66.0,
-      "q5_k_m": 55.4,
-      "q4_k_m": 45.8,
-      "q3_k_m": 35.3,
-      "q2_k": 26.7
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 99.4,
-      "q4_k_m": 98.2,
-      "q3_k_m": 93.8,
-      "q2_k": 87.8
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "llama_3_1_405b",
-    "name": "Llama 3.1 405B Instruct",
-    "creator": "Meta",
-    "category": "Dense",
-    "total_params_b": 405.0,
-    "active_params_b": 405.0,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 52.1,
-    "briefcase_elo": 1572,
-    "output_speed_tok_s": 32.0,
-    "latency_ttft_s": 1.25,
-    "openness_index": 84.0,
-    "license": "Llama 3.1 Community License",
-    "description": "Meta's flagship dense foundation model, state-of-the-art open-weights frontier intelligence.",
-    "memory_req_gb": {
-      "fp16": 886.7,
-      "q8_0": 474.1,
-      "q6_k": 369.6,
-      "q5_k_m": 309.0,
-      "q4_k_m": 254.0,
-      "q3_k_m": 193.5,
-      "q2_k": 144.0
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 100.0,
-      "q4_k_m": 99.9,
-      "q3_k_m": 95.5,
-      "q2_k": 89.5
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "llama_3_1_8b",
-    "name": "Llama 3.1 8B Instruct",
-    "creator": "Meta",
-    "category": "Dense",
-    "total_params_b": 8.03,
-    "active_params_b": 8.03,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 35.2,
-    "briefcase_elo": 1320,
-    "output_speed_tok_s": 165.0,
-    "latency_ttft_s": 0.28,
-    "openness_index": 84.0,
-    "license": "Llama 3.1 Community License",
-    "description": "High-efficiency 8B parameter model ideal for single consumer GPUs.",
-    "memory_req_gb": {
-      "fp16": 18.4,
-      "q8_0": 10.4,
-      "q6_k": 8.4,
-      "q5_k_m": 7.2,
-      "q4_k_m": 6.1,
-      "q3_k_m": 5.0,
-      "q2_k": 4.0
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 99.8,
-      "q6_k": 99.3,
-      "q5_k_m": 98.6,
-      "q4_k_m": 97.4,
-      "q3_k_m": 93.0,
-      "q2_k": 87.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "llama_3_2_3b",
-    "name": "Llama 3.2 3B Instruct",
-    "creator": "Meta",
-    "category": "Dense",
-    "total_params_b": 3.21,
-    "active_params_b": 3.21,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 29.5,
-    "briefcase_elo": 1240,
-    "output_speed_tok_s": 220.0,
-    "latency_ttft_s": 0.18,
-    "openness_index": 84.0,
-    "license": "Llama 3.2 Community License",
-    "description": "Ultra-lightweight edge model running smoothly on entry-level GPUs, laptops, and mobile.",
-    "memory_req_gb": {
-      "fp16": 8.0,
-      "q8_0": 4.9,
-      "q6_k": 4.1,
-      "q5_k_m": 3.6,
-      "q4_k_m": 3.2,
-      "q3_k_m": 2.7,
-      "q2_k": 2.4
-    },
-    "quant_accuracy_pct": {
-      "fp16": 97.8,
-      "q8_0": 97.6,
-      "q6_k": 97.1,
-      "q5_k_m": 96.4,
-      "q4_k_m": 95.2,
-      "q3_k_m": 90.8,
-      "q2_k": 84.8
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "llama_3_2_1b",
-    "name": "Llama 3.2 1B Instruct",
-    "creator": "Meta",
-    "category": "Dense",
-    "total_params_b": 1.23,
-    "active_params_b": 1.23,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 24.2,
-    "briefcase_elo": 1180,
-    "output_speed_tok_s": 310.0,
-    "latency_ttft_s": 0.14,
-    "openness_index": 84.0,
-    "license": "Llama 3.2 Community License",
-    "description": "Ultra-fast 1B model delivering instant responses at low memory footprint (<2GB VRAM).",
-    "memory_req_gb": {
-      "fp16": 3.9,
-      "q8_0": 2.7,
-      "q6_k": 2.4,
-      "q5_k_m": 2.2,
-      "q4_k_m": 2.0,
-      "q3_k_m": 1.8,
-      "q2_k": 1.7
-    },
-    "quant_accuracy_pct": {
-      "fp16": 94.1,
-      "q8_0": 93.9,
-      "q6_k": 93.4,
-      "q5_k_m": 92.7,
-      "q4_k_m": 91.5,
-      "q3_k_m": 87.1,
-      "q2_k": 81.1
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "qwen_3_8_max",
-    "name": "Qwen3.8 Max (2.4T A95B)",
-    "creator": "Alibaba",
-    "category": "MoE",
-    "total_params_b": 2400.0,
-    "active_params_b": 95.0,
-    "context_window_tokens": 1000000,
-    "context_window_str": "1M",
-    "intelligence_index": 58.0,
-    "briefcase_elo": 1655,
-    "output_speed_tok_s": 47.0,
-    "latency_ttft_s": 2.63,
-    "openness_index": 80.0,
-    "license": "Qwen Open License",
-    "description": "Alibaba's frontier open-weights MoE model with multi-lingual superiority and 95B active compute.",
-    "memory_req_gb": {
-      "fp16": 5224.4,
-      "q8_0": 2779.2,
-      "q6_k": 2159.8,
-      "q5_k_m": 1801.1,
-      "q4_k_m": 1475.1,
-      "q3_k_m": 1116.5,
-      "q2_k": 823.1
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 100.0,
-      "q4_k_m": 99.9,
-      "q3_k_m": 95.5,
-      "q2_k": 89.5
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "qwen_2_5_72b",
-    "name": "Qwen 2.5 72B Instruct",
-    "creator": "Alibaba",
-    "category": "Dense",
-    "total_params_b": 72.7,
-    "active_params_b": 72.7,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 48.9,
-    "briefcase_elo": 1525,
-    "output_speed_tok_s": 68.0,
-    "latency_ttft_s": 0.58,
-    "openness_index": 86.0,
-    "license": "Apache 2.0",
-    "description": "Industry-leading dense open-weights model for coding, mathematics, and complex reasoning.",
-    "memory_req_gb": {
-      "fp16": 160.7,
-      "q8_0": 86.7,
-      "q6_k": 67.9,
-      "q5_k_m": 57.0,
-      "q4_k_m": 47.2,
-      "q3_k_m": 36.3,
-      "q2_k": 27.4
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 99.4,
-      "q4_k_m": 98.2,
-      "q3_k_m": 93.8,
-      "q2_k": 87.8
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
+      "fp16": 71.8,
+      "q8_0": 39.9,
+      "q6_k": 32.0,
+      "q5_k_m": 27.3,
+      "q4_k_m": 23.2,
+      "q3_k_m": 18.5,
+      "q2_k": 14.8
     }
   },
   {
     "id": "qwen_2_5_coder_32b",
     "name": "Qwen 2.5 Coder 32B Instruct",
-    "creator": "Alibaba",
-    "category": "Dense",
+    "creator": "Alibaba Qwen",
+    "category": "Dense Code Specialist",
     "total_params_b": 32.5,
     "active_params_b": 32.5,
-    "context_window_tokens": 131072,
     "context_window_str": "128k",
-    "intelligence_index": 46.5,
-    "briefcase_elo": 1495,
-    "output_speed_tok_s": 92.0,
-    "latency_ttft_s": 0.38,
-    "openness_index": 86.0,
-    "license": "Apache 2.0",
-    "description": "Top-tier open-source coding model rivaling GPT-4o on HumanEval and SWE-bench.",
+    "intelligence_index": 49.8,
+    "output_speed_tok_s": 48,
+    "description": "Gold standard open-source coding model. Matches GPT-4o in Python/SWE-bench code generation.",
     "memory_req_gb": {
-      "fp16": 72.5,
-      "q8_0": 39.4,
-      "q6_k": 31.0,
-      "q5_k_m": 26.1,
-      "q4_k_m": 21.7,
-      "q3_k_m": 16.8,
-      "q2_k": 13.0
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 99.8,
-      "q6_k": 99.3,
-      "q5_k_m": 98.6,
-      "q4_k_m": 97.4,
-      "q3_k_m": 93.0,
-      "q2_k": 87.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
+      "fp16": 71.8,
+      "q8_0": 39.9,
+      "q6_k": 32.0,
+      "q5_k_m": 27.3,
+      "q4_k_m": 23.2,
+      "q3_k_m": 18.5,
+      "q2_k": 14.8
     }
   },
   {
-    "id": "qwen_2_5_32b",
+    "id": "qwen_2_5_72b_instruct",
+    "name": "Qwen 2.5 72B Instruct",
+    "creator": "Alibaba Qwen",
+    "category": "Dense General",
+    "total_params_b": 72.7,
+    "active_params_b": 72.7,
+    "context_window_str": "128k",
+    "intelligence_index": 48.9,
+    "output_speed_tok_s": 24,
+    "description": "Frontier open dense model with exceptional multilingual, coding, and mathematical reasoning.",
+    "memory_req_gb": {
+      "fp16": 159.0,
+      "q8_0": 87.4,
+      "q6_k": 69.9,
+      "q5_k_m": 59.3,
+      "q4_k_m": 50.1,
+      "q3_k_m": 39.7,
+      "q2_k": 31.3
+    }
+  },
+  {
+    "id": "qwen_2_5_32b_instruct",
     "name": "Qwen 2.5 32B Instruct",
-    "creator": "Alibaba",
-    "category": "Dense",
+    "creator": "Alibaba Qwen",
+    "category": "Dense General",
     "total_params_b": 32.5,
     "active_params_b": 32.5,
-    "context_window_tokens": 131072,
     "context_window_str": "128k",
     "intelligence_index": 44.3,
-    "briefcase_elo": 1460,
-    "output_speed_tok_s": 95.0,
-    "latency_ttft_s": 0.38,
-    "openness_index": 86.0,
-    "license": "Apache 2.0",
-    "description": "Sweet-spot 32B dense model that fits into single 24GB GPUs at 4-bit/5-bit quantization.",
+    "output_speed_tok_s": 48,
+    "description": "Sweet-spot model for 24GB\u201348GB local hardware setups. High speed with top-tier reasoning.",
     "memory_req_gb": {
-      "fp16": 72.5,
-      "q8_0": 39.4,
-      "q6_k": 31.0,
-      "q5_k_m": 26.1,
-      "q4_k_m": 21.7,
-      "q3_k_m": 16.8,
-      "q2_k": 13.0
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 99.8,
-      "q6_k": 99.3,
-      "q5_k_m": 98.6,
-      "q4_k_m": 97.4,
-      "q3_k_m": 93.0,
-      "q2_k": 87.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
+      "fp16": 71.8,
+      "q8_0": 39.9,
+      "q6_k": 32.0,
+      "q5_k_m": 27.3,
+      "q4_k_m": 23.2,
+      "q3_k_m": 18.5,
+      "q2_k": 14.8
     }
   },
   {
-    "id": "qwen_2_5_14b",
+    "id": "qwen_2_5_14b_instruct",
     "name": "Qwen 2.5 14B Instruct",
-    "creator": "Alibaba",
-    "category": "Dense",
+    "creator": "Alibaba Qwen",
+    "category": "Dense General",
     "total_params_b": 14.7,
     "active_params_b": 14.7,
-    "context_window_tokens": 131072,
     "context_window_str": "128k",
-    "intelligence_index": 39.8,
-    "briefcase_elo": 1390,
-    "output_speed_tok_s": 130.0,
-    "latency_ttft_s": 0.32,
-    "openness_index": 86.0,
-    "license": "Apache 2.0",
-    "description": "High-efficiency 14B model that runs unquantized or at 8-bit on sub-$1000 hardware.",
+    "intelligence_index": 40.5,
+    "output_speed_tok_s": 78,
+    "description": "High-efficiency 14B model that runs comfortably on 12GB\u201316GB VRAM consumer GPUs.",
     "memory_req_gb": {
-      "fp16": 33.2,
-      "q8_0": 18.2,
-      "q6_k": 14.5,
-      "q5_k_m": 12.3,
-      "q4_k_m": 10.4,
-      "q3_k_m": 8.3,
-      "q2_k": 6.6
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 99.8,
-      "q6_k": 99.3,
-      "q5_k_m": 98.6,
-      "q4_k_m": 97.4,
-      "q3_k_m": 93.0,
-      "q2_k": 87.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
+      "fp16": 34.5,
+      "q8_0": 20.0,
+      "q6_k": 16.5,
+      "q5_k_m": 14.3,
+      "q4_k_m": 12.4,
+      "q3_k_m": 10.3,
+      "q2_k": 8.7
     }
   },
   {
-    "id": "qwen_2_5_7b",
+    "id": "qwen_2_5_coder_14b",
+    "name": "Qwen 2.5 Coder 14B Instruct",
+    "creator": "Alibaba Qwen",
+    "category": "Dense Code Specialist",
+    "total_params_b": 14.7,
+    "active_params_b": 14.7,
+    "context_window_str": "128k",
+    "intelligence_index": 43.1,
+    "output_speed_tok_s": 78,
+    "description": "Exceptional coding performance in a compact 14B footprint for single 16GB GPUs.",
+    "memory_req_gb": {
+      "fp16": 34.5,
+      "q8_0": 20.0,
+      "q6_k": 16.5,
+      "q5_k_m": 14.3,
+      "q4_k_m": 12.4,
+      "q3_k_m": 10.3,
+      "q2_k": 8.7
+    }
+  },
+  {
+    "id": "qwen_2_5_coder_7b",
+    "name": "Qwen 2.5 Coder 7B Instruct",
+    "creator": "Alibaba Qwen",
+    "category": "Dense Code Specialist",
+    "total_params_b": 7.6,
+    "active_params_b": 7.6,
+    "context_window_str": "128k",
+    "intelligence_index": 38.6,
+    "output_speed_tok_s": 125,
+    "description": "Ultra-fast local coding assistant; runs at >100 tok/s on 8GB\u201312GB VRAM cards.",
+    "memory_req_gb": {
+      "fp16": 18.0,
+      "q8_0": 10.5,
+      "q6_k": 8.6,
+      "q5_k_m": 7.5,
+      "q4_k_m": 6.6,
+      "q3_k_m": 5.5,
+      "q2_k": 4.6
+    }
+  },
+  {
+    "id": "qwen_2_5_7b_instruct",
     "name": "Qwen 2.5 7B Instruct",
-    "creator": "Alibaba",
-    "category": "Dense",
-    "total_params_b": 7.61,
-    "active_params_b": 7.61,
-    "context_window_tokens": 131072,
+    "creator": "Alibaba Qwen",
+    "category": "Dense General",
+    "total_params_b": 7.6,
+    "active_params_b": 7.6,
     "context_window_str": "128k",
-    "intelligence_index": 34.6,
-    "briefcase_elo": 1305,
-    "output_speed_tok_s": 180.0,
-    "latency_ttft_s": 0.24,
-    "openness_index": 86.0,
-    "license": "Apache 2.0",
-    "description": "Ultra-fast compact model with standout performance in coding and multi-language comprehension.",
+    "intelligence_index": 36.8,
+    "output_speed_tok_s": 125,
+    "description": "Lightweight general model for edge devices, budget GPUs, and high-concurrency serving.",
     "memory_req_gb": {
-      "fp16": 17.4,
-      "q8_0": 9.9,
-      "q6_k": 8.0,
-      "q5_k_m": 6.9,
-      "q4_k_m": 5.9,
-      "q3_k_m": 4.8,
-      "q2_k": 3.9
-    },
-    "quant_accuracy_pct": {
-      "fp16": 99.0,
-      "q8_0": 98.8,
-      "q6_k": 98.3,
-      "q5_k_m": 97.6,
-      "q4_k_m": 96.4,
-      "q3_k_m": 92.0,
-      "q2_k": 86.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
+      "fp16": 18.0,
+      "q8_0": 10.5,
+      "q6_k": 8.6,
+      "q5_k_m": 7.5,
+      "q4_k_m": 6.6,
+      "q3_k_m": 5.5,
+      "q2_k": 4.6
     }
   },
   {
-    "id": "gemma_4_31b",
-    "name": "Gemma 4 31B Instruct",
-    "creator": "Google",
-    "category": "Dense",
-    "total_params_b": 31.2,
-    "active_params_b": 31.2,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 45.1,
-    "briefcase_elo": 1480,
-    "output_speed_tok_s": 98.0,
-    "latency_ttft_s": 0.36,
-    "openness_index": 86.0,
-    "license": "Gemma Terms of Use",
-    "description": "Google's latest open weights architecture with enhanced multi-step logic and instruction following.",
+    "id": "qwen_2_5_math_72b",
+    "name": "Qwen 2.5 Math 72B Instruct",
+    "creator": "Alibaba Qwen",
+    "category": "Dense Math Specialist",
+    "total_params_b": 72.7,
+    "active_params_b": 72.7,
+    "context_window_str": "32k",
+    "intelligence_index": 51.5,
+    "output_speed_tok_s": 24,
+    "description": "SOTA specialized mathematics reasoning model scoring 85%+ on MATH-500.",
     "memory_req_gb": {
-      "fp16": 69.6,
-      "q8_0": 37.8,
-      "q6_k": 29.8,
-      "q5_k_m": 25.1,
-      "q4_k_m": 20.9,
-      "q3_k_m": 16.2,
-      "q2_k": 12.5
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 99.8,
-      "q6_k": 99.3,
-      "q5_k_m": 98.6,
-      "q4_k_m": 97.4,
-      "q3_k_m": 93.0,
-      "q2_k": 87.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
+      "fp16": 159.0,
+      "q8_0": 87.4,
+      "q6_k": 69.9,
+      "q5_k_m": 59.3,
+      "q4_k_m": 50.1,
+      "q3_k_m": 39.7,
+      "q2_k": 31.3
     }
   },
   {
-    "id": "gemma_3_27b",
-    "name": "Gemma 3 27B Instruct",
-    "creator": "Google",
-    "category": "Dense",
-    "total_params_b": 27.2,
-    "active_params_b": 27.2,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 43.0,
-    "briefcase_elo": 1450,
-    "output_speed_tok_s": 105.0,
-    "latency_ttft_s": 0.34,
-    "openness_index": 86.0,
-    "license": "Gemma Terms of Use",
-    "description": "High-density 27B model offering remarkable reasoning per gigabyte of VRAM.",
-    "memory_req_gb": {
-      "fp16": 60.8,
-      "q8_0": 33.1,
-      "q6_k": 26.1,
-      "q5_k_m": 22.0,
-      "q4_k_m": 18.3,
-      "q3_k_m": 14.3,
-      "q2_k": 11.1
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 99.8,
-      "q6_k": 99.3,
-      "q5_k_m": 98.6,
-      "q4_k_m": 97.4,
-      "q3_k_m": 93.0,
-      "q2_k": 87.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "gemma_3_12b",
-    "name": "Gemma 3 12B Instruct",
-    "creator": "Google",
-    "category": "Dense",
-    "total_params_b": 12.1,
-    "active_params_b": 12.1,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 38.2,
-    "briefcase_elo": 1370,
-    "output_speed_tok_s": 140.0,
-    "latency_ttft_s": 0.28,
-    "openness_index": 86.0,
-    "license": "Gemma Terms of Use",
-    "description": "Balanced 12B model that runs at high speeds on single 16GB GPUs.",
-    "memory_req_gb": {
-      "fp16": 27.4,
-      "q8_0": 15.1,
-      "q6_k": 12.1,
-      "q5_k_m": 10.3,
-      "q4_k_m": 8.8,
-      "q3_k_m": 7.0,
-      "q2_k": 5.6
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 99.8,
-      "q6_k": 99.3,
-      "q5_k_m": 98.6,
-      "q4_k_m": 97.4,
-      "q3_k_m": 93.0,
-      "q2_k": 87.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "gemma_3_4b",
-    "name": "Gemma 3 4B Instruct",
-    "creator": "Google",
-    "category": "Dense",
-    "total_params_b": 4.15,
-    "active_params_b": 4.15,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 31.0,
-    "briefcase_elo": 1260,
-    "output_speed_tok_s": 210.0,
-    "latency_ttft_s": 0.2,
-    "openness_index": 86.0,
-    "license": "Gemma Terms of Use",
-    "description": "Compact Google model tailored for rapid local tool execution and summaries.",
-    "memory_req_gb": {
-      "fp16": 10.0,
-      "q8_0": 5.9,
-      "q6_k": 4.9,
-      "q5_k_m": 4.3,
-      "q4_k_m": 3.8,
-      "q3_k_m": 3.2,
-      "q2_k": 2.7
-    },
-    "quant_accuracy_pct": {
-      "fp16": 98.3,
-      "q8_0": 98.1,
-      "q6_k": 97.6,
-      "q5_k_m": 96.9,
-      "q4_k_m": 95.7,
-      "q3_k_m": 91.3,
-      "q2_k": 85.3
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "gemma_2_27b",
-    "name": "Gemma 2 27B Instruct",
-    "creator": "Google",
-    "category": "Dense",
-    "total_params_b": 27.2,
-    "active_params_b": 27.2,
-    "context_window_tokens": 8192,
-    "context_window_str": "8k",
-    "intelligence_index": 42.1,
-    "briefcase_elo": 1430,
-    "output_speed_tok_s": 108.0,
-    "latency_ttft_s": 0.35,
-    "openness_index": 86.0,
-    "license": "Gemma Terms of Use",
-    "description": "Google's 27B architecture with sliding-window attention and logit capping.",
-    "memory_req_gb": {
-      "fp16": 60.8,
-      "q8_0": 33.1,
-      "q6_k": 26.1,
-      "q5_k_m": 22.0,
-      "q4_k_m": 18.3,
-      "q3_k_m": 14.3,
-      "q2_k": 11.1
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 99.8,
-      "q6_k": 99.3,
-      "q5_k_m": 98.6,
-      "q4_k_m": 97.4,
-      "q3_k_m": 93.0,
-      "q2_k": 87.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "gemma_2_9b",
-    "name": "Gemma 2 9B Instruct",
-    "creator": "Google",
-    "category": "Dense",
-    "total_params_b": 9.24,
-    "active_params_b": 9.24,
-    "context_window_tokens": 8192,
-    "context_window_str": "8k",
-    "intelligence_index": 36.5,
-    "briefcase_elo": 1340,
-    "output_speed_tok_s": 150.0,
-    "latency_ttft_s": 0.26,
-    "openness_index": 86.0,
-    "license": "Gemma Terms of Use",
-    "description": "Compact 9B model matching early 70B models on many core benchmarks.",
-    "memory_req_gb": {
-      "fp16": 21.1,
-      "q8_0": 11.8,
-      "q6_k": 9.5,
-      "q5_k_m": 8.1,
-      "q4_k_m": 6.9,
-      "q3_k_m": 5.6,
-      "q2_k": 4.5
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 99.8,
-      "q6_k": 99.3,
-      "q5_k_m": 98.6,
-      "q4_k_m": 97.4,
-      "q3_k_m": 93.0,
-      "q2_k": 87.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "muse_glimmer",
-    "name": "Muse Glimmer (30B)",
-    "creator": "Meta / Muse",
-    "category": "Dense",
-    "total_params_b": 30.0,
-    "active_params_b": 30.0,
-    "context_window_tokens": 1048576,
-    "context_window_str": "1M",
-    "intelligence_index": 46.8,
-    "briefcase_elo": 1490,
-    "output_speed_tok_s": 88.0,
-    "latency_ttft_s": 0.42,
-    "openness_index": 82.0,
-    "license": "Open Weights",
-    "description": "High-reasoning 30B model with deep reasoning tokens and 1M context length.",
-    "memory_req_gb": {
-      "fp16": 67.0,
-      "q8_0": 36.4,
-      "q6_k": 28.6,
-      "q5_k_m": 24.2,
-      "q4_k_m": 20.1,
-      "q3_k_m": 15.6,
-      "q2_k": 12.1
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 99.8,
-      "q6_k": 99.3,
-      "q5_k_m": 98.6,
-      "q4_k_m": 97.4,
-      "q3_k_m": 93.0,
-      "q2_k": 87.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "muse_spark_1_2",
-    "name": "Muse Spark 1.2 (109B)",
-    "creator": "Meta / Muse",
-    "category": "Dense",
-    "total_params_b": 109.0,
-    "active_params_b": 109.0,
-    "context_window_tokens": 1048576,
-    "context_window_str": "1M",
-    "intelligence_index": 57.0,
-    "briefcase_elo": 1640,
-    "output_speed_tok_s": 55.0,
-    "latency_ttft_s": 0.7,
-    "openness_index": 82.0,
-    "license": "Open Weights",
-    "description": "Frontier open model delivering top-tier intelligence with reasoning chains.",
-    "memory_req_gb": {
-      "fp16": 240.3,
-      "q8_0": 129.2,
-      "q6_k": 101.1,
-      "q5_k_m": 84.8,
-      "q4_k_m": 70.0,
-      "q3_k_m": 53.7,
-      "q2_k": 40.4
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 99.8,
-      "q4_k_m": 98.6,
-      "q3_k_m": 94.2,
-      "q2_k": 88.2
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "mistral_medium_3_5",
-    "name": "Mistral Medium 3.5 (128B)",
-    "creator": "Mistral AI",
-    "category": "Dense",
-    "total_params_b": 128.0,
-    "active_params_b": 128.0,
-    "context_window_tokens": 131072,
+    "id": "qwen_2_5_vl_72b",
+    "name": "Qwen 2.5 VL 72B Instruct",
+    "creator": "Alibaba Qwen",
+    "category": "Vision-Language Multimodal",
+    "total_params_b": 72.7,
+    "active_params_b": 72.7,
     "context_window_str": "128k",
     "intelligence_index": 49.5,
-    "briefcase_elo": 1540,
-    "output_speed_tok_s": 58.0,
-    "latency_ttft_s": 0.69,
-    "openness_index": 81.0,
-    "license": "Apache 2.0",
-    "description": "High-capability European foundation model with top-tier reasoning and multilingual dexterity.",
+    "output_speed_tok_s": 22,
+    "description": "Frontier vision-language model with document understanding, visual coding, and diagram reasoning.",
     "memory_req_gb": {
-      "fp16": 281.8,
-      "q8_0": 151.4,
-      "q6_k": 118.4,
-      "q5_k_m": 99.3,
-      "q4_k_m": 81.9,
-      "q3_k_m": 62.7,
-      "q2_k": 47.1
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 100.0,
-      "q4_k_m": 98.9,
-      "q3_k_m": 94.5,
-      "q2_k": 88.5
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
+      "fp16": 159.0,
+      "q8_0": 87.4,
+      "q6_k": 69.9,
+      "q5_k_m": 59.3,
+      "q4_k_m": 50.1,
+      "q3_k_m": 39.7,
+      "q2_k": 31.3
+    }
+  },
+  {
+    "id": "qwen_2_5_vl_7b",
+    "name": "Qwen 2.5 VL 7B Instruct",
+    "creator": "Alibaba Qwen",
+    "category": "Vision-Language Multimodal",
+    "total_params_b": 7.6,
+    "active_params_b": 7.6,
+    "context_window_str": "128k",
+    "intelligence_index": 38.0,
+    "output_speed_tok_s": 110,
+    "description": "Compact vision-language model for local image OCR, document inspection, and diagram parsing.",
+    "memory_req_gb": {
+      "fp16": 18.0,
+      "q8_0": 10.5,
+      "q6_k": 8.6,
+      "q5_k_m": 7.5,
+      "q4_k_m": 6.6,
+      "q3_k_m": 5.5,
+      "q2_k": 4.6
+    }
+  },
+  {
+    "id": "qwen_2_5_3b_instruct",
+    "name": "Qwen 2.5 3B Instruct",
+    "creator": "Alibaba Qwen",
+    "category": "Compact Edge",
+    "total_params_b": 3.1,
+    "active_params_b": 3.1,
+    "context_window_str": "32k",
+    "intelligence_index": 31.5,
+    "output_speed_tok_s": 180,
+    "description": "Ultra-lightweight edge model running smoothly on 4GB VRAM and mobile APUs.",
+    "memory_req_gb": {
+      "fp16": 8.5,
+      "q8_0": 5.5,
+      "q6_k": 4.7,
+      "q5_k_m": 4.3,
+      "q4_k_m": 3.9,
+      "q3_k_m": 3.4,
+      "q2_k": 3.1
+    }
+  },
+  {
+    "id": "qwen_2_5_1_5b_instruct",
+    "name": "Qwen 2.5 1.5B Instruct",
+    "creator": "Alibaba Qwen",
+    "category": "Compact Edge",
+    "total_params_b": 1.5,
+    "active_params_b": 1.5,
+    "context_window_str": "32k",
+    "intelligence_index": 26.0,
+    "output_speed_tok_s": 240,
+    "description": "Micro model for autocomplete, speculative decoding, and low-latency edge tasks.",
+    "memory_req_gb": {
+      "fp16": 5.2,
+      "q8_0": 3.7,
+      "q6_k": 3.3,
+      "q5_k_m": 3.1,
+      "q4_k_m": 2.9,
+      "q3_k_m": 2.7,
+      "q2_k": 2.5
+    }
+  },
+  {
+    "id": "qwen_3_8_max",
+    "name": "Qwen 3.8 Max (2.4T MoE)",
+    "creator": "Alibaba Qwen",
+    "category": "Frontier MoE",
+    "total_params_b": 2400.0,
+    "active_params_b": 95.0,
+    "context_window_str": "256k",
+    "intelligence_index": 58.0,
+    "output_speed_tok_s": 18,
+    "description": "Next-generation 2.4T parameter MoE activating 95B per token. SOTA open general intelligence.",
+    "memory_req_gb": {
+      "fp16": 5052.8,
+      "q8_0": 2690.3,
+      "q6_k": 2111.6,
+      "q5_k_m": 1761.8,
+      "q4_k_m": 1457.3,
+      "q3_k_m": 1114.4,
+      "q2_k": 837.8
+    }
+  },
+  {
+    "id": "deepseek_r1_671b",
+    "name": "DeepSeek R1 (671B MoE)",
+    "creator": "DeepSeek AI",
+    "category": "Frontier MoE Reasoning",
+    "total_params_b": 671.0,
+    "active_params_b": 37.0,
+    "context_window_str": "128k",
+    "intelligence_index": 50.8,
+    "output_speed_tok_s": 14,
+    "description": "Full open-weights reasoning model trained via large-scale reinforcement learning; matches OpenAI o1.",
+    "memory_req_gb": {
+      "fp16": 1421.9,
+      "q8_0": 761.4,
+      "q6_k": 599.6,
+      "q5_k_m": 501.8,
+      "q4_k_m": 416.7,
+      "q3_k_m": 320.8,
+      "q2_k": 243.5
+    }
+  },
+  {
+    "id": "deepseek_v3_671b",
+    "name": "DeepSeek V3 (671B MoE)",
+    "creator": "DeepSeek AI",
+    "category": "Frontier MoE",
+    "total_params_b": 671.0,
+    "active_params_b": 37.0,
+    "context_window_str": "128k",
+    "intelligence_index": 48.6,
+    "output_speed_tok_s": 16,
+    "description": "Frontier 671B MoE with Multi-head Latent Attention (MLA) and DeepSeekMoE architecture.",
+    "memory_req_gb": {
+      "fp16": 1421.9,
+      "q8_0": 761.4,
+      "q6_k": 599.6,
+      "q5_k_m": 501.8,
+      "q4_k_m": 416.7,
+      "q3_k_m": 320.8,
+      "q2_k": 243.5
+    }
+  },
+  {
+    "id": "deepseek_v4_pro",
+    "name": "DeepSeek V4 Pro (1.6T MoE)",
+    "creator": "DeepSeek AI",
+    "category": "Next-Gen MoE",
+    "total_params_b": 1600.0,
+    "active_params_b": 64.0,
+    "context_window_str": "1M",
+    "intelligence_index": 53.2,
+    "output_speed_tok_s": 15,
+    "description": "Next-generation 1.6T MoE model with native 1M context window and ultra-dense expert routing.",
+    "memory_req_gb": {
+      "fp16": 3372.8,
+      "q8_0": 1797.8,
+      "q6_k": 1412.0,
+      "q5_k_m": 1178.8,
+      "q4_k_m": 975.8,
+      "q3_k_m": 747.2,
+      "q2_k": 562.8
+    }
+  },
+  {
+    "id": "deepseek_v4_flash",
+    "name": "DeepSeek V4 Flash (671B MoE)",
+    "creator": "DeepSeek AI",
+    "category": "Next-Gen MoE Speed",
+    "total_params_b": 671.0,
+    "active_params_b": 28.0,
+    "context_window_str": "256k",
+    "intelligence_index": 49.5,
+    "output_speed_tok_s": 28,
+    "description": "High-throughput 671B MoE optimized for low-latency reasoning on unified memory systems.",
+    "memory_req_gb": {
+      "fp16": 1421.9,
+      "q8_0": 761.4,
+      "q6_k": 599.6,
+      "q5_k_m": 501.8,
+      "q4_k_m": 416.7,
+      "q3_k_m": 320.8,
+      "q2_k": 243.5
+    }
+  },
+  {
+    "id": "deepseek_r1_distill_qwen_32b",
+    "name": "DeepSeek R1 Distill Qwen 32B",
+    "creator": "DeepSeek AI",
+    "category": "Dense Reasoning Distill",
+    "total_params_b": 32.5,
+    "active_params_b": 32.5,
+    "context_window_str": "128k",
+    "intelligence_index": 47.8,
+    "output_speed_tok_s": 48,
+    "description": "DeepSeek R1 reasoning knowledge distilled into Qwen 2.5 32B base. SOTA for 24GB\u201348GB VRAM.",
+    "memory_req_gb": {
+      "fp16": 71.8,
+      "q8_0": 39.9,
+      "q6_k": 32.0,
+      "q5_k_m": 27.3,
+      "q4_k_m": 23.2,
+      "q3_k_m": 18.5,
+      "q2_k": 14.8
+    }
+  },
+  {
+    "id": "deepseek_r1_distill_llama_70b",
+    "name": "DeepSeek R1 Distill Llama 70B",
+    "creator": "DeepSeek AI",
+    "category": "Dense Reasoning Distill",
+    "total_params_b": 70.6,
+    "active_params_b": 70.6,
+    "context_window_str": "128k",
+    "intelligence_index": 49.2,
+    "output_speed_tok_s": 24,
+    "description": "R1 reasoning knowledge distilled into Llama 3.3 70B. Superb mathematical proofs & code.",
+    "memory_req_gb": {
+      "fp16": 154.6,
+      "q8_0": 85.1,
+      "q6_k": 68.0,
+      "q5_k_m": 57.7,
+      "q4_k_m": 48.8,
+      "q3_k_m": 38.7,
+      "q2_k": 30.6
+    }
+  },
+  {
+    "id": "deepseek_r1_distill_qwen_14b",
+    "name": "DeepSeek R1 Distill Qwen 14B",
+    "creator": "DeepSeek AI",
+    "category": "Dense Reasoning Distill",
+    "total_params_b": 14.7,
+    "active_params_b": 14.7,
+    "context_window_str": "128k",
+    "intelligence_index": 42.8,
+    "output_speed_tok_s": 78,
+    "description": "Reasoning distilled into 14B. Fits in 16GB GPUs while outperforming previous 70B bases.",
+    "memory_req_gb": {
+      "fp16": 34.5,
+      "q8_0": 20.0,
+      "q6_k": 16.5,
+      "q5_k_m": 14.3,
+      "q4_k_m": 12.4,
+      "q3_k_m": 10.3,
+      "q2_k": 8.7
+    }
+  },
+  {
+    "id": "deepseek_r1_distill_qwen_7b",
+    "name": "DeepSeek R1 Distill Qwen 7B",
+    "creator": "DeepSeek AI",
+    "category": "Dense Reasoning Distill",
+    "total_params_b": 7.6,
+    "active_params_b": 7.6,
+    "context_window_str": "128k",
+    "intelligence_index": 38.5,
+    "output_speed_tok_s": 125,
+    "description": "7B reasoning model capable of solving complex algorithmic puzzles locally.",
+    "memory_req_gb": {
+      "fp16": 18.0,
+      "q8_0": 10.5,
+      "q6_k": 8.6,
+      "q5_k_m": 7.5,
+      "q4_k_m": 6.6,
+      "q3_k_m": 5.5,
+      "q2_k": 4.6
+    }
+  },
+  {
+    "id": "deepseek_r1_distill_qwen_1_5b",
+    "name": "DeepSeek R1 Distill Qwen 1.5B",
+    "creator": "DeepSeek AI",
+    "category": "Compact Reasoning Distill",
+    "total_params_b": 1.5,
+    "active_params_b": 1.5,
+    "context_window_str": "32k",
+    "intelligence_index": 28.5,
+    "output_speed_tok_s": 240,
+    "description": "Tiny 1.5B reasoning model displaying coherent Chain-of-Thought on mobile/budget hardware.",
+    "memory_req_gb": {
+      "fp16": 5.2,
+      "q8_0": 3.7,
+      "q6_k": 3.3,
+      "q5_k_m": 3.1,
+      "q4_k_m": 2.9,
+      "q3_k_m": 2.7,
+      "q2_k": 2.5
+    }
+  },
+  {
+    "id": "llama_4_scout_109b",
+    "name": "Llama 4 Scout (109B MoE)",
+    "creator": "Meta AI",
+    "category": "MoE Long-Context",
+    "total_params_b": 109.0,
+    "active_params_b": 17.0,
+    "context_window_str": "10M",
+    "intelligence_index": 54.5,
+    "output_speed_tok_s": 38,
+    "description": "Next-gen MoE architecture with unprecedented 10M token context window and native multimodal reasoning.",
+    "memory_req_gb": {
+      "fp16": 235.2,
+      "q8_0": 127.9,
+      "q6_k": 101.6,
+      "q5_k_m": 85.7,
+      "q4_k_m": 71.9,
+      "q3_k_m": 56.3,
+      "q2_k": 43.8
+    }
+  },
+  {
+    "id": "llama_3_3_70b_instruct",
+    "name": "Llama 3.3 70B Instruct",
+    "creator": "Meta AI",
+    "category": "Dense General",
+    "total_params_b": 70.6,
+    "active_params_b": 70.6,
+    "context_window_str": "128k",
+    "intelligence_index": 48.4,
+    "output_speed_tok_s": 24,
+    "description": "Upgraded 70B powerhouse delivering Llama 3.1 405B level capabilities in a 70B parameter size.",
+    "memory_req_gb": {
+      "fp16": 154.6,
+      "q8_0": 85.1,
+      "q6_k": 68.0,
+      "q5_k_m": 57.7,
+      "q4_k_m": 48.8,
+      "q3_k_m": 38.7,
+      "q2_k": 30.6
+    }
+  },
+  {
+    "id": "llama_3_1_405b_instruct",
+    "name": "Llama 3.1 405B Instruct",
+    "creator": "Meta AI",
+    "category": "Frontier Dense",
+    "total_params_b": 405.0,
+    "active_params_b": 405.0,
+    "context_window_str": "128k",
+    "intelligence_index": 52.1,
+    "output_speed_tok_s": 4,
+    "description": "Meta's flagship 405B open dense model for high-rigor synthetic data generation and distillation.",
+    "memory_req_gb": {
+      "fp16": 863.3,
+      "q8_0": 464.6,
+      "q6_k": 367.0,
+      "q5_k_m": 307.9,
+      "q4_k_m": 256.6,
+      "q3_k_m": 198.7,
+      "q2_k": 152.0
+    }
+  },
+  {
+    "id": "llama_3_1_8b_instruct",
+    "name": "Llama 3.1 8B Instruct",
+    "creator": "Meta AI",
+    "category": "Dense General",
+    "total_params_b": 8.0,
+    "active_params_b": 8.0,
+    "context_window_str": "128k",
+    "intelligence_index": 35.2,
+    "output_speed_tok_s": 120,
+    "description": "The industry standard 8B model for local agents, tool use, and high-speed inference.",
+    "memory_req_gb": {
+      "fp16": 18.8,
+      "q8_0": 10.9,
+      "q6_k": 9.0,
+      "q5_k_m": 7.8,
+      "q4_k_m": 6.8,
+      "q3_k_m": 5.7,
+      "q2_k": 4.8
+    }
+  },
+  {
+    "id": "llama_3_2_11b_vision",
+    "name": "Llama 3.2 11B Vision",
+    "creator": "Meta AI",
+    "category": "Vision-Language Multimodal",
+    "total_params_b": 11.0,
+    "active_params_b": 11.0,
+    "context_window_str": "128k",
+    "intelligence_index": 37.5,
+    "output_speed_tok_s": 95,
+    "description": "Multimodal visual reasoning model for image understanding, chart comprehension, and captioning.",
+    "memory_req_gb": {
+      "fp16": 25.1,
+      "q8_0": 14.3,
+      "q6_k": 11.6,
+      "q5_k_m": 10.0,
+      "q4_k_m": 8.6,
+      "q3_k_m": 7.0,
+      "q2_k": 5.8
+    }
+  },
+  {
+    "id": "llama_3_2_3b_instruct",
+    "name": "Llama 3.2 3B Instruct",
+    "creator": "Meta AI",
+    "category": "Compact Edge",
+    "total_params_b": 3.2,
+    "active_params_b": 3.2,
+    "context_window_str": "128k",
+    "intelligence_index": 31.0,
+    "output_speed_tok_s": 175,
+    "description": "Ultra-lightweight edge model optimized for low-latency on-device processing.",
+    "memory_req_gb": {
+      "fp16": 8.7,
+      "q8_0": 5.6,
+      "q6_k": 4.8,
+      "q5_k_m": 4.3,
+      "q4_k_m": 3.9,
+      "q3_k_m": 3.5,
+      "q2_k": 3.1
+    }
+  },
+  {
+    "id": "gemma_4_31b_it",
+    "name": "Gemma 4 31B Instruct",
+    "creator": "Google DeepMind",
+    "category": "Dense General",
+    "total_params_b": 31.0,
+    "active_params_b": 31.0,
+    "context_window_str": "256k",
+    "intelligence_index": 48.0,
+    "output_speed_tok_s": 50,
+    "description": "Next-gen DeepMind open-weights model built with cutting-edge architectural advances from Gemini.",
+    "memory_req_gb": {
+      "fp16": 68.7,
+      "q8_0": 38.2,
+      "q6_k": 30.7,
+      "q5_k_m": 26.2,
+      "q4_k_m": 22.3,
+      "q3_k_m": 17.8,
+      "q2_k": 14.3
+    }
+  },
+  {
+    "id": "gemma_3_27b_it",
+    "name": "Gemma 3 27B Instruct",
+    "creator": "Google DeepMind",
+    "category": "Dense General",
+    "total_params_b": 27.2,
+    "active_params_b": 27.2,
+    "context_window_str": "128k",
+    "intelligence_index": 43.0,
+    "output_speed_tok_s": 56,
+    "description": "High-efficiency 27B model trained on extensive multilingual and synthetic datasets.",
+    "memory_req_gb": {
+      "fp16": 60.7,
+      "q8_0": 33.9,
+      "q6_k": 27.4,
+      "q5_k_m": 23.4,
+      "q4_k_m": 20.0,
+      "q3_k_m": 16.1,
+      "q2_k": 13.0
+    }
+  },
+  {
+    "id": "gemma_3_12b_it",
+    "name": "Gemma 3 12B Instruct",
+    "creator": "Google DeepMind",
+    "category": "Dense General",
+    "total_params_b": 12.0,
+    "active_params_b": 12.0,
+    "context_window_str": "128k",
+    "intelligence_index": 39.2,
+    "output_speed_tok_s": 90,
+    "description": "Ideal balance of memory compactness and reasoning capabilities for 16GB consumer cards.",
+    "memory_req_gb": {
+      "fp16": 27.2,
+      "q8_0": 15.4,
+      "q6_k": 12.5,
+      "q5_k_m": 10.7,
+      "q4_k_m": 9.2,
+      "q3_k_m": 7.5,
+      "q2_k": 6.1
+    }
+  },
+  {
+    "id": "gemma_3_4b_it",
+    "name": "Gemma 3 4B Instruct",
+    "creator": "Google DeepMind",
+    "category": "Compact Edge",
+    "total_params_b": 4.0,
+    "active_params_b": 4.0,
+    "context_window_str": "64k",
+    "intelligence_index": 33.5,
+    "output_speed_tok_s": 160,
+    "description": "Fast edge model for quick local summarization, classification, and embedded AI tasks.",
+    "memory_req_gb": {
+      "fp16": 10.4,
+      "q8_0": 6.5,
+      "q6_k": 5.5,
+      "q5_k_m": 4.9,
+      "q4_k_m": 4.4,
+      "q3_k_m": 3.8,
+      "q2_k": 3.4
+    }
+  },
+  {
+    "id": "gemma_2_27b_it",
+    "name": "Gemma 2 27B Instruct",
+    "creator": "Google DeepMind",
+    "category": "Dense General",
+    "total_params_b": 27.2,
+    "active_params_b": 27.2,
+    "context_window_str": "8k",
+    "intelligence_index": 41.5,
+    "output_speed_tok_s": 56,
+    "description": "Trained with knowledge distillation from Gemini models; punches well above its parameter weight.",
+    "memory_req_gb": {
+      "fp16": 60.7,
+      "q8_0": 33.9,
+      "q6_k": 27.4,
+      "q5_k_m": 23.4,
+      "q4_k_m": 20.0,
+      "q3_k_m": 16.1,
+      "q2_k": 13.0
+    }
+  },
+  {
+    "id": "gemma_2_9b_it",
+    "name": "Gemma 2 9B Instruct",
+    "creator": "Google DeepMind",
+    "category": "Dense General",
+    "total_params_b": 9.2,
+    "active_params_b": 9.2,
+    "context_window_str": "8k",
+    "intelligence_index": 36.0,
+    "output_speed_tok_s": 110,
+    "description": "Proven 9B architecture with sliding-window attention and logit capping.",
+    "memory_req_gb": {
+      "fp16": 21.3,
+      "q8_0": 12.3,
+      "q6_k": 10.0,
+      "q5_k_m": 8.7,
+      "q4_k_m": 7.5,
+      "q3_k_m": 6.2,
+      "q2_k": 5.2
+    }
+  },
+  {
+    "id": "muse_glimmer_30b",
+    "name": "Muse Glimmer (30B 1M)",
+    "creator": "Muse AI",
+    "category": "Long-Context Specialist",
+    "total_params_b": 30.0,
+    "active_params_b": 30.0,
+    "context_window_str": "1M",
+    "intelligence_index": 46.5,
+    "output_speed_tok_s": 52,
+    "description": "Open long-context model engineered for 1M context document processing, RAG, and multi-file reasoning.",
+    "memory_req_gb": {
+      "fp16": 66.6,
+      "q8_0": 37.1,
+      "q6_k": 29.8,
+      "q5_k_m": 25.5,
+      "q4_k_m": 21.7,
+      "q3_k_m": 17.4,
+      "q2_k": 13.9
+    }
+  },
+  {
+    "id": "muse_spark_109b",
+    "name": "Muse Spark 1.2 (109B 1M)",
+    "creator": "Muse AI",
+    "category": "MoE Long-Context",
+    "total_params_b": 109.0,
+    "active_params_b": 24.0,
+    "context_window_str": "1M",
+    "intelligence_index": 51.2,
+    "output_speed_tok_s": 32,
+    "description": "Sparse MoE architecture supporting 1M tokens context with linear memory scaling and high factual retrieval.",
+    "memory_req_gb": {
+      "fp16": 235.2,
+      "q8_0": 127.9,
+      "q6_k": 101.6,
+      "q5_k_m": 85.7,
+      "q4_k_m": 71.9,
+      "q3_k_m": 56.3,
+      "q2_k": 43.8
     }
   },
   {
     "id": "mistral_large_2",
     "name": "Mistral Large 2 (123B)",
     "creator": "Mistral AI",
-    "category": "Dense",
+    "category": "Dense General",
     "total_params_b": 123.0,
     "active_params_b": 123.0,
-    "context_window_tokens": 131072,
     "context_window_str": "128k",
-    "intelligence_index": 48.0,
-    "briefcase_elo": 1515,
-    "output_speed_tok_s": 62.0,
-    "latency_ttft_s": 0.65,
-    "openness_index": 80.0,
-    "license": "Mistral Research License",
-    "description": "123B parameter frontier dense model built for enterprise reasoning and code generation.",
+    "intelligence_index": 48.2,
+    "output_speed_tok_s": 16,
+    "description": "Frontier 123B model with exceptional reasoning, 80+ coding languages, and multilingual fluency.",
     "memory_req_gb": {
-      "fp16": 270.9,
-      "q8_0": 145.6,
-      "q6_k": 113.8,
-      "q5_k_m": 95.4,
-      "q4_k_m": 78.7,
-      "q3_k_m": 60.4,
-      "q2_k": 45.3
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 100.0,
-      "q4_k_m": 98.8,
-      "q3_k_m": 94.4,
-      "q2_k": 88.4
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
+      "fp16": 264.6,
+      "q8_0": 143.5,
+      "q6_k": 113.9,
+      "q5_k_m": 95.9,
+      "q4_k_m": 80.3,
+      "q3_k_m": 62.8,
+      "q2_k": 48.6
     }
   },
   {
-    "id": "mixtral_8x22b",
-    "name": "Mixtral 8x22B Instruct",
+    "id": "codestral_24b",
+    "name": "Codestral 24B Instruct",
     "creator": "Mistral AI",
-    "category": "MoE",
-    "total_params_b": 141.0,
-    "active_params_b": 39.0,
-    "context_window_tokens": 65536,
-    "context_window_str": "64k",
-    "intelligence_index": 44.8,
-    "briefcase_elo": 1470,
-    "output_speed_tok_s": 85.0,
-    "latency_ttft_s": 0.48,
-    "openness_index": 85.0,
-    "license": "Apache 2.0",
-    "description": "Popular sparse MoE model with 39B active params, highly balanced for distributed local inference.",
-    "memory_req_gb": {
-      "fp16": 310.3,
-      "q8_0": 166.6,
-      "q6_k": 130.2,
-      "q5_k_m": 109.1,
-      "q4_k_m": 90.0,
-      "q3_k_m": 68.9,
-      "q2_k": 51.7
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 100.0,
-      "q4_k_m": 99.0,
-      "q3_k_m": 94.6,
-      "q2_k": 88.6
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "mixtral_8x7b",
-    "name": "Mixtral 8x7B Instruct",
-    "creator": "Mistral AI",
-    "category": "MoE",
-    "total_params_b": 46.7,
-    "active_params_b": 12.9,
-    "context_window_tokens": 32768,
-    "context_window_str": "32k",
-    "intelligence_index": 40.2,
-    "briefcase_elo": 1395,
-    "output_speed_tok_s": 125.0,
-    "latency_ttft_s": 0.32,
-    "openness_index": 88.0,
-    "license": "Apache 2.0",
-    "description": "Original trailblazing MoE model running at 13B active compute footprint.",
-    "memory_req_gb": {
-      "fp16": 103.7,
-      "q8_0": 56.1,
-      "q6_k": 44.1,
-      "q5_k_m": 37.1,
-      "q4_k_m": 30.7,
-      "q3_k_m": 23.8,
-      "q2_k": 18.0
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 99.8,
-      "q6_k": 99.3,
-      "q5_k_m": 98.6,
-      "q4_k_m": 97.4,
-      "q3_k_m": 93.0,
-      "q2_k": 87.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "devstral_2_24b",
-    "name": "Devstral 2 / Codestral 24B",
-    "creator": "Mistral AI",
-    "category": "Dense",
+    "category": "Dense Code Specialist",
     "total_params_b": 24.0,
     "active_params_b": 24.0,
-    "context_window_tokens": 262144,
-    "context_window_str": "256k",
-    "intelligence_index": 42.5,
-    "briefcase_elo": 1445,
-    "output_speed_tok_s": 110.0,
-    "latency_ttft_s": 0.35,
-    "openness_index": 82.0,
-    "license": "Mistral License",
-    "description": "Specialized coding and software development model with extensive 256k context support.",
+    "context_window_str": "32k",
+    "intelligence_index": 45.0,
+    "output_speed_tok_s": 62,
+    "description": "Specialized coding model trained on 80+ programming languages with fill-in-the-middle support.",
     "memory_req_gb": {
-      "fp16": 53.7,
-      "q8_0": 29.3,
-      "q6_k": 23.1,
-      "q5_k_m": 19.5,
-      "q4_k_m": 16.2,
-      "q3_k_m": 12.8,
-      "q2_k": 9.9
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 99.8,
-      "q6_k": 99.3,
-      "q5_k_m": 98.6,
-      "q4_k_m": 97.4,
-      "q3_k_m": 93.0,
-      "q2_k": 87.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
+      "fp16": 54.0,
+      "q8_0": 30.4,
+      "q6_k": 24.6,
+      "q5_k_m": 21.1,
+      "q4_k_m": 18.0,
+      "q3_k_m": 14.6,
+      "q2_k": 11.9
+    }
+  },
+  {
+    "id": "pixtral_large_123b",
+    "name": "Pixtral Large 123B",
+    "creator": "Mistral AI",
+    "category": "Vision-Language Multimodal",
+    "total_params_b": 123.0,
+    "active_params_b": 123.0,
+    "context_window_str": "128k",
+    "intelligence_index": 48.0,
+    "output_speed_tok_s": 15,
+    "description": "Frontier multimodal vision-language model with native chart, document, and image reasoning.",
+    "memory_req_gb": {
+      "fp16": 264.6,
+      "q8_0": 143.5,
+      "q6_k": 113.9,
+      "q5_k_m": 95.9,
+      "q4_k_m": 80.3,
+      "q3_k_m": 62.8,
+      "q2_k": 48.6
+    }
+  },
+  {
+    "id": "mixtral_8x22b_instruct",
+    "name": "Mixtral 8x22B Instruct",
+    "creator": "Mistral AI",
+    "category": "Sparse MoE",
+    "total_params_b": 141.0,
+    "active_params_b": 39.0,
+    "context_window_str": "64k",
+    "intelligence_index": 46.8,
+    "output_speed_tok_s": 22,
+    "description": "141B total parameter sparse MoE activating 39B per token. High throughput and math competency.",
+    "memory_req_gb": {
+      "fp16": 302.4,
+      "q8_0": 163.6,
+      "q6_k": 129.6,
+      "q5_k_m": 109.1,
+      "q4_k_m": 91.2,
+      "q3_k_m": 71.0,
+      "q2_k": 54.8
     }
   },
   {
     "id": "mistral_nemo_12b",
-    "name": "Mistral NeMo 12B Instruct",
-    "creator": "Mistral AI / NVIDIA",
-    "category": "Dense",
+    "name": "Mistral NeMo 12B",
+    "creator": "Mistral & NVIDIA",
+    "category": "Dense General",
     "total_params_b": 12.2,
     "active_params_b": 12.2,
-    "context_window_tokens": 131072,
     "context_window_str": "128k",
-    "intelligence_index": 38.5,
-    "briefcase_elo": 1375,
-    "output_speed_tok_s": 145.0,
-    "latency_ttft_s": 0.27,
-    "openness_index": 86.0,
-    "license": "Apache 2.0",
-    "description": "Collaborative 12B model with Tekken tokenizer supporting 128k context.",
+    "intelligence_index": 38.8,
+    "output_speed_tok_s": 88,
+    "description": "Jointly trained by Mistral and NVIDIA; uses Tekken tokenizer for high multilingual token efficiency.",
     "memory_req_gb": {
       "fp16": 27.6,
-      "q8_0": 15.2,
-      "q6_k": 12.2,
-      "q5_k_m": 10.4,
-      "q4_k_m": 8.8,
-      "q3_k_m": 7.1,
-      "q2_k": 5.6
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 99.8,
-      "q6_k": 99.3,
-      "q5_k_m": 98.6,
-      "q4_k_m": 97.4,
-      "q3_k_m": 93.0,
-      "q2_k": 87.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "ministral_8b",
-    "name": "Ministral 8B Instruct",
-    "creator": "Mistral AI",
-    "category": "Dense",
-    "total_params_b": 8.0,
-    "active_params_b": 8.0,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 36.0,
-    "briefcase_elo": 1335,
-    "output_speed_tok_s": 165.0,
-    "latency_ttft_s": 0.25,
-    "openness_index": 83.0,
-    "license": "Mistral Research License",
-    "description": "On-device powerhouse tailored for low-latency reasoning and tool orchestration.",
-    "memory_req_gb": {
-      "fp16": 18.3,
-      "q8_0": 10.3,
-      "q6_k": 8.3,
-      "q5_k_m": 7.2,
-      "q4_k_m": 6.1,
-      "q3_k_m": 5.0,
-      "q2_k": 4.0
-    },
-    "quant_accuracy_pct": {
-      "fp16": 99.0,
-      "q8_0": 98.8,
-      "q6_k": 98.3,
-      "q5_k_m": 97.6,
-      "q4_k_m": 96.4,
-      "q3_k_m": 92.0,
-      "q2_k": 86.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
+      "q8_0": 15.6,
+      "q6_k": 12.7,
+      "q5_k_m": 10.9,
+      "q4_k_m": 9.3,
+      "q3_k_m": 7.6,
+      "q2_k": 6.2
     }
   },
   {
     "id": "nemotron_3_ultra_550b",
-    "name": "Nemotron 3 Ultra (550B A55B)",
+    "name": "Nemotron 3 Ultra (550B MoE)",
     "creator": "NVIDIA",
-    "category": "MoE",
+    "category": "Enterprise MoE",
     "total_params_b": 550.0,
-    "active_params_b": 55.0,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 38.3,
-    "briefcase_elo": 1490,
-    "output_speed_tok_s": 133.5,
-    "latency_ttft_s": 0.52,
-    "openness_index": 83.3,
-    "license": "NVIDIA Open Model License",
-    "description": "NVIDIA's optimized enterprise MoE model tailored for TensorRT-LLM and NeMo high-throughput stacks.",
-    "memory_req_gb": {
-      "fp16": 1202.9,
-      "q8_0": 642.6,
-      "q6_k": 500.6,
-      "q5_k_m": 418.4,
-      "q4_k_m": 343.7,
-      "q3_k_m": 261.5,
-      "q2_k": 194.3
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 100.0,
-      "q4_k_m": 99.9,
-      "q3_k_m": 95.5,
-      "q2_k": 89.5
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "nemotron_3_super_120b",
-    "name": "Nemotron 3 Super (120B A12.7B)",
-    "creator": "NVIDIA",
-    "category": "MoE",
-    "total_params_b": 120.6,
-    "active_params_b": 12.7,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 36.1,
-    "briefcase_elo": 1435,
-    "output_speed_tok_s": 155.0,
-    "latency_ttft_s": 0.41,
-    "openness_index": 83.3,
-    "license": "NVIDIA Open Model License",
-    "description": "Super-fast MoE model designed for multi-GPU workstations with 12.7B active compute footprint.",
-    "memory_req_gb": {
-      "fp16": 265.6,
-      "q8_0": 142.8,
-      "q6_k": 111.6,
-      "q5_k_m": 93.6,
-      "q4_k_m": 77.2,
-      "q3_k_m": 59.2,
-      "q2_k": 44.5
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 100.0,
-      "q4_k_m": 98.8,
-      "q3_k_m": 94.4,
-      "q2_k": 88.4
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "llama_3_1_nemotron_70b",
-    "name": "Llama 3.1 Nemotron 70B",
-    "creator": "NVIDIA",
-    "category": "Dense",
-    "total_params_b": 70.6,
-    "active_params_b": 70.6,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 49.1,
-    "briefcase_elo": 1530,
-    "output_speed_tok_s": 75.0,
-    "latency_ttft_s": 0.53,
-    "openness_index": 84.0,
-    "license": "NVIDIA Open Model License",
-    "description": "RLHF-tuned 70B model customized by NVIDIA for top-tier prompt alignment and synthetic generation.",
-    "memory_req_gb": {
-      "fp16": 156.1,
-      "q8_0": 84.2,
-      "q6_k": 66.0,
-      "q5_k_m": 55.4,
-      "q4_k_m": 45.8,
-      "q3_k_m": 35.3,
-      "q2_k": 26.7
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 99.4,
-      "q4_k_m": 98.2,
-      "q3_k_m": 93.8,
-      "q2_k": 87.8
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "nemotron_3_5_lightning",
-    "name": "Nemotron 3.5 Lightning (31.6B A3.6B)",
-    "creator": "NVIDIA",
-    "category": "MoE",
-    "total_params_b": 31.6,
-    "active_params_b": 3.6,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 33.4,
-    "briefcase_elo": 1360,
-    "output_speed_tok_s": 240.0,
-    "latency_ttft_s": 0.22,
-    "openness_index": 83.3,
-    "license": "NVIDIA Open Model License",
-    "description": "Ultra-low latency MoE model running at blistering inference speeds on single GPUs.",
-    "memory_req_gb": {
-      "fp16": 70.5,
-      "q8_0": 38.3,
-      "q6_k": 30.1,
-      "q5_k_m": 25.4,
-      "q4_k_m": 21.1,
-      "q3_k_m": 16.4,
-      "q2_k": 12.7
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 99.8,
-      "q6_k": 99.3,
-      "q5_k_m": 98.6,
-      "q4_k_m": 97.4,
-      "q3_k_m": 93.0,
-      "q2_k": 87.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "command_a_plus",
-    "name": "Command A+ (218B A25B)",
-    "creator": "Cohere",
-    "category": "MoE",
-    "total_params_b": 218.0,
-    "active_params_b": 25.0,
-    "context_window_tokens": 262144,
+    "active_params_b": 42.0,
     "context_window_str": "256k",
-    "intelligence_index": 47.6,
-    "briefcase_elo": 1510,
-    "output_speed_tok_s": 92.0,
-    "latency_ttft_s": 0.4,
-    "openness_index": 79.0,
-    "license": "CC-BY-NC-4.0",
-    "description": "Cohere's enterprise-grade MoE model built specifically for agentic workflows and RAG.",
+    "intelligence_index": 52.8,
+    "output_speed_tok_s": 18,
+    "description": "NVIDIA flagship enterprise model optimized for TensorRT-LLM and vLLM inference engines.",
     "memory_req_gb": {
-      "fp16": 478.5,
-      "q8_0": 256.4,
-      "q6_k": 200.2,
-      "q5_k_m": 167.6,
-      "q4_k_m": 138.0,
-      "q3_k_m": 105.4,
-      "q2_k": 78.8
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 100.0,
-      "q4_k_m": 99.9,
-      "q3_k_m": 95.5,
-      "q2_k": 89.5
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
+      "fp16": 1167.8,
+      "q8_0": 626.4,
+      "q6_k": 493.8,
+      "q5_k_m": 413.6,
+      "q4_k_m": 343.8,
+      "q3_k_m": 265.3,
+      "q2_k": 201.9
     }
   },
   {
-    "id": "command_r_plus",
-    "name": "Command R+ (104B)",
+    "id": "command_a_plus_218b",
+    "name": "Command A+ (218B MoE)",
     "creator": "Cohere",
-    "category": "Dense",
-    "total_params_b": 104.0,
-    "active_params_b": 104.0,
-    "context_window_tokens": 131072,
-    "context_window_str": "128k",
-    "intelligence_index": 46.2,
-    "briefcase_elo": 1490,
-    "output_speed_tok_s": 70.0,
-    "latency_ttft_s": 0.55,
-    "openness_index": 80.0,
-    "license": "CC-BY-NC-4.0",
-    "description": "Optimized for conversational interactions, tool use, and long-document RAG pipelines.",
+    "category": "Enterprise Agent MoE",
+    "total_params_b": 218.0,
+    "active_params_b": 32.0,
+    "context_window_str": "256k",
+    "intelligence_index": 50.4,
+    "output_speed_tok_s": 20,
+    "description": "Cohere frontier open-weights model specialized in enterprise tool use, multi-step agents, and RAG.",
     "memory_req_gb": {
-      "fp16": 229.3,
-      "q8_0": 123.3,
-      "q6_k": 96.5,
-      "q5_k_m": 81.0,
-      "q4_k_m": 66.8,
-      "q3_k_m": 51.3,
-      "q2_k": 38.6
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 99.8,
-      "q4_k_m": 98.6,
-      "q3_k_m": 94.2,
-      "q2_k": 88.2
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
+      "fp16": 470.6,
+      "q8_0": 256.0,
+      "q6_k": 203.4,
+      "q5_k_m": 171.7,
+      "q4_k_m": 144.0,
+      "q3_k_m": 112.9,
+      "q2_k": 87.7
     }
   },
   {
-    "id": "kimi_k3_max",
-    "name": "Kimi K3 (max 2.8T MoE)",
-    "creator": "Moonshot / Kimi",
-    "category": "MoE",
+    "id": "kimi_k3_2_8t",
+    "name": "Kimi K3 (2.8T MoE)",
+    "creator": "Moonshot AI",
+    "category": "Frontier Ultra-MoE",
     "total_params_b": 2800.0,
-    "active_params_b": 104.0,
-    "context_window_tokens": 1048576,
-    "context_window_str": "1M",
+    "active_params_b": 110.0,
+    "context_window_str": "2M",
     "intelligence_index": 59.7,
-    "briefcase_elo": 1680,
-    "output_speed_tok_s": 40.3,
-    "latency_ttft_s": 3.58,
-    "openness_index": 78.0,
-    "license": "Open Weights",
-    "description": "Massive high-reasoning MoE model with 104B active parameters and 1M context support.",
+    "output_speed_tok_s": 14,
+    "description": "Massive 2.8T MoE model with native 2M context window and state-of-the-art long-document comprehension.",
     "memory_req_gb": {
-      "fp16": 6093.8,
-      "q8_0": 3241.1,
-      "q6_k": 2518.4,
-      "q5_k_m": 2100.0,
-      "q4_k_m": 1719.6,
-      "q3_k_m": 1301.2,
-      "q2_k": 958.9
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 100.0,
-      "q4_k_m": 99.9,
-      "q3_k_m": 95.5,
-      "q2_k": 89.5
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
+      "fp16": 5892.8,
+      "q8_0": 3136.6,
+      "q6_k": 2461.4,
+      "q5_k_m": 2053.3,
+      "q4_k_m": 1698.0,
+      "q3_k_m": 1298.0,
+      "q2_k": 975.3
     }
   },
   {
-    "id": "glm_5_2_max",
-    "name": "GLM-5.2 (max 753B)",
+    "id": "glm_5_2_753b",
+    "name": "GLM-5.2 (753B MoE)",
     "creator": "Zhipu AI",
-    "category": "MoE",
+    "category": "Frontier MoE",
     "total_params_b": 753.0,
-    "active_params_b": 40.0,
-    "context_window_tokens": 1048576,
+    "active_params_b": 48.0,
     "context_window_str": "1M",
-    "intelligence_index": 52.6,
-    "briefcase_elo": 1580,
-    "output_speed_tok_s": 115.4,
-    "latency_ttft_s": 0.65,
-    "openness_index": 80.0,
-    "license": "Open Weights",
-    "description": "Zhipu AI's bilingual MoE model with 40B active parameters and 1M context window capability.",
+    "intelligence_index": 52.0,
+    "output_speed_tok_s": 16,
+    "description": "Open frontier MoE with 1M context window and leading multilingual agent orchestration.",
     "memory_req_gb": {
-      "fp16": 1644.6,
-      "q8_0": 877.5,
-      "q6_k": 683.1,
-      "q5_k_m": 570.6,
-      "q4_k_m": 468.3,
-      "q3_k_m": 355.8,
-      "q2_k": 263.7
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 100.0,
-      "q4_k_m": 99.9,
-      "q3_k_m": 95.5,
-      "q2_k": 89.5
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "solar_open2_250b",
-    "name": "Solar Open2 250B",
-    "creator": "Upstage",
-    "category": "Dense",
-    "total_params_b": 250.0,
-    "active_params_b": 250.0,
-    "context_window_tokens": 65536,
-    "context_window_str": "64k",
-    "intelligence_index": 47.9,
-    "briefcase_elo": 1515,
-    "output_speed_tok_s": 45.0,
-    "latency_ttft_s": 0.92,
-    "openness_index": 82.0,
-    "license": "Apache 2.0",
-    "description": "Large-scale dense model using depth-up-scaling with balanced general knowledge and reasoning.",
-    "memory_req_gb": {
-      "fp16": 548.4,
-      "q8_0": 293.7,
-      "q6_k": 229.2,
-      "q5_k_m": 191.8,
-      "q4_k_m": 157.9,
-      "q3_k_m": 120.5,
-      "q2_k": 90.0
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 100.0,
-      "q4_k_m": 99.9,
-      "q3_k_m": 95.5,
-      "q2_k": 89.5
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
-    }
-  },
-  {
-    "id": "k_exaone_2_0",
-    "name": "K-EXAONE 2.0 (750B A37B)",
-    "creator": "LG AI Research",
-    "category": "MoE",
-    "total_params_b": 750.0,
-    "active_params_b": 37.0,
-    "context_window_tokens": 1048576,
-    "context_window_str": "1M",
-    "intelligence_index": 51.5,
-    "briefcase_elo": 1560,
-    "output_speed_tok_s": 102.0,
-    "latency_ttft_s": 0.68,
-    "openness_index": 78.0,
-    "license": "Open Weights",
-    "description": "LG AI's flagship MoE model specialized for scientific discovery, mathematics, and reasoning.",
-    "memory_req_gb": {
-      "fp16": 1638.1,
-      "q8_0": 874.0,
-      "q6_k": 680.4,
-      "q5_k_m": 568.4,
-      "q4_k_m": 466.5,
-      "q3_k_m": 354.4,
-      "q2_k": 262.7
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 100.0,
-      "q6_k": 100.0,
-      "q5_k_m": 100.0,
-      "q4_k_m": 99.9,
-      "q3_k_m": 95.5,
-      "q2_k": 89.5
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
+      "fp16": 1594.1,
+      "q8_0": 852.9,
+      "q6_k": 671.3,
+      "q5_k_m": 561.5,
+      "q4_k_m": 466.0,
+      "q3_k_m": 358.4,
+      "q2_k": 271.6
     }
   },
   {
     "id": "phi_4_14b",
     "name": "Phi-4 14B",
     "creator": "Microsoft",
-    "category": "Dense",
-    "total_params_b": 14.7,
-    "active_params_b": 14.7,
-    "context_window_tokens": 16384,
+    "category": "Dense Synthetic Specialist",
+    "total_params_b": 14.0,
+    "active_params_b": 14.0,
     "context_window_str": "16k",
-    "intelligence_index": 41.2,
-    "briefcase_elo": 1420,
-    "output_speed_tok_s": 125.0,
-    "latency_ttft_s": 0.31,
-    "openness_index": 87.0,
-    "license": "MIT",
-    "description": "Microsoft's synthetic-data trained powerhouse with exceptional math and logic capabilities in 14B.",
+    "intelligence_index": 44.0,
+    "output_speed_tok_s": 80,
+    "description": "Microsoft dense model trained with synthetic curriculum data; beats 70B models on math benchmarks.",
     "memory_req_gb": {
-      "fp16": 33.2,
-      "q8_0": 18.2,
-      "q6_k": 14.5,
-      "q5_k_m": 12.3,
+      "fp16": 31.4,
+      "q8_0": 17.6,
+      "q6_k": 14.2,
+      "q5_k_m": 12.2,
       "q4_k_m": 10.4,
-      "q3_k_m": 8.3,
-      "q2_k": 6.6
-    },
-    "quant_accuracy_pct": {
-      "fp16": 100.0,
-      "q8_0": 99.8,
-      "q6_k": 99.3,
-      "q5_k_m": 98.6,
-      "q4_k_m": 97.4,
-      "q3_k_m": 93.0,
-      "q2_k": 87.0
-    },
-    "quant_ppl_delta": {
-      "fp16": 0.0,
-      "q8_0": 0.02,
-      "q6_k": 0.04,
-      "q5_k_m": 0.09,
-      "q4_k_m": 0.18,
-      "q3_k_m": 0.48,
-      "q2_k": 1.15
+      "q3_k_m": 8.4,
+      "q2_k": 6.8
+    }
+  },
+  {
+    "id": "hermes_3_70b",
+    "name": "Hermes 3 70B Instruct",
+    "creator": "Nous Research",
+    "category": "Dense Agent Specialist",
+    "total_params_b": 70.6,
+    "active_params_b": 70.6,
+    "context_window_str": "128k",
+    "intelligence_index": 47.5,
+    "output_speed_tok_s": 24,
+    "description": "Premier open-source uncensored agentic model with advanced structured output and function calling.",
+    "memory_req_gb": {
+      "fp16": 154.6,
+      "q8_0": 85.1,
+      "q6_k": 68.0,
+      "q5_k_m": 57.7,
+      "q4_k_m": 48.8,
+      "q3_k_m": 38.7,
+      "q2_k": 30.6
     }
   }
 ];
+
+// Global Application State
+const state = {
+  rawDevices: [],
+  rawModels: [],
+  filteredDevices: [],
+  processedPoints: [],
+  selectedDeviceId: null,
+  
+  // Y-Axis Metric Mode
+  yMetric: 'weighted-score', // 'weighted-score' | 'iq-throughput' | 'iq-per-dollar' | 'cost-per-1k-tasks'
+  
+  // Display & Parallelism Settings
+  chartMode: 'singles', // 'singles' | 'capacity' | 'tp-ceiling'
+  
+  // System Context & Host Overhead Settings
+  useSystemContext: true,
+  hostCostUsd: 650,
+  macOsOverheadGb: 8,
+  
+  // Multi-Factor Weighted Scoring Settings
+  weightMem: 1.0,
+  weightBw: 1.0,
+  weightFlops: 0.3,
+  cudaBoost: 1.25,
+  tpEfficiency: 0.85,
+  
+  // IQ-Throughput Settings (User requested: weight towards intelligence)
+  weightIq: 1.3,
+  weightSpeed: 0.7,
+  
+  // Task Economics Settings
+  cloudApiBaseline: 'gpt-4o', // 'claude-3-5-sonnet' | 'gpt-4o' | 'deepseek-r1-api' | 'llama-3-3-70b-cloud'
+  dailyTokens: 2000000,
+  
+  // Chart Settings & Zoom/Pan State
+  isLogScale: true,
+  includeModded: true,
+  includeDatacenter: true,
+  allowedVendors: new Set(['NVIDIA', 'Apple', 'AMD', 'ASUS']),
+  
+  // Zoom & Pan
+  zoomScale: 1.0,
+  panX: 0,
+  panY: 0,
+  isDragging: false,
+  dragStartX: 0,
+  dragStartY: 0,
+  labelMode: 'auto',
+  
+  // Model Fit Matrix Settings
+  matrixContextTokens: 8192,
+  modelClassFilter: 'all',
+  quantAccuracyFilter: 'all',
+  selectedExplorerModelId: null,
+  selectedExplorerHardwareId: null
+};
+
+// Vendor Signature Theme Colors
+const VENDOR_COLORS = {
+  'NVIDIA': { fill: '#22c55e', stroke: '#15803d', glow: 'rgba(34, 197, 94, 0.4)', name: 'NVIDIA (Neon Green)' },
+  'Apple':  { fill: '#e2e8f0', stroke: '#94a3b8', glow: 'rgba(226, 232, 240, 0.35)', name: 'Apple Silicon (Silver)' },
+  'AMD':    { fill: '#ef4444', stroke: '#b91c1c', glow: 'rgba(239, 68, 68, 0.4)', name: 'AMD (Radeon Red)' },
+  'ASUS':   { fill: '#38bdf8', stroke: '#0284c7', glow: 'rgba(56, 189, 248, 0.4)', name: 'ASUS / Other (Cyan)' }
+};
+
+// Cloud API Pricing Baselines ($ per 1M tokens)
+const CLOUD_API_PRICING = {
+  'claude-3-5-sonnet':    { name: 'Claude 3.5 Sonnet', costPer1MTok: 9.00, costPer1kTasks: 13.50 },
+  'gpt-4o':               { name: 'GPT-4o',           costPer1MTok: 6.25, costPer1kTasks: 9.38 },
+  'deepseek-r1-api':      { name: 'DeepSeek R1 API',  costPer1MTok: 1.37, costPer1kTasks: 2.05 },
+  'llama-3-3-70b-cloud':  { name: 'Llama 3.3 70B (Cloud)', costPer1MTok: 0.80, costPer1kTasks: 1.20 }
+};
+
+// Preset Multi-Factor Weight Configurations
+const PRESETS = {
+  'memory-heavy': { wMem: 1.0, wBw: 1.0, wFlops: 0.3, cuda: 1.25, name: 'LLM Memory-First' },
+  'balanced':     { wMem: 0.8, wBw: 0.8, wFlops: 0.6, cuda: 1.20, name: 'Balanced Value' },
+  'throughput':   { wMem: 0.5, wBw: 1.2, wFlops: 1.0, cuda: 1.30, name: 'High-Throughput' },
+  'legacy':       { wMem: 1.0, wBw: 1.0, wFlops: 0.0, cuda: 1.00, name: 'Legacy C × B' }
+};
+
+// ================= INITIALIZATION & DATA FETCHING =================
+document.addEventListener('DOMContentLoaded', async () => {
+  initTabs();
+  initControlListeners();
+  initZoomPanListeners();
+  await loadData();
+  recalculateAndRender();
+});
 
 async function loadData() {
   try {
@@ -2995,7 +2041,6 @@ async function loadData() {
       else state.rawDevices = EMBEDDED_DEVICES;
     }
   } catch (e) {
-    console.log('Using embedded devices dataset (file:// mode)');
     state.rawDevices = EMBEDDED_DEVICES;
   }
 
@@ -3009,11 +2054,11 @@ async function loadData() {
       else state.rawModels = EMBEDDED_MODELS;
     }
   } catch (e) {
-    console.log('Using embedded models dataset (file:// mode)');
     state.rawModels = EMBEDDED_MODELS;
   }
 }
 
+// ================= TAB NAVIGATION =================
 function initTabs() {
   const tabBtns = document.querySelectorAll('.tab-btn');
   tabBtns.forEach(btn => {
@@ -3034,6 +2079,8 @@ function initTabs() {
         renderFitMatrix();
       } else if (btn.dataset.tab === 'open-models') {
         renderOpenModelsExplorer();
+      } else if (btn.dataset.tab === 'task-economics') {
+        renderTaskEconomics();
       } else if (btn.dataset.tab === 'device-table') {
         renderDeviceTable();
       }
@@ -3043,13 +2090,33 @@ function initTabs() {
 
 // ================= CONTROL LISTENERS =================
 function initControlListeners() {
+  // Y-Axis Metric Selector
+  const selY = document.getElementById('selYMetric');
+  if (selY) {
+    selY.addEventListener('change', (e) => {
+      state.yMetric = e.target.value;
+      const stdWeights = document.getElementById('standardWeightControls');
+      const iqWeights = document.getElementById('iqWeightControls');
+      const weightsTitle = document.getElementById('lblWeightsPanelTitle');
+      
+      if (state.yMetric === 'iq-throughput' || state.yMetric === 'iq-per-dollar') {
+        if (stdWeights) stdWeights.style.display = 'none';
+        if (iqWeights) iqWeights.style.display = 'block';
+        if (weightsTitle) weightsTitle.textContent = 'IQ-Throughput Weights';
+      } else {
+        if (stdWeights) stdWeights.style.display = 'block';
+        if (iqWeights) iqWeights.style.display = 'none';
+        if (weightsTitle) weightsTitle.textContent = 'Value Scoring Weights';
+      }
+      
+      updatePlotTitles();
+      recalculateAndRender();
+    });
+  }
+
   document.querySelectorAll('input[name="chartMode"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
       state.chartMode = e.target.value;
-      const tpRow = document.getElementById('tpEffRow');
-      if (tpRow) {
-        tpRow.style.display = state.chartMode === 'tp-ceiling' ? 'flex' : 'none';
-      }
       recalculateAndRender();
     });
   });
@@ -3099,9 +2166,17 @@ function initControlListeners() {
     document.getElementById('fCuda').textContent = `${parseFloat(v).toFixed(2)}x CUDA`;
     return `${parseFloat(v).toFixed(2)}×`;
   });
-  bindSlider('sliderTpEff', 'lblTpEff', (v) => {
-    state.tpEfficiency = parseFloat(v);
-    return `${parseFloat(v).toFixed(2)}×`;
+
+  // IQ-Throughput Sliders
+  bindSlider('sliderWeightIq', 'lblWeightIq', (v) => {
+    state.weightIq = parseFloat(v);
+    document.getElementById('fIq').textContent = parseFloat(v).toFixed(1);
+    return `${parseFloat(v).toFixed(1)}×`;
+  });
+  bindSlider('sliderWeightSpeed', 'lblWeightSpeed', (v) => {
+    state.weightSpeed = parseFloat(v);
+    document.getElementById('fSpeed').textContent = parseFloat(v).toFixed(1);
+    return `${parseFloat(v).toFixed(1)}×`;
   });
 
   // Preset Buttons
@@ -3195,6 +2270,23 @@ function initControlListeners() {
     });
   }
 
+  // Task Economics Controls
+  const selCloud = document.getElementById('selCloudApiBaseline');
+  if (selCloud) {
+    selCloud.addEventListener('change', (e) => {
+      state.cloudApiBaseline = e.target.value;
+      renderTaskEconomics();
+    });
+  }
+
+  const selDaily = document.getElementById('selDailyWorkload');
+  if (selDaily) {
+    selDaily.addEventListener('change', (e) => {
+      state.dailyTokens = parseInt(e.target.value);
+      renderTaskEconomics();
+    });
+  }
+
   // Search Inputs
   const txtSearchModels = document.getElementById('txtSearchModels');
   if (txtSearchModels) {
@@ -3213,15 +2305,7 @@ function initControlListeners() {
       const dataStr = JSON.stringify({
         devices: state.processedPoints,
         models: state.rawModels,
-        config: {
-          useSystemContext: state.useSystemContext,
-          hostCost: state.hostCostUsd,
-          osOverhead: state.macOsOverheadGb,
-          weightMem: state.weightMem,
-          weightBw: state.weightBw,
-          weightFlops: state.weightFlops,
-          cudaBoost: state.cudaBoost
-        }
+        config: state
       }, null, 2);
       const blob = new Blob([dataStr], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -3251,6 +2335,26 @@ function setSliderVal(sliderId, labelId, val, formatted) {
   if (l) l.textContent = formatted;
 }
 
+function updatePlotTitles() {
+  const t = document.getElementById('plotHeaderTitle');
+  const sub = document.getElementById('plotHeaderSubtitle');
+  if (!t || !sub) return;
+
+  if (state.yMetric === 'iq-throughput') {
+    t.textContent = 'Hardware IQ-Throughput (IQ-tok/s) vs. Price';
+    sub.textContent = 'X: Effective Price (USD) · Y: Peak Realized Intelligence-Weighted Tokens/Sec across runnable models';
+  } else if (state.yMetric === 'iq-per-dollar') {
+    t.textContent = 'Intelligence Value Efficiency (IQ-tok/s per $1k TCO)';
+    sub.textContent = 'X: Effective Price (USD) · Y: Realized IQ-tok/s generated per $1,000 total build investment';
+  } else if (state.yMetric === 'cost-per-1k-tasks') {
+    t.textContent = 'Local Cost per 1,000 Difficult Reasoning Tasks ($/1k Tasks)';
+    sub.textContent = 'X: Effective Price (USD) · Y: Amortized Local Cost to Execute 1,000 Difficult Reasoning Tasks';
+  } else {
+    t.textContent = 'Local-AI Hardware Value & Pareto Frontier';
+    sub.textContent = 'X: Purchase Price (USD) · Y: Multi-Factor Weighted Performance Score';
+  }
+}
+
 // ================= INTERACTIVE ZOOM & PAN ENGINE =================
 function initZoomPanListeners() {
   const wrapper = document.getElementById('plotWrapper');
@@ -3272,8 +2376,6 @@ function initZoomPanListeners() {
       const rect = wrapper.getBoundingClientRect();
       const cx = centerX !== undefined ? centerX - rect.left : rect.width / 2;
       const cy = centerY !== undefined ? centerY - rect.top : rect.height / 2;
-      
-      // Zoom centered at cursor
       state.panX = cx - (cx - state.panX) * (newScale / oldScale);
       state.panY = cy - (cy - state.panY) * (newScale / oldScale);
     }
@@ -3283,12 +2385,8 @@ function initZoomPanListeners() {
     renderScatterPlot();
   }
 
-  if (btnIn) {
-    btnIn.addEventListener('click', () => applyZoom(1.3));
-  }
-  if (btnOut) {
-    btnOut.addEventListener('click', () => applyZoom(0.77));
-  }
+  if (btnIn) btnIn.addEventListener('click', () => applyZoom(1.3));
+  if (btnOut) btnOut.addEventListener('click', () => applyZoom(0.77));
   if (btnReset) {
     btnReset.addEventListener('click', () => {
       state.zoomScale = 1.0;
@@ -3300,16 +2398,14 @@ function initZoomPanListeners() {
   }
 
   if (wrapper) {
-    // Mouse Wheel Zoom
     wrapper.addEventListener('wheel', (e) => {
       e.preventDefault();
       const zoomFactor = e.deltaY < 0 ? 1.15 : 0.87;
       applyZoom(zoomFactor, e.clientX, e.clientY);
     }, { passive: false });
 
-    // Drag to Pan
     wrapper.addEventListener('mousedown', (e) => {
-      if (e.button !== 0) return; // Left click only
+      if (e.button !== 0) return;
       state.isDragging = true;
       state.dragStartX = e.clientX - state.panX;
       state.dragStartY = e.clientY - state.panY;
@@ -3330,7 +2426,6 @@ function initZoomPanListeners() {
       }
     });
 
-    // Double click to fit
     wrapper.addEventListener('dblclick', () => {
       state.zoomScale = 1.0;
       state.panX = 0;
@@ -3353,6 +2448,50 @@ function updateFootnote() {
 }
 
 // ================= MATHEMATICAL MODEL & PARETO ENGINE =================
+function findPeakModelAndIqThroughput(usableVram, bandwidth) {
+  let bestIqTokS = 0;
+  let bestModel = null;
+  let bestSpeed = 0;
+  let bestQuant = 'Q4';
+
+  state.rawModels.forEach(m => {
+    const req = m.memory_req_gb || {};
+    const iq = m.intelligence_index || 30.0;
+    
+    // Check highest acceptable precision
+    let quant = null;
+    let memReq = 0;
+
+    if (usableVram >= req.fp16) { quant = 'FP16'; memReq = req.fp16; }
+    else if (usableVram >= req.q8_0) { quant = 'Q8'; memReq = req.q8_0; }
+    else if (usableVram >= req.q5_k_m) { quant = 'Q5'; memReq = req.q5_k_m; }
+    else if (usableVram >= req.q4_k_m) { quant = 'Q4'; memReq = req.q4_k_m; }
+    else if (usableVram >= req.q3_k_m && m.total_params_b >= 70) { quant = 'Q3'; memReq = req.q3_k_m; }
+    else if (usableVram >= req.q2_k && m.total_params_b >= 400) { quant = 'Q2'; memReq = req.q2_k; }
+
+    if (quant) {
+      const speed = Math.max(1.0, bandwidth / (memReq * 0.95));
+      // Formula: (Intelligence / 10)^alpha * (Speed)^beta * 10
+      const iqThroughput = Math.pow(iq / 10.0, state.weightIq) * Math.pow(speed, state.weightSpeed) * 10.0;
+      
+      if (iqThroughput > bestIqTokS) {
+        bestIqTokS = iqThroughput;
+        bestModel = m;
+        bestSpeed = Math.round(speed);
+        bestQuant = quant;
+      }
+    }
+  });
+
+  return {
+    peakIqTokS: Math.round(bestIqTokS),
+    peakModel: bestModel ? `${bestModel.name} (${bestQuant}, ${bestSpeed} t/s)` : 'No model fits',
+    peakModelRaw: bestModel,
+    peakSpeed: bestSpeed,
+    peakQuant: bestQuant
+  };
+}
+
 function calculateDeviceScore(dev, multiplier = 1, isTpCeiling = false) {
   const isUnified = dev.category === 'unified-memory system';
   const rawCap = parseFloat(dev.memory_capacity_gb) || 1;
@@ -3360,44 +2499,64 @@ function calculateDeviceScore(dev, multiplier = 1, isTpCeiling = false) {
   const rawFlops = parseFloat(dev.fp16_tflops) || 10;
   const isCuda = (dev.cuda_supported || 'no').toLowerCase() === 'yes';
 
-  // Capacity calculation
   let effCap = rawCap * multiplier;
   if (state.useSystemContext && isUnified) {
-    const osDeduction = state.macOsOverheadGb * multiplier;
-    effCap = Math.max(2, effCap - osDeduction);
+    effCap = Math.max(2, effCap - (state.macOsOverheadGb * multiplier));
   }
 
-  // Bandwidth calculation
   let effBw = rawBw;
   if (isTpCeiling && multiplier > 1) {
     effBw = rawBw * multiplier * state.tpEfficiency;
   }
 
-  // Compute calculation
   const effFlops = rawFlops * multiplier;
-
-  // Ecosystem boost
   const effBoost = isCuda ? state.cudaBoost : 1.0;
 
-  // Multi-Factor Score: (C^wMem) * (B^wBw) * (T^wFlops) * CudaBoost
-  const score = Math.pow(effCap, state.weightMem) * 
-                Math.pow(effBw, state.weightBw) * 
-                Math.pow(Math.max(1, effFlops), state.weightFlops) * 
-                effBoost;
+  // 1. Standard Multi-Factor Value Score
+  const stdScore = Math.pow(effCap, state.weightMem) * 
+                   Math.pow(effBw, state.weightBw) * 
+                   Math.pow(Math.max(1, effFlops), state.weightFlops) * 
+                   effBoost;
 
-  // Effective Price calculation
   const basePrice = parseFloat(dev.price_usd) || 1;
   let effPrice = basePrice * multiplier;
   if (state.useSystemContext && !isUnified) {
     effPrice += state.hostCostUsd;
   }
 
+  // 2. Peak Intelligence-Throughput (IQ-tok/s)
+  const iqResult = findPeakModelAndIqThroughput(effCap, effBw);
+  const iqTokS = iqResult.peakIqTokS;
+
+  // 3. IQ per $1k TCO
+  const iqPerDollar = (iqTokS / Math.max(100, effPrice)) * 1000.0;
+
+  // 4. Cost per 1,000 Reasoning Tasks ($ / 1k Tasks)
+  // Assuming 1 task ≈ 1,500 tokens. Hardware amortized across 500k lifetime tasks + $0.15/kWh electricity
+  const powerKw = (dev.category.includes('unified') ? 0.12 : (multiplier * 0.35));
+  const electricityPer1kTasks = (powerKw * 0.15 / Math.max(1, iqResult.peakSpeed * 3600)) * 1500000;
+  const amortizedHardwareCost = (effPrice / 500000.0) * 1000.0;
+  const costPer1kTasks = amortizedHardwareCost + electricityPer1kTasks;
+
+  // Determine active Y value
+  let activeY = stdScore;
+  if (state.yMetric === 'iq-throughput') activeY = iqTokS;
+  else if (state.yMetric === 'iq-per-dollar') activeY = iqPerDollar;
+  else if (state.yMetric === 'cost-per-1k-tasks') activeY = costPer1kTasks;
+
   return {
     effCap: Math.round(effCap * 10) / 10,
     effBw: Math.round(effBw),
     effFlops: Math.round(effFlops * 10) / 10,
     effPrice: Math.round(effPrice),
-    score: Math.round(score)
+    score: Math.round(stdScore),
+    iqTokS,
+    iqPerDollar: Math.round(iqPerDollar * 10) / 10,
+    costPer1kTasks: Math.round(costPer1kTasks * 100) / 100,
+    activeY: Math.round(activeY * 10) / 10,
+    peakModel: iqResult.peakModel,
+    peakSpeed: iqResult.peakSpeed,
+    peakQuant: iqResult.peakQuant
   };
 }
 
@@ -3405,12 +2564,10 @@ function processAllPoints() {
   const points = [];
 
   state.rawDevices.forEach(dev => {
-    // Filtering
     if (!state.allowedVendors.has(dev.vendor)) return;
     if (!state.includeModded && (dev.modified || 'no').toLowerCase() === 'yes') return;
     if (!state.includeDatacenter && parseFloat(dev.price_usd) > 50000) return;
 
-    // 1. Single Device Point
     const single = calculateDeviceScore(dev, 1, false);
     points.push({
       id: `${dev.id}_1x`,
@@ -3426,11 +2583,15 @@ function processAllPoints() {
       effBw: single.effBw,
       effFlops: single.effFlops,
       score: single.score,
+      iqTokS: single.iqTokS,
+      iqPerDollar: single.iqPerDollar,
+      costPer1kTasks: single.costPer1kTasks,
+      activeY: single.activeY,
+      peakModel: single.peakModel,
       rawDevice: dev,
       label: dev.device_name
     });
 
-    // 2. 2x Capacity Sharded Point
     if (state.chartMode === 'capacity' || state.chartMode === 'tp-ceiling') {
       const sharded = calculateDeviceScore(dev, 2, false);
       points.push({
@@ -3447,12 +2608,16 @@ function processAllPoints() {
         effBw: sharded.effBw,
         effFlops: sharded.effFlops,
         score: sharded.score,
+        iqTokS: sharded.iqTokS,
+        iqPerDollar: sharded.iqPerDollar,
+        costPer1kTasks: sharded.costPer1kTasks,
+        activeY: sharded.activeY,
+        peakModel: sharded.peakModel,
         rawDevice: dev,
         label: `2× ${dev.device_name}`
       });
     }
 
-    // 3. 2x Tensor-Parallel Ceiling Point
     if (state.chartMode === 'tp-ceiling') {
       const tp = calculateDeviceScore(dev, 2, true);
       points.push({
@@ -3469,22 +2634,27 @@ function processAllPoints() {
         effBw: tp.effBw,
         effFlops: tp.effFlops,
         score: tp.score,
+        iqTokS: tp.iqTokS,
+        iqPerDollar: tp.iqPerDollar,
+        costPer1kTasks: tp.costPer1kTasks,
+        activeY: tp.activeY,
+        peakModel: tp.peakModel,
         rawDevice: dev,
         label: `2× ${dev.device_name} [TP]`
       });
     }
   });
 
-  // Calculate Pareto Frontier (Max score for given or lower price)
-  points.sort((a, b) => a.effPrice - b.effPrice || b.score - a.score);
+  // Calculate Pareto Frontier
+  points.sort((a, b) => a.effPrice - b.effPrice || b.activeY - a.activeY);
 
-  let maxScore = -1;
+  let maxVal = -Infinity;
   const paretoPoints = [];
 
   points.forEach(pt => {
-    if (pt.score > maxScore) {
+    if (pt.activeY > maxVal) {
       pt.isPareto = true;
-      maxScore = pt.score;
+      maxVal = pt.activeY;
       paretoPoints.push(pt);
     } else {
       pt.isPareto = false;
@@ -3500,10 +2670,11 @@ function recalculateAndRender() {
   renderScatterPlot();
   renderFitMatrix();
   renderOpenModelsExplorer();
+  renderTaskEconomics();
   renderDeviceTable();
 }
 
-// ================= SCATTER PLOT SVG RENDERING WITH SMART ANNOTATIONS =================
+// ================= SCATTER PLOT SVG RENDERING WITH VENDOR COLORS & SMART ANNOTATIONS =================
 function renderScatterPlot() {
   const svg = document.getElementById('hardwareScatterPlot');
   const wrapper = document.getElementById('plotWrapper');
@@ -3518,18 +2689,16 @@ function renderScatterPlot() {
   const plotWidth = width - margin.left - margin.right;
   const plotHeight = height - margin.top - margin.bottom;
 
-  // Extents
   const minPrice = Math.min(...state.processedPoints.map(p => p.effPrice));
   const maxPrice = Math.max(...state.processedPoints.map(p => p.effPrice));
-  const minScore = Math.min(...state.processedPoints.map(p => p.score));
-  const maxScore = Math.max(...state.processedPoints.map(p => p.score));
+  const minY = Math.min(...state.processedPoints.map(p => p.activeY));
+  const maxY = Math.max(...state.processedPoints.map(p => p.activeY));
 
   const xMin = state.isLogScale ? Math.max(100, minPrice * 0.8) : 0;
   const xMax = maxPrice * 1.25;
-  const yMin = state.isLogScale ? Math.max(100, minScore * 0.8) : 0;
-  const yMax = maxScore * 1.35;
+  const yMin = state.isLogScale ? Math.max(1, minY * 0.8) : 0;
+  const yMax = maxY * 1.35;
 
-  // Base Scale Functions
   function getBaseX(val) {
     if (state.isLogScale) {
       const logMin = Math.log10(xMin);
@@ -3548,7 +2717,6 @@ function renderScatterPlot() {
     return margin.top + plotHeight - (val / yMax) * plotHeight;
   }
 
-  // Apply Zoom & Pan Transform
   function getX(val) {
     const bx = getBaseX(val);
     return state.panX + bx * state.zoomScale;
@@ -3559,11 +2727,10 @@ function renderScatterPlot() {
     return state.panY + by * state.zoomScale;
   }
 
-  // Draw Grid Lines & Axes
+  // Draw Grid Lines
   const gridGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   gridGroup.setAttribute('class', 'grid-group');
 
-  // X-Axis Ticks
   const xTicks = state.isLogScale 
     ? [200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 250000].filter(t => t >= xMin && t <= xMax)
     : [0, 2000, 5000, 10000, 20000, 50000, 100000, 200000];
@@ -3591,8 +2758,8 @@ function renderScatterPlot() {
 
   // Y-Axis Ticks
   const yTicks = state.isLogScale
-    ? [1000, 5000, 20000, 50000, 200000, 1000000, 5000000, 20000000].filter(t => t >= yMin && t <= yMax)
-    : [0, 50000, 200000, 500000, 1000000, 5000000];
+    ? [10, 50, 200, 1000, 5000, 20000, 100000, 500000, 2000000, 10000000].filter(t => t >= yMin && t <= yMax)
+    : [0, 500, 2000, 10000, 50000, 200000, 1000000];
 
   yTicks.forEach(tick => {
     const y = getY(tick);
@@ -3634,7 +2801,16 @@ function renderScatterPlot() {
   yLabel.setAttribute('y', 20);
   yLabel.setAttribute('text-anchor', 'middle');
   yLabel.setAttribute('class', 'axis-label');
-  yLabel.textContent = `Performance Score [C^${state.weightMem} · B^${state.weightBw} · T^${state.weightFlops} · CUDA]`;
+  
+  if (state.yMetric === 'iq-throughput') {
+    yLabel.textContent = `Peak IQ-Throughput [IQ-tok/s = (Intelligence/10)^${state.weightIq} × tok/s^${state.weightSpeed}]`;
+  } else if (state.yMetric === 'iq-per-dollar') {
+    yLabel.textContent = `Intelligence Value Efficiency [IQ-tok/s per $1,000 TCO]`;
+  } else if (state.yMetric === 'cost-per-1k-tasks') {
+    yLabel.textContent = `Cost to Execute 1,000 Complex Reasoning Tasks ($ USD / 1k Tasks)`;
+  } else {
+    yLabel.textContent = `Performance Score [C^${state.weightMem} · B^${state.weightBw} · T^${state.weightFlops} · CUDA]`;
+  }
   svg.appendChild(yLabel);
 
   // Draw Pareto Frontier Path
@@ -3643,7 +2819,7 @@ function renderScatterPlot() {
     let d = '';
     state.paretoPoints.forEach((pt, idx) => {
       const px = getX(pt.effPrice);
-      const py = getY(pt.score);
+      const py = getY(pt.activeY);
       d += (idx === 0 ? `M ${px} ${py}` : ` L ${px} ${py}`);
     });
     path.setAttribute('d', d);
@@ -3651,24 +2827,34 @@ function renderScatterPlot() {
     svg.appendChild(path);
   }
 
-  // Draw Data Markers
+  // Draw Data Markers with VENDOR COLORS & PARETO GOLD HALOS
   const markersGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   const labelsGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 
   state.processedPoints.forEach(pt => {
     const px = getX(pt.effPrice);
-    const py = getY(pt.score);
+    const py = getY(pt.activeY);
     const isSelected = pt.baseId === state.selectedDeviceId;
     const isPareto = pt.isPareto;
 
-    // Outer Glow / Marker Geometry
+    const vendorTheme = VENDOR_COLORS[pt.vendor] || VENDOR_COLORS['ASUS'];
+    const fillColor = vendorTheme.fill;
+    const strokeColor = isSelected ? '#38bdf8' : vendorTheme.stroke;
+    const radius = (isPareto ? 8 : 6.5) * Math.min(1.4, Math.max(0.8, Math.sqrt(state.zoomScale)));
+
     const marker = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     marker.setAttribute('class', `data-marker ${isSelected ? 'is-selected' : ''}`);
     marker.setAttribute('data-id', pt.baseId);
 
-    const fillColor = isPareto ? '#f59e0b' : '#64748b';
-    const strokeColor = isSelected ? '#38bdf8' : (isPareto ? '#d97706' : '#334155');
-    const radius = (isPareto ? 8 : 6) * Math.min(1.4, Math.max(0.8, Math.sqrt(state.zoomScale)));
+    // If Pareto, draw glowing golden halo ring
+    if (isPareto) {
+      const halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      halo.setAttribute('cx', px);
+      halo.setAttribute('cy', py);
+      halo.setAttribute('r', radius + 5);
+      halo.setAttribute('class', 'pareto-halo-ring');
+      marker.appendChild(halo);
+    }
 
     if (pt.pointType === 'circle') {
       const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -3709,7 +2895,6 @@ function renderScatterPlot() {
       marker.appendChild(poly);
     }
 
-    // Interactivity
     marker.addEventListener('mouseenter', (e) => showTooltip(e, pt));
     marker.addEventListener('mousemove', (e) => moveTooltip(e));
     marker.addEventListener('mouseleave', () => hideTooltip());
@@ -3719,22 +2904,16 @@ function renderScatterPlot() {
 
     // ================= ADAPTIVE SMART ANNOTATIONS =================
     let shouldShowLabel = false;
-    if (state.labelMode === 'all') {
-      shouldShowLabel = true;
-    } else if (state.labelMode === 'pareto') {
-      shouldShowLabel = isPareto || isSelected;
-    } else if (state.labelMode === 'auto') {
-      // If zoomed out (<1.3x), show Pareto points & selected. If zoomed in (>=1.3x), show all.
-      shouldShowLabel = (state.zoomScale >= 1.3) ? true : (isPareto || isSelected);
-    }
+    if (state.labelMode === 'all') shouldShowLabel = true;
+    else if (state.labelMode === 'pareto') shouldShowLabel = isPareto || isSelected;
+    else if (state.labelMode === 'auto') shouldShowLabel = (state.zoomScale >= 1.3) ? true : (isPareto || isSelected);
 
     if (shouldShowLabel) {
       const labelGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       labelGroup.setAttribute('class', 'callout-box');
       labelGroup.addEventListener('click', () => selectDevice(pt.baseId));
 
-      // Leader line vector calculation (adaptive offset)
-      const offsetX = (px > margin.left + plotWidth * 0.75) ? -130 : 25;
+      const offsetX = (px > margin.left + plotWidth * 0.75) ? -135 : 25;
       const offsetY = (py < margin.top + 50) ? 25 : -28;
       const lx = px + offsetX;
       const ly = py + offsetY;
@@ -3747,8 +2926,7 @@ function renderScatterPlot() {
       leader.setAttribute('class', 'leader-line');
       labelsGroup.appendChild(leader);
 
-      // Callout Rect
-      const boxW = Math.max(115, pt.label.length * 6.5);
+      const boxW = Math.max(120, pt.label.length * 6.8);
       const boxH = 28;
       const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       rect.setAttribute('x', offsetX < 0 ? lx - boxW : lx);
@@ -3758,7 +2936,6 @@ function renderScatterPlot() {
       rect.setAttribute('class', 'callout-rect');
       labelGroup.appendChild(rect);
 
-      // Title Text
       const textTitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       textTitle.setAttribute('x', (offsetX < 0 ? lx - boxW : lx) + 6);
       textTitle.setAttribute('y', ly + 6);
@@ -3766,12 +2943,20 @@ function renderScatterPlot() {
       textTitle.textContent = pt.label;
       labelGroup.appendChild(textTitle);
 
-      // Subtitle / Price Text
       const textSub = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       textSub.setAttribute('x', (offsetX < 0 ? lx - boxW : lx) + 6);
       textSub.setAttribute('y', ly + 18);
       textSub.setAttribute('class', 'callout-text-sub');
-      textSub.textContent = `$${pt.effPrice.toLocaleString()} · ${pt.effCap}GB · ${pt.effBw}GB/s`;
+
+      if (state.yMetric === 'iq-throughput') {
+        textSub.textContent = `$${pt.effPrice.toLocaleString()} · ${pt.iqTokS} IQ-tok/s`;
+      } else if (state.yMetric === 'iq-per-dollar') {
+        textSub.textContent = `$${pt.effPrice.toLocaleString()} · ${pt.iqPerDollar} IQ/$1k`;
+      } else if (state.yMetric === 'cost-per-1k-tasks') {
+        textSub.textContent = `$${pt.effPrice.toLocaleString()} · $${pt.costPer1kTasks}/1k Tasks`;
+      } else {
+        textSub.textContent = `$${pt.effPrice.toLocaleString()} · ${pt.effCap}GB · ${pt.effBw}GB/s`;
+      }
       labelGroup.appendChild(textSub);
 
       labelsGroup.appendChild(labelGroup);
@@ -3782,7 +2967,6 @@ function renderScatterPlot() {
   svg.appendChild(labelsGroup);
 }
 
-// Tooltips
 function showTooltip(e, pt) {
   const tt = document.getElementById('plotTooltip');
   if (!tt) return;
@@ -3790,20 +2974,26 @@ function showTooltip(e, pt) {
   tt.innerHTML = `
     <div class="tooltip-title">${pt.name}</div>
     <div class="tooltip-grid">
-      <span class="tooltip-lbl">Base Hardware Price:</span>
-      <span class="tooltip-val">$${parseFloat(pt.rawDevice.price_usd).toLocaleString()}</span>
-      
+      <span class="tooltip-lbl">Vendor / Platform:</span>
+      <span class="tooltip-val" style="color:${VENDOR_COLORS[pt.vendor]?.fill || '#fff'}">${pt.vendor} (${pt.category})</span>
+
       <span class="tooltip-lbl">Effective System Price:</span>
       <span class="tooltip-val">$${pt.effPrice.toLocaleString()}</span>
 
       <span class="tooltip-lbl">Usable AI Memory:</span>
       <span class="tooltip-val">${pt.effCap} GB (${pt.rawDevice.memory_type || 'VRAM'})</span>
 
-      <span class="tooltip-lbl">Memory Bandwidth:</span>
+      <span class="tooltip-lbl">Local Memory Bandwidth:</span>
       <span class="tooltip-val">${pt.effBw} GB/s</span>
 
-      <span class="tooltip-lbl">Compute FP16:</span>
-      <span class="tooltip-val">${pt.effFlops} TFLOPS</span>
+      <span class="tooltip-lbl">Optimal Model Pairing:</span>
+      <span class="tooltip-val" style="color:#38bdf8">${pt.peakModel}</span>
+
+      <span class="tooltip-lbl">Peak IQ-Throughput:</span>
+      <span class="tooltip-val" style="color:#22c55e">${pt.iqTokS.toLocaleString()} IQ-tok/s</span>
+
+      <span class="tooltip-lbl">Cost / 1k Reasoning Tasks:</span>
+      <span class="tooltip-val" style="color:#34d399">$${pt.costPer1kTasks}</span>
 
       <span class="tooltip-lbl">Weighted Value Score:</span>
       <span class="tooltip-val" style="color:#f59e0b">${pt.score.toLocaleString()}</span>
@@ -3843,14 +3033,15 @@ function selectDevice(deviceId) {
 
   if (!dev || !drawer || !body) return;
 
-  catBadge.textContent = dev.category;
-  catBadge.className = `badge ${dev.category === 'unified-memory system' ? 'badge-accent' : 'badge-subtle'}`;
+  const vendorTheme = VENDOR_COLORS[dev.vendor] || VENDOR_COLORS['ASUS'];
+  catBadge.textContent = `${dev.vendor} · ${dev.category}`;
+  catBadge.className = `badge badge-${dev.vendor.toLowerCase()}`;
 
   const calc = calculateDeviceScore(dev, 1, false);
 
   body.innerHTML = `
     <div class="device-spec-hero">
-      <h3 class="device-spec-name">${dev.device_name}</h3>
+      <h3 class="device-spec-name" style="color:${vendorTheme.fill}">${dev.device_name}</h3>
       <div class="device-spec-price-row">
         <span class="device-spec-price">$${parseFloat(dev.price_usd).toLocaleString()}</span>
         <span class="device-spec-tco">· System TCO: <strong>$${calc.effPrice.toLocaleString()}</strong></span>
@@ -3867,16 +3058,21 @@ function selectDevice(deviceId) {
         <div class="spec-metric-value">${dev.local_memory_bandwidth_gbs} GB/s</div>
       </div>
       <div class="spec-metric-card">
-        <div class="spec-metric-label">Compute FP16</div>
-        <div class="spec-metric-value">${dev.fp16_tflops || '—'} TFLOPS</div>
+        <div class="spec-metric-label">Peak IQ-Throughput</div>
+        <div class="spec-metric-value" style="color:#22c55e">${calc.iqTokS.toLocaleString()} <small style="font-size:0.65rem">IQ-tok/s</small></div>
       </div>
       <div class="spec-metric-card">
-        <div class="spec-metric-label">Weighted Score</div>
-        <div class="spec-metric-value" style="color:#f59e0b">${calc.score.toLocaleString()}</div>
+        <div class="spec-metric-label">Cost / 1k Tasks</div>
+        <div class="spec-metric-value" style="color:#34d399">$${calc.costPer1kTasks}</div>
       </div>
     </div>
 
     <div class="spec-notes-section">
+      <div class="spec-note-item" style="border-left-color:#22c55e">
+        <div class="spec-note-title">Optimal Model Pairing</div>
+        <div class="spec-note-desc"><strong>${calc.peakModel}</strong></div>
+      </div>
+
       <div class="spec-note-item">
         <div class="spec-note-title">Memory & Architecture</div>
         <div class="spec-note-desc">${dev.gpu_addressable_memory_note || dev.memory_type}</div>
@@ -3906,13 +3102,6 @@ function selectDevice(deviceId) {
   `;
 
   renderScatterPlot();
-  
-  // Sync Explorer
-  const selExpDev = document.getElementById('selExplorerHardware');
-  if (selExpDev) {
-    selExpDev.value = deviceId;
-    renderHardwareToModelsFit(dev);
-  }
 }
 
 // ================= TAB 2: HARDWARE-MODEL FIT MATRIX =================
@@ -3921,14 +3110,12 @@ function renderFitMatrix() {
   const headerRow = document.getElementById('matrixHeaderRow');
   if (!tableBody || !headerRow || state.rawModels.length === 0) return;
 
-  // Filter models by class
   let models = state.rawModels;
   if (state.modelClassFilter === 'compact') models = models.filter(m => m.total_params_b <= 14);
   else if (state.modelClassFilter === 'mid') models = models.filter(m => m.total_params_b > 14 && m.total_params_b <= 70.6);
   else if (state.modelClassFilter === 'large') models = models.filter(m => m.total_params_b > 70.6 && m.total_params_b <= 150);
   else if (state.modelClassFilter === 'ultra') models = models.filter(m => m.total_params_b > 150);
 
-  // Setup Model Columns Headers
   while (headerRow.children.length > 2) {
     headerRow.removeChild(headerRow.lastChild);
   }
@@ -3937,12 +3124,11 @@ function renderFitMatrix() {
     const th = document.createElement('th');
     th.innerHTML = `
       <div style="font-weight:700;color:#fff">${m.name}</div>
-      <div style="font-size:0.7rem;color:#94a3b8">${m.total_params_b}B · ${m.category}</div>
+      <div style="font-size:0.7rem;color:#94a3b8">${m.total_params_b}B · ${m.category} · IQ ${m.intelligence_index}</div>
     `;
     headerRow.appendChild(th);
   });
 
-  // Populate Hardware Rows
   tableBody.innerHTML = '';
   state.rawDevices.forEach(dev => {
     if (!state.allowedVendors.has(dev.vendor)) return;
@@ -3952,11 +3138,12 @@ function renderFitMatrix() {
     const calc = calculateDeviceScore(dev, 1, false);
     const usableVram = calc.effCap;
     const bw = parseFloat(dev.local_memory_bandwidth_gbs) || 1;
+    const vendorTheme = VENDOR_COLORS[dev.vendor] || VENDOR_COLORS['ASUS'];
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td class="sticky-col">
-        <strong>${dev.device_name}</strong>
+        <strong style="color:${vendorTheme.fill}">${dev.device_name}</strong>
         <div style="font-size:0.7rem;color:#94a3b8">$${calc.effPrice.toLocaleString()} (${dev.category.includes('unified') ? 'Mac/DGX' : 'Discrete'})</div>
       </td>
       <td class="sticky-col-2">${usableVram} GB</td>
@@ -3977,7 +3164,6 @@ function renderFitMatrix() {
     tableBody.appendChild(tr);
   });
 
-  // Setup Explorers
   initModelFitExplorers();
 }
 
@@ -3985,7 +3171,6 @@ function calculateModelFit(model, usableVram, bandwidth) {
   const req = model.memory_req_gb || {};
   const filter = state.quantAccuracyFilter;
 
-  // Check quant tiers in order of preference
   if (filter === 'all' || filter === 'fp16') {
     if (usableVram >= req.fp16) {
       const speed = Math.round(bandwidth / (req.fp16 * 0.95));
@@ -4028,7 +3213,6 @@ function calculateModelFit(model, usableVram, bandwidth) {
   return { badgeText: 'Exceeds', badgeClass: 'badge-fit-none', speed: null, tooltip: `Model requires at least ${req.q4_k_m}GB (Q4) / ${req.q2_k}GB (Q2), exceeds ${usableVram}GB usable VRAM.` };
 }
 
-// Two-Way Fit Explorers
 function initModelFitExplorers() {
   const selModel = document.getElementById('selExplorerModel');
   const selDev = document.getElementById('selExplorerHardware');
@@ -4045,9 +3229,7 @@ function initModelFitExplorers() {
       const mod = state.rawModels.find(m => m.id === e.target.value);
       if (mod) renderModelToHardwareFit(mod);
     });
-    if (state.rawModels.length > 0) {
-      renderModelToHardwareFit(state.rawModels[0]);
-    }
+    if (state.rawModels.length > 0) renderModelToHardwareFit(state.rawModels[0]);
   }
 
   if (selDev && selDev.children.length === 0) {
@@ -4062,9 +3244,7 @@ function initModelFitExplorers() {
       const d = state.rawDevices.find(dev => dev.id === e.target.value);
       if (d) renderHardwareToModelsFit(d);
     });
-    if (state.rawDevices.length > 0) {
-      renderHardwareToModelsFit(state.rawDevices[0]);
-    }
+    if (state.rawDevices.length > 0) renderHardwareToModelsFit(state.rawDevices[0]);
   }
 }
 
@@ -4090,12 +3270,13 @@ function renderModelToHardwareFit(model) {
   state.rawDevices.forEach(dev => {
     const calc = calculateDeviceScore(dev, 1, false);
     const fit = calculateModelFit(model, calc.effCap, parseFloat(dev.local_memory_bandwidth_gbs) || 1);
+    const vendorTheme = VENDOR_COLORS[dev.vendor] || VENDOR_COLORS['ASUS'];
 
     const item = document.createElement('div');
     item.className = 'fit-result-item';
     item.innerHTML = `
       <div>
-        <div class="fit-result-title">${dev.device_name}</div>
+        <div class="fit-result-title" style="color:${vendorTheme.fill}">${dev.device_name}</div>
         <div class="fit-result-sub">$${calc.effPrice.toLocaleString()} · ${calc.effCap}GB usable · ${dev.local_memory_bandwidth_gbs} GB/s</div>
       </div>
       <div style="text-align:right">
@@ -4197,7 +3378,88 @@ function renderOpenModelsExplorer() {
   });
 }
 
-// ================= TAB 4: DEVICE DATABASE & TCO =================
+// ================= TAB 4: TASK ECONOMICS & TCO =================
+function renderTaskEconomics() {
+  const tbody = document.getElementById('tblTaskEconomicsBody');
+  const summaryContainer = document.getElementById('breakEvenSummaryList');
+  if (!tbody || state.rawDevices.length === 0) return;
+
+  const baseline = CLOUD_API_PRICING[state.cloudApiBaseline] || CLOUD_API_PRICING['gpt-4o'];
+  const dailyM = state.dailyTokens / 1000000.0;
+  const dailyCloudCost = dailyM * baseline.costPer1MTok;
+
+  tbody.innerHTML = '';
+  if (summaryContainer) summaryContainer.innerHTML = '';
+
+  const recommendations = [];
+
+  state.rawDevices.forEach(dev => {
+    if (!state.allowedVendors.has(dev.vendor)) return;
+    if (!state.includeModded && (dev.modified || 'no').toLowerCase() === 'yes') return;
+    if (!state.includeDatacenter && parseFloat(dev.price_usd) > 50000) return;
+
+    const calc = calculateDeviceScore(dev, 1, false);
+    const vendorTheme = VENDOR_COLORS[dev.vendor] || VENDOR_COLORS['ASUS'];
+
+    // Daily local electricity cost
+    const powerKw = dev.category.includes('unified') ? 0.12 : 0.35;
+    const hoursPerDayAtSpeed = Math.min(24.0, (state.dailyTokens / (Math.max(1, calc.peakSpeed) * 3600)));
+    const dailyElectricity = hoursPerDayAtSpeed * powerKw * 0.15;
+
+    // Break-even days
+    const dailySavings = dailyCloudCost - dailyElectricity;
+    const breakEvenDays = dailySavings > 0 ? Math.round(calc.effPrice / dailySavings) : 9999;
+    const threeYearNetSavings = Math.round((dailySavings * 365 * 3) - calc.effPrice);
+
+    recommendations.push({
+      device: dev,
+      calc,
+      breakEvenDays,
+      threeYearNetSavings,
+      vendorTheme
+    });
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <strong style="color:${vendorTheme.fill}">${dev.device_name}</strong>
+        <div style="font-size:0.7rem;color:#94a3b8">${dev.vendor} (${dev.category})</div>
+      </td>
+      <td style="font-family:var(--font-mono)">$${calc.effPrice.toLocaleString()}</td>
+      <td style="color:#38bdf8">${calc.peakModel}</td>
+      <td style="font-family:var(--font-mono)">${calc.peakSpeed} tok/s</td>
+      <td style="font-family:var(--font-mono);color:#34d399"><strong>$${calc.costPer1kTasks}</strong></td>
+      <td style="font-family:var(--font-mono);color:#f87171">$${Math.round(dailyCloudCost * 100) / 100}/day</td>
+      <td style="font-family:var(--font-mono);color:#f59e0b"><strong>${breakEvenDays < 1000 ? `${breakEvenDays} days` : 'N/A'}</strong></td>
+      <td style="font-family:var(--font-mono);color:${threeYearNetSavings > 0 ? '#10b981' : '#94a3b8'}">
+        ${threeYearNetSavings > 0 ? `+$${threeYearNetSavings.toLocaleString()}` : `-$${Math.abs(threeYearNetSavings).toLocaleString()}`}
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Render Top Recommendations in Summary Card
+  if (summaryContainer) {
+    recommendations.sort((a, b) => a.breakEvenDays - b.breakEvenDays);
+    recommendations.slice(0, 3).forEach(rec => {
+      const item = document.createElement('div');
+      item.className = 'fit-result-item';
+      item.innerHTML = `
+        <div>
+          <div class="fit-result-title" style="color:${rec.vendorTheme.fill}">${rec.device.device_name}</div>
+          <div class="fit-result-sub">${rec.calc.peakModel} · TCO $${rec.calc.effPrice.toLocaleString()}</div>
+        </div>
+        <div style="text-align:right">
+          <span class="badge badge-fit-fp16">Break-even: ${rec.breakEvenDays} days</span>
+          <div style="font-size:0.72rem;color:#34d399;margin-top:2px">3-Yr ROI: +$${rec.threeYearNetSavings.toLocaleString()}</div>
+        </div>
+      `;
+      summaryContainer.appendChild(item);
+    });
+  }
+}
+
+// ================= TAB 5: DEVICE DATABASE & TCO =================
 function renderDeviceTable() {
   const tbody = document.getElementById('tblHardwareDevicesBody');
   const txtSearch = document.getElementById('txtSearchDevices');
@@ -4219,11 +3481,12 @@ function renderDeviceTable() {
     const calc = calculateDeviceScore(dev, 1, false);
     const pt = state.processedPoints.find(p => p.baseId === dev.id && p.multiplier === 1);
     const isPareto = pt ? pt.isPareto : false;
+    const vendorTheme = VENDOR_COLORS[dev.vendor] || VENDOR_COLORS['ASUS'];
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><strong>${dev.device_name}</strong></td>
-      <td>${dev.vendor}</td>
+      <td><strong style="color:${vendorTheme.fill}">${dev.device_name}</strong></td>
+      <td><span class="badge badge-${dev.vendor.toLowerCase()}">${dev.vendor}</span></td>
       <td><span class="badge ${dev.category.includes('unified') ? 'badge-accent' : 'badge-subtle'}">${dev.category}</span></td>
       <td style="font-family:var(--font-mono)">$${parseFloat(dev.price_usd).toLocaleString()}</td>
       <td style="font-family:var(--font-mono);color:#38bdf8"><strong>$${calc.effPrice.toLocaleString()}</strong></td>
@@ -4232,7 +3495,7 @@ function renderDeviceTable() {
       <td style="font-family:var(--font-mono)">${dev.local_memory_bandwidth_gbs} GB/s</td>
       <td style="font-family:var(--font-mono)">${dev.fp16_tflops || '—'}</td>
       <td style="font-size:0.75rem;color:#94a3b8">${dev.nvlink === 'yes' ? 'NVLink' : (dev.thunderbolt5 === 'yes' ? 'TB5' : (dev.connectx7 === 'yes' ? 'ConnectX-7' : 'PCIe'))}</td>
-      <td style="font-family:var(--font-mono);font-weight:700;color:#f59e0b">${calc.score.toLocaleString()}</td>
+      <td style="font-family:var(--font-mono);font-weight:700;color:#f59e0b">${calc.activeY.toLocaleString()}</td>
       <td>${isPareto ? '<span class="badge badge-fit-fp16">★ Pareto</span>' : '<span style="color:#64748b">—</span>'}</td>
     `;
     tr.style.cursor = 'pointer';

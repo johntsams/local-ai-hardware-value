@@ -28,7 +28,7 @@
           </svg>
           <div>
             <h1 class="brand-title">Local-AI Hardware & Model Suite</h1>
-            <p class="brand-subtitle">Interactive Value Analysis · Weighted Scoring · Artificial Analysis &amp; Unsloth Fit</p>
+            <p class="brand-subtitle">Interactive Value Analysis · IQ-Throughput (IQ-tok/s) · Task Economics · Unsloth Fit</p>
           </div>
         </div>
       </div>
@@ -36,7 +36,7 @@
       <nav class="tab-nav" id="mainTabs">
         <button class="tab-btn active" data-tab="hardware-plot">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          Hardware Value Plot
+          Hardware Value & IQ Plot
         </button>
         <button class="tab-btn" data-tab="model-fit-matrix">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
@@ -46,9 +46,13 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
           Open Models Explorer
         </button>
+        <button class="tab-btn" data-tab="task-economics">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Task Economics & TCO
+        </button>
         <button class="tab-btn" data-tab="device-table">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-          Device Database & TCO
+          Device Database
         </button>
       </nav>
 
@@ -63,12 +67,32 @@
     <!-- Main Content Body -->
     <main class="app-body">
       
-      <!-- ================= TAB 1: HARDWARE VALUE PLOT ================= -->
+      <!-- ================= TAB 1: HARDWARE VALUE & IQ PLOT ================= -->
       <section class="tab-content active" id="tab-hardware-plot">
         <div class="grid-dashboard">
           
           <!-- Left Controls Sidebar -->
           <aside class="sidebar-panel">
+            
+            <!-- Y-Axis Metric Selector (NEW) -->
+            <div class="panel-card highlight-card">
+              <div class="panel-card-header">
+                <div class="header-with-badge">
+                  <h3 class="panel-title">Y-Axis Metric & Formula</h3>
+                  <span class="badge badge-accent">Interactive Y</span>
+                </div>
+              </div>
+              <div class="select-field-group">
+                <label style="font-size:0.75rem;color:#94a3b8;margin-bottom:4px;display:block;">Choose Y-Axis Evaluation Mode:</label>
+                <select id="selYMetric" class="select-input-lg">
+                  <option value="weighted-score" selected>1. Multi-Factor Value Score (C^w · B^w · T^w)</option>
+                  <option value="iq-throughput">2. Peak Intelligence-Throughput (IQ-tok/s)</option>
+                  <option value="iq-per-dollar">3. Intelligence per Dollar (IQ-tok/s / $1k TCO)</option>
+                  <option value="cost-per-1k-tasks">4. Cost per 1k Reasoning Tasks ($/1k Tasks)</option>
+                </select>
+              </div>
+            </div>
+
             <div class="panel-card">
               <div class="panel-card-header">
                 <h3 class="panel-title">Display & Parallelism Mode</h3>
@@ -89,12 +113,12 @@
               </div>
             </div>
 
-            <!-- System Context & OS Overhead Box (USER REQUEST HIGHLIGHT) -->
-            <div class="panel-card highlight-card">
+            <!-- System Context & OS Overhead Box -->
+            <div class="panel-card">
               <div class="panel-card-header">
                 <div class="header-with-badge">
                   <h3 class="panel-title">System Context & Host Overhead</h3>
-                  <span class="badge badge-accent">Active Modifiers</span>
+                  <span class="badge badge-subtle">Fair TCO</span>
                 </div>
               </div>
               <div class="toggle-control-group">
@@ -127,79 +151,101 @@
             </div>
 
             <!-- Weighted Scoring Multi-Factor Controls -->
-            <div class="panel-card">
+            <div class="panel-card" id="scoringWeightsPanel">
               <div class="panel-card-header">
                 <div class="header-with-badge">
-                  <h3 class="panel-title">Weighted Value Formula</h3>
-                  <span class="badge badge-subtle">Configurable Y-Axis</span>
+                  <h3 class="panel-title" id="lblWeightsPanelTitle">Value Scoring Weights</h3>
+                  <span class="badge badge-subtle">Modifiers</span>
                 </div>
               </div>
 
-              <div class="preset-buttons-row">
-                <button class="preset-pill active" data-preset="memory-heavy">LLM Memory-First</button>
-                <button class="preset-pill" data-preset="balanced">Balanced Value</button>
-                <button class="preset-pill" data-preset="throughput">High-Throughput</button>
-                <button class="preset-pill" data-preset="legacy">Legacy C × B</button>
-              </div>
-
-              <div class="sliders-list">
-                <div class="slider-field">
-                  <div class="slider-field-header">
-                    <span>Memory Capacity Weight (C):</span>
-                    <strong class="val-badge" id="lblWeightMem">1.0×</strong>
-                  </div>
-                  <input type="range" id="sliderWeightMem" min="0.2" max="2.0" step="0.1" value="1.0">
+              <div id="standardWeightControls">
+                <div class="preset-buttons-row">
+                  <button class="preset-pill active" data-preset="memory-heavy">LLM Memory-First</button>
+                  <button class="preset-pill" data-preset="balanced">Balanced Value</button>
+                  <button class="preset-pill" data-preset="throughput">High-Throughput</button>
+                  <button class="preset-pill" data-preset="legacy">Legacy C × B</button>
                 </div>
 
-                <div class="slider-field">
-                  <div class="slider-field-header">
-                    <span>Memory Bandwidth Weight (B):</span>
-                    <strong class="val-badge" id="lblWeightBw">1.0×</strong>
+                <div class="sliders-list">
+                  <div class="slider-field">
+                    <div class="slider-field-header">
+                      <span>Memory Capacity Weight (C):</span>
+                      <strong class="val-badge" id="lblWeightMem">1.0×</strong>
+                    </div>
+                    <input type="range" id="sliderWeightMem" min="0.2" max="2.0" step="0.1" value="1.0">
                   </div>
-                  <input type="range" id="sliderWeightBw" min="0.2" max="2.0" step="0.1" value="1.0">
+
+                  <div class="slider-field">
+                    <div class="slider-field-header">
+                      <span>Memory Bandwidth Weight (B):</span>
+                      <strong class="val-badge" id="lblWeightBw">1.0×</strong>
+                    </div>
+                    <input type="range" id="sliderWeightBw" min="0.2" max="2.0" step="0.1" value="1.0">
+                  </div>
+
+                  <div class="slider-field">
+                    <div class="slider-field-header">
+                      <span>Compute FLOPS Weight (T):</span>
+                      <strong class="val-badge" id="lblWeightFlops">0.3×</strong>
+                    </div>
+                    <input type="range" id="sliderWeightFlops" min="0.0" max="1.5" step="0.1" value="0.3">
+                  </div>
+
+                  <div class="slider-field">
+                    <div class="slider-field-header">
+                      <span>CUDA Ecosystem Efficiency Boost:</span>
+                      <strong class="val-badge" id="lblCudaBoost">1.25×</strong>
+                    </div>
+                    <input type="range" id="sliderCudaBoost" min="1.0" max="1.6" step="0.05" value="1.25">
+                    <p class="field-hint">Applies to NVIDIA cards for kernel maturity, vLLM, TensorRT-LLM.</p>
+                  </div>
                 </div>
 
-                <div class="slider-field">
-                  <div class="slider-field-header">
-                    <span>Compute FLOPS Weight (T):</span>
-                    <strong class="val-badge" id="lblWeightFlops">0.3×</strong>
-                  </div>
-                  <input type="range" id="sliderWeightFlops" min="0.0" max="1.5" step="0.1" value="0.3">
-                </div>
-
-                <div class="slider-field">
-                  <div class="slider-field-header">
-                    <span>CUDA Ecosystem Efficiency Boost:</span>
-                    <strong class="val-badge" id="lblCudaBoost">1.25×</strong>
-                  </div>
-                  <input type="range" id="sliderCudaBoost" min="1.0" max="1.6" step="0.05" value="1.25">
-                  <p class="field-hint">Applies to NVIDIA cards for kernel maturity, vLLM, TensorRT-LLM.</p>
-                </div>
-
-                <div class="slider-field" id="tpEffRow" style="display:none;">
-                  <div class="slider-field-header">
-                    <span>Tensor Parallel Realized Efficiency (η):</span>
-                    <strong class="val-badge" id="lblTpEff">0.85×</strong>
-                  </div>
-                  <input type="range" id="sliderTpEff" min="0.3" max="1.0" step="0.05" value="0.85">
+                <div class="formula-box">
+                  <code>Score = (C^<span id="fMem">1.0</span>) × (B^<span id="fBw">1.0</span>) × (T^<span id="fFlops">0.3</span>) × <span id="fCuda">CUDA</span></code>
                 </div>
               </div>
 
-              <div class="formula-box">
-                <code>Score = (C^<span id="fMem">1.0</span>) × (B^<span id="fBw">1.0</span>) × (T^<span id="fFlops">0.3</span>) × <span id="fCuda">CUDA</span></code>
+              <!-- IQ-Throughput Sliders (Shown when IQ metric is selected) -->
+              <div id="iqWeightControls" style="display:none;">
+                <div class="sliders-list">
+                  <div class="slider-field">
+                    <div class="slider-field-header">
+                      <span>Intelligence Weight (&alpha;):</span>
+                      <strong class="val-badge" id="lblWeightIq">1.3×</strong>
+                    </div>
+                    <input type="range" id="sliderWeightIq" min="0.5" max="2.5" step="0.1" value="1.3">
+                    <p class="field-hint">Higher values favor running large reasoning models (DeepSeek, 70B+) over speed.</p>
+                  </div>
+
+                  <div class="slider-field">
+                    <div class="slider-field-header">
+                      <span>Generation Speed Weight (&beta;):</span>
+                      <strong class="val-badge" id="lblWeightSpeed">0.7×</strong>
+                    </div>
+                    <input type="range" id="sliderWeightSpeed" min="0.2" max="1.8" step="0.1" value="0.7">
+                    <p class="field-hint">Higher values favor high bandwidth and rapid tok/s output.</p>
+                  </div>
+                </div>
+
+                <div class="formula-box">
+                  <code>IQ-tok/s = (Intelligence / 10)^<span id="fIq">1.3</span> × (Speed)^<span id="fSpeed">0.7</span></code>
+                </div>
               </div>
+
             </div>
 
-            <!-- Hardware Filters -->
+            <!-- Hardware Filters with Color Indicators -->
             <div class="panel-card">
               <div class="panel-card-header">
-                <h3 class="panel-title">Filter Hardware</h3>
+                <h3 class="panel-title">Filter by Vendor</h3>
               </div>
               <div class="filter-chips-grid">
-                <label class="filter-chip"><input type="checkbox" class="vendor-filter" value="NVIDIA" checked> NVIDIA</label>
-                <label class="filter-chip"><input type="checkbox" class="vendor-filter" value="Apple" checked> Apple</label>
-                <label class="filter-chip"><input type="checkbox" class="vendor-filter" value="AMD" checked> AMD</label>
-                <label class="filter-chip"><input type="checkbox" class="vendor-filter" value="ASUS" checked> ASUS</label>
+                <label class="filter-chip chip-nvidia"><input type="checkbox" class="vendor-filter" value="NVIDIA" checked> <span class="vendor-dot dot-nvidia"></span> NVIDIA</label>
+                <label class="filter-chip chip-apple"><input type="checkbox" class="vendor-filter" value="Apple" checked> <span class="vendor-dot dot-apple"></span> Apple</label>
+                <label class="filter-chip chip-amd"><input type="checkbox" class="vendor-filter" value="AMD" checked> <span class="vendor-dot dot-amd"></span> AMD</label>
+                <label class="filter-chip chip-asus"><input type="checkbox" class="vendor-filter" value="ASUS" checked> <span class="vendor-dot dot-asus"></span> ASUS / Other</label>
               </div>
               <div class="filter-checkboxes-row">
                 <label class="checkbox-label"><input type="checkbox" id="chkIncludeModded" checked> Include Modded GPUs</label>
@@ -251,14 +297,14 @@
               <div class="canvas-help-hint">💡 Scroll to zoom · Drag canvas to pan</div>
             </div>
 
-            <!-- Chart Legend & Status Footer -->
+            <!-- Chart Legend & Status Footer with Vendor Colors -->
             <div class="chart-legend-footer">
               <div class="legend-items">
-                <div class="legend-item"><span class="legend-marker marker-circle"></span> Single Discrete GPU</div>
-                <div class="legend-item"><span class="legend-marker marker-diamond"></span> Single Unified-Memory (Mac/DGX)</div>
-                <div class="legend-item"><span class="legend-marker marker-square"></span> 2× Capacity Sharded</div>
-                <div class="legend-item"><span class="legend-marker marker-triangle"></span> 2× TP Aggregate Ceiling</div>
-                <div class="legend-item"><span class="legend-marker marker-pareto"></span> Pareto-Efficient</div>
+                <div class="legend-item"><span class="legend-vendor-dot dot-nvidia"></span> NVIDIA (Neon Green)</div>
+                <div class="legend-item"><span class="legend-vendor-dot dot-apple"></span> Apple Silicon (Silver)</div>
+                <div class="legend-item"><span class="legend-vendor-dot dot-amd"></span> AMD (Radeon Red)</div>
+                <div class="legend-item"><span class="legend-vendor-dot dot-asus"></span> ASUS / Other (Cyan)</div>
+                <div class="legend-item"><span class="legend-marker marker-pareto-ring"></span> ★ Pareto Frontier (Gold Halo)</div>
                 <div class="legend-item"><span class="legend-line marker-line"></span> Pareto Frontier</div>
               </div>
               <div class="chart-note-footer" id="chartFootnote">
@@ -276,7 +322,7 @@
             <div class="drawer-body" id="drawerBody">
               <div class="empty-state-drawer">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                <p>Click on any point on the chart or select a device below to inspect complete technical specifications, price provenance, and model fit capability.</p>
+                <p>Click on any point on the chart or select a device to inspect complete technical specifications, peak IQ model pairing, and task economics.</p>
               </div>
             </div>
           </aside>
@@ -407,7 +453,93 @@
         </div>
       </section>
 
-      <!-- ================= TAB 4: DEVICE DATABASE & TCO ================= -->
+      <!-- ================= TAB 4: TASK ECONOMICS & TCO (NEW) ================= -->
+      <section class="tab-content" id="tab-task-economics">
+        <div class="matrix-layout">
+          
+          <div class="matrix-controls-panel">
+            <div class="matrix-controls-left">
+              <h2 class="section-title">Task Economics: Local Hardware vs. Cloud API Break-Even</h2>
+              <p class="section-subtitle">Cost per 1,000 Complex Reasoning Tasks &amp; Break-Even Timeline (Artificial Analysis Task Weights)</p>
+            </div>
+            <div class="matrix-controls-right">
+              <div class="control-group-inline">
+                <label>Benchmark Cloud Baseline:</label>
+                <select id="selCloudApiBaseline" class="select-input">
+                  <option value="claude-3-5-sonnet">Claude 3.5 Sonnet ($3.00 in / $15.00 out / 1M)</option>
+                  <option value="gpt-4o" selected>GPT-4o ($2.50 in / $10.00 out / 1M)</option>
+                  <option value="deepseek-r1-api">DeepSeek R1 API ($0.55 in / $2.19 out / 1M)</option>
+                  <option value="llama-3-3-70b-cloud">Llama 3.3 70B Cloud Hosted ($0.80 / 1M)</option>
+                </select>
+              </div>
+              <div class="control-group-inline">
+                <label>Daily Workload Volume:</label>
+                <select id="selDailyWorkload" class="select-input">
+                  <option value="500000">500k Tokens / Day (Light)</option>
+                  <option value="2000000" selected>2M Tokens / Day (Developer Standard)</option>
+                  <option value="10000000">10M Tokens / Day (Team / Batch RAG)</option>
+                  <option value="50000000">50M Tokens / Day (Heavy Production)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Economic Cards Grid -->
+          <div class="fit-explorers-grid">
+            <div class="explorer-card">
+              <div class="explorer-card-header">
+                <h3>💡 Local Inference Economic Superiority</h3>
+                <p>Amortized cost per 1M tokens drops exponentially with scale</p>
+              </div>
+              <div style="font-size:0.85rem;color:#cbd5e1;line-height:1.6">
+                <p>Running local AI hardware incurs fixed upfront capital ($TCO) and low electricity cost (~$0.08 - $0.22 per million tokens generated), compared to cloud APIs which charge linearly forever.</p>
+                <div style="background:rgba(10,15,26,0.8);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:12px;margin-top:12px">
+                  <div style="font-family:var(--font-mono);font-size:0.8rem;color:#38bdf8">
+                    <strong>Local Cost / 1k Tasks:</strong> ~ $0.06 - $0.35<br>
+                    <strong>Cloud API / 1k Tasks:</strong> ~ $4.50 - $18.00<br>
+                    <strong>ROI / Savings:</strong> 92% – 98% lower marginal cost!
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="explorer-card">
+              <div class="explorer-card-header">
+                <h3>⚡ Break-Even Calculator Summary</h3>
+                <p>Selected baseline vs Top Hardware Recommendations</p>
+              </div>
+              <div id="breakEvenSummaryList" class="explorer-results-list"></div>
+            </div>
+          </div>
+
+          <!-- Complete Task Economics Table -->
+          <div class="table-card">
+            <div class="table-card-header">
+              <h3>Hardware Cost-per-Task &amp; Break-Even Analysis</h3>
+            </div>
+            <div class="table-responsive-wrapper">
+              <table class="data-table" id="tblTaskEconomics">
+                <thead>
+                  <tr>
+                    <th>Hardware Configuration</th>
+                    <th>System TCO</th>
+                    <th>Optimal Model Pairing</th>
+                    <th>Peak tok/s</th>
+                    <th>Cost / 1k Tasks (Local)</th>
+                    <th>Daily Cloud Cost Equivalent</th>
+                    <th>Break-Even Timeline</th>
+                    <th>3-Year Net Savings</th>
+                  </tr>
+                </thead>
+                <tbody id="tblTaskEconomicsBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================= TAB 5: DEVICE DATABASE & TCO ================= -->
       <section class="tab-content" id="tab-device-table">
         <div class="device-table-layout">
           

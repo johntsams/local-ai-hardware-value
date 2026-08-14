@@ -442,10 +442,31 @@ def plot(rows, mode, output, args=None):
     ax.plot([d["plot_price"] for d in eff],[d["score"] for d in eff],
             color=FRONTIER,lw=2.4,zorder=1)
 
+    VENDOR_COLORS = {
+        "NVIDIA": "#22c55e",
+        "Apple": "#cbd5e1",
+        "AMD": "#ef4444",
+        "ASUS": "#38bdf8"
+    }
+
     for d in points:
-        ax.scatter(d["plot_price"],d["score"],s=125,marker=marker_for(d),
-                   facecolor=PARETO if d["pareto"] else DOMINATED,
-                   edgecolor="black",linewidth=.9,zorder=4)
+        vendor = d.get("vendor", "NVIDIA")
+        vcolor = VENDOR_COLORS.get(vendor, "#38bdf8")
+        
+        if d["pareto"]:
+            # Draw glowing pareto halo ring
+            ax.scatter(d["plot_price"], d["score"], s=280, marker="o",
+                       facecolor="none", edgecolor="#f59e0b", linewidth=2.2, linestyle="--", zorder=3)
+            face_color = vcolor
+            edge_color = "#f59e0b"
+            lw = 1.8
+        else:
+            face_color = vcolor
+            edge_color = "#0f172a"
+            lw = 1.0
+
+        ax.scatter(d["plot_price"], d["score"], s=135, marker=marker_for(d),
+                   facecolor=face_color, edgecolor=edge_color, linewidth=lw, zorder=4)
 
     ax.set_xscale("log"); ax.set_yscale("log")
     xs=[d["plot_price"] for d in points]; ys=[d["score"] for d in points]
@@ -488,11 +509,14 @@ def plot(rows, mode, output, args=None):
     if mode=="tp-ceiling":
         handles.append(Line2D([0],[0],marker="^",ls="None",mfc="none",mec="black",markersize=9,label="2× TP theoretical aggregate-local-BW ceiling"))
     handles += [
-        Line2D([0],[0],marker="o",ls="None",mfc=PARETO,mec="black",markersize=9,label="Pareto-efficient"),
-        Line2D([0],[0],marker="o",ls="None",mfc=DOMINATED,mec="black",markersize=9,label="Dominated"),
+        Line2D([0],[0],marker="o",ls="None",mfc="#22c55e",mec="black",markersize=9,label="NVIDIA (Green)"),
+        Line2D([0],[0],marker="o",ls="None",mfc="#cbd5e1",mec="black",markersize=9,label="Apple Silicon (Silver)"),
+        Line2D([0],[0],marker="o",ls="None",mfc="#ef4444",mec="black",markersize=9,label="AMD (Red)"),
+        Line2D([0],[0],marker="o",ls="None",mfc="#38bdf8",mec="black",markersize=9,label="ASUS / Other (Cyan)"),
+        Line2D([0],[0],marker="o",ls="None",mfc="none",mec="#f59e0b",markersize=11,markeredgewidth=2,label="★ Pareto-efficient (Gold Halo)"),
         Line2D([0],[0],color=FRONTIER,lw=2.4,label="Pareto frontier"),
     ]
-    legend=ax.legend(handles=handles,loc="upper left",fontsize=12.5,borderpad=1.0,labelspacing=.65)
+    legend=ax.legend(handles=handles,loc="upper left",fontsize=11.5,borderpad=0.9,labelspacing=.55)
     fig.subplots_adjust(left=.07,right=.99,top=.925,bottom=.15)
 
     label_font = 7.8 if mode == "singles" else 6.45
