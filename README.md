@@ -19,9 +19,9 @@ An open-source interactive analysis suite, multi-factor scoring engine, and hard
   - Dynamically recalculates the **Pareto frontier** in real-time as weights, budget filters, or system toggles change.
   - Adaptive smart annotations: declutters crowded points when zoomed out and expands rich details when zoomed in.
   - Integrated **Device Inspector Drawer** showing full technical specs, memory bus bandwidth, FP16/Tensor TFLOPS, and price provenance.
-- **System Context & OS Overhead Modifiers**:
-  - **Discrete GPUs**: Adds an adjustable **Host Platform Cost** (default **+$650**) to reflect total build investment (CPU, motherboard, RAM, PSU, chassis).
-  - **Unified Memory Systems (Apple Mac Studio, DGX Spark, AMD APUs)**: Factors in that they are complete standalone computers ($0 extra host cost), while deducting an adjustable **OS RAM Overhead** (default **8 GB**, configurable 6–10 GB) reserved by macOS / Linux.
+- **Optional Real-World Adjustments** *(off by default)*:
+  - **Discrete GPUs**: Optionally add an adjustable **Host Platform Cost** (default **+$650**) to reflect total build investment (CPU, motherboard, RAM, PSU, chassis).
+  - **Unified Memory Systems (Apple Mac Studio, DGX Spark, AMD APUs)**: Optionally reserve adjustable **OS RAM** (default **8 GB**, configurable 0–24 GB) for macOS / Linux.
 - **Multi-Factor Weighted Scoring Model**:
   - Configurable exponent weights for Memory Capacity ($W_{mem}$), Memory Bandwidth ($W_{bw}$), and Compute FLOPS ($W_{flops}$).
   - Ecosystem Efficiency Multiplier ($E_{cuda}$, e.g. 1.25× for NVIDIA kernel maturity, vLLM, and TensorRT-LLM).
@@ -74,7 +74,7 @@ python run_dashboard.py
 # Standard single devices
 python 03_plot_local_ai_value.py --mode singles
 
-# Single devices with System Context active (+Host cost & -OS RAM)
+# Single devices with optional real-world adjustments (+Host cost & -OS RAM)
 python 03_plot_local_ai_value.py --mode singles --system-context
 
 # Multi-factor custom weighting
@@ -101,10 +101,10 @@ Where:
 - $T_{\text{eff}}$ = Compute FP16 TFLOPS
 - $E_{\text{cuda}}$ = CUDA Software Ecosystem Boost (1.25× default)
 
-### System Context Modifiers
+### Optional Real-World Adjustments
 
-- **Discrete GPUs**: $\text{Price}_{\text{eff}} = \text{Price}_{\text{GPU}} + \text{Cost}_{\text{host}}$ ($+\$650$ default)
-- **Unified Systems**: $C_{\text{eff}} = \max(2, C_{\text{raw}} - \text{Overhead}_{\text{OS}})$ ($-8\text{ GB}$ default)
+- **Discrete GPUs**: when enabled, $\text{Price}_{\text{eff}} = \text{Price}_{\text{GPU}} + \text{Cost}_{\text{host}}$ ($+\$650$ default)
+- **Unified Systems**: when enabled, $C_{\text{eff}} = \max(2, C_{\text{raw}} - \text{Overhead}_{\text{OS}})$ ($-8\text{ GB}$ default)
 
 ### Memory Fit & Generation Speed Ceilings
 

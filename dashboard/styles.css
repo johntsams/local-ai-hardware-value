@@ -567,6 +567,30 @@ input[type="range"]::-webkit-slider-thumb:hover {
   overflow: hidden;
 }
 
+body.plot-fullscreen-active {
+  overflow: hidden;
+}
+
+body.plot-fullscreen-active .main-plot-container {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  border-radius: 0;
+  margin: 0;
+}
+
+body.plot-fullscreen-active .plot-wrapper {
+  min-height: 0;
+  touch-action: none;
+}
+
+body.plot-fullscreen-active .main-chart-svg {
+  min-height: 0;
+}
+
 .plot-header-bar {
   display: flex;
   align-items: center;
@@ -674,6 +698,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   min-height: 620px;
   width: 100%;
   cursor: grab;
+  touch-action: pan-y;
 }
 
 .plot-wrapper.is-panning {
@@ -736,6 +761,66 @@ input[type="range"]::-webkit-slider-thumb:hover {
   stroke-width: 2.5;
   stroke-dasharray: 4 3;
   filter: drop-shadow(0 0 6px var(--color-pareto-glow));
+}
+
+.trendline {
+  fill: none;
+  stroke: #a78bfa;
+  stroke-width: 2;
+  stroke-dasharray: 8 6;
+  opacity: 0.8;
+  filter: drop-shadow(0 0 4px rgba(167, 139, 250, 0.35));
+  pointer-events: none;
+}
+
+.selection-gap-annotation {
+  pointer-events: none;
+}
+
+.selection-gap-line {
+  stroke-width: 2.5;
+  stroke-dasharray: 4 3;
+  opacity: 0.95;
+}
+
+.selection-gap-annotation.ahead .selection-gap-line,
+.selection-gap-annotation.ahead .selection-gap-label {
+  stroke: #22c55e;
+  fill: #86efac;
+}
+
+.selection-gap-annotation.ahead .selection-gap-endpoint { stroke: #22c55e; }
+
+.selection-gap-annotation.behind .selection-gap-line,
+.selection-gap-annotation.behind .selection-gap-label {
+  stroke: #fb923c;
+  fill: #fdba74;
+}
+
+.selection-gap-annotation.behind .selection-gap-endpoint { stroke: #fb923c; }
+
+.selection-gap-annotation.at-average .selection-gap-line,
+.selection-gap-annotation.at-average .selection-gap-label {
+  stroke: #a78bfa;
+  fill: #c4b5fd;
+}
+
+.selection-gap-annotation.at-average .selection-gap-endpoint { stroke: #a78bfa; }
+
+.selection-gap-endpoint {
+  fill: var(--bg-card);
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.selection-gap-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: rgba(10, 15, 26, 0.9);
+  stroke-width: 4px;
+  stroke-linejoin: round;
 }
 
 .data-marker {
@@ -884,10 +969,47 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .legend-line { width: 18px; height: 3px; background: var(--color-frontier); border-radius: 2px; }
+.marker-trendline { height: 0; background: transparent; border-top: 2px dashed #a78bfa; }
 
 .chart-note-footer {
   font-size: 0.72rem;
   color: var(--text-muted);
+}
+
+.trendline-comparison-card {
+  background: rgba(30, 41, 59, 0.46);
+  border: 1px solid rgba(167, 139, 250, 0.45);
+  border-left: 3px solid #a78bfa;
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+}
+
+.trendline-comparison-card.ahead {
+  border-color: rgba(34, 197, 94, 0.45);
+  border-left-color: #22c55e;
+}
+
+.trendline-comparison-card.behind {
+  border-color: rgba(251, 146, 60, 0.45);
+  border-left-color: #fb923c;
+}
+
+.trendline-comparison-value {
+  color: #c4b5fd;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 3px;
+}
+
+.trendline-comparison-card.ahead .trendline-comparison-value { color: #86efac; }
+.trendline-comparison-card.behind .trendline-comparison-value { color: #fdba74; }
+
+.trendline-comparison-note {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  margin-top: 4px;
 }
 
 /* ================= DETAIL DRAWER ================= */

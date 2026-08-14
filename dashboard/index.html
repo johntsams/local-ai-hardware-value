@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260814-fullscreen">
 </head>
 <body class="dark-theme">
   <div class="app-layout">
@@ -113,39 +113,39 @@
               </div>
             </div>
 
-            <!-- System Context & OS Overhead Box -->
+            <!-- Optional Real-World Adjustments Box -->
             <div class="panel-card">
               <div class="panel-card-header">
                 <div class="header-with-badge">
-                  <h3 class="panel-title">System Context & Host Overhead</h3>
-                  <span class="badge badge-subtle">Fair TCO</span>
+                  <h3 class="panel-title">Optional Real-World Adjustments</h3>
+                  <span class="badge badge-subtle">Off by default</span>
                 </div>
               </div>
               <div class="toggle-control-group">
                 <label class="switch-control">
-                  <input type="checkbox" id="toggleSystemContext" checked>
+                  <input type="checkbox" id="toggleSystemContext">
                   <span class="slider-switch"></span>
-                  <span class="switch-label"><strong>Account for System Context:</strong><br><small>Add Host Cost for Discrete GPUs &amp; Deduct OS Overhead for Unified Memory</small></span>
+                  <span class="switch-label"><strong>Apply real-world adjustments:</strong><br><small>Add optional host cost for discrete GPUs &amp; reserve OS memory for unified-memory systems</small></span>
                 </label>
               </div>
 
               <div class="system-context-sliders" id="systemContextControls">
                 <div class="slider-field">
                   <div class="slider-field-header">
-                    <span>Discrete GPU Host Platform Cost:</span>
+                    <span>Optional Discrete-GPU Host Cost:</span>
                     <strong class="val-badge" id="lblHostCost">$650</strong>
                   </div>
                   <input type="range" id="sliderHostCost" min="0" max="2000" step="50" value="650">
-                  <p class="field-hint">Discrete GPUs require CPU, Motherboard, RAM, PSU &amp; Case.</p>
+                  <p class="field-hint">Estimate for CPU, motherboard, RAM, PSU and case when pricing a complete build.</p>
                 </div>
 
                 <div class="slider-field">
                   <div class="slider-field-header">
-                    <span>Unified Memory (Mac) OS RAM Overhead:</span>
+                    <span>Unified-Memory OS RAM Reservation:</span>
                     <strong class="val-badge" id="lblOsOverhead">8 GB</strong>
                   </div>
                   <input type="range" id="sliderOsOverhead" min="0" max="24" step="1" value="8">
-                  <p class="field-hint">Mac Studio / APUs include CPU+Mobo ($0 extra), but macOS reserves 6–10GB.</p>
+                  <p class="field-hint">Optional memory reserved for macOS / Linux on a unified-memory system.</p>
                 </div>
               </div>
             </div>
@@ -256,7 +256,7 @@
           </aside>
 
           <!-- Main Interactive Plot Area (Taller & Rich Zoom/Pan Controls) -->
-          <div class="main-plot-container">
+          <div class="main-plot-container" id="mainPlotContainer">
             <div class="plot-header-bar">
               <div class="plot-title-group">
                 <h2 class="plot-title" id="plotHeaderTitle">Local-AI Hardware Value &amp; Pareto Frontier</h2>
@@ -276,6 +276,10 @@
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
                     Fit
                   </button>
+                  <button class="btn-tool" id="btnFullscreenPlot" title="Open plot full screen" aria-pressed="false">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>
+                    Full screen
+                  </button>
                   <span class="zoom-level-pill" id="lblZoomLevel">100%</span>
                 </div>
 
@@ -294,7 +298,7 @@
             <div class="plot-wrapper" id="plotWrapper">
               <svg id="hardwareScatterPlot" class="main-chart-svg"></svg>
               <div id="plotTooltip" class="chart-tooltip"></div>
-              <div class="canvas-help-hint">💡 Scroll to zoom · Drag canvas to pan</div>
+              <div class="canvas-help-hint">💡 Wheel / pinch to zoom · Drag / one-finger pan in full screen</div>
             </div>
 
             <!-- Chart Legend & Status Footer with Vendor Colors -->
@@ -306,9 +310,10 @@
                 <div class="legend-item"><span class="legend-vendor-dot dot-asus"></span> ASUS / Other (Cyan)</div>
                 <div class="legend-item"><span class="legend-marker marker-pareto-ring"></span> ★ Pareto Frontier (Gold Halo)</div>
                 <div class="legend-item"><span class="legend-line marker-line"></span> Pareto Frontier</div>
+                <div class="legend-item"><span class="legend-line marker-trendline"></span> Average price/performance trendline</div>
               </div>
               <div class="chart-note-footer" id="chartFootnote">
-                System Context is active: Discrete GPUs include +$650 platform host cost; Unified systems deduct 8GB OS memory.
+                Optional adjustments are off: showing hardware purchase price and full listed memory. Trendline uses the visible options and current metric.
               </div>
             </div>
           </div>
@@ -584,6 +589,6 @@
   </div>
 
   <!-- Scripts -->
-  <script src="app.js"></script>
+  <script src="app.js?v=20260814-fullscreen"></script>
 </body>
 </html>

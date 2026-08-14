@@ -1947,6 +1947,7 @@ const state = {
   filteredDevices: [],
   processedPoints: [],
   selectedDeviceId: null,
+  selectedPointId: null,
   
   // Y-Axis Metric Mode
   yMetric: 'weighted-score', // 'weighted-score' | 'iq-throughput' | 'iq-per-dollar' | 'cost-per-1k-tasks'
@@ -1954,8 +1955,8 @@ const state = {
   // Display & Parallelism Settings
   chartMode: 'singles', // 'singles' | 'capacity' | 'tp-ceiling'
   
-  // System Context & Host Overhead Settings
-  useSystemContext: true,
+  // Optional Real-World Adjustment Settings (off by default)
+  useSystemContext: false,
   hostCostUsd: 650,
   macOsOverheadGb: 8,
   
@@ -1984,6 +1985,7 @@ const state = {
   zoomScale: 1.0,
   panX: 0,
   panY: 0,
+  isPlotFullscreen: false,
   isDragging: false,
   dragStartX: 0,
   dragStartY: 0,
@@ -2123,16 +2125,22 @@ function initControlListeners() {
 
   const toggleSys = document.getElementById('toggleSystemContext');
   if (toggleSys) {
-    toggleSys.addEventListener('change', (e) => {
-      state.useSystemContext = e.target.checked;
+    const syncSystemContextControls = () => {
       const sysCtrl = document.getElementById('systemContextControls');
       if (sysCtrl) {
         sysCtrl.style.opacity = state.useSystemContext ? '1.0' : '0.4';
         sysCtrl.style.pointerEvents = state.useSystemContext ? 'auto' : 'none';
       }
+    };
+
+    toggleSys.addEventListener('change', (e) => {
+      state.useSystemContext = e.target.checked;
+      syncSystemContextControls();
       updateFootnote();
       recalculateAndRender();
     });
+    syncSystemContextControls();
+    updateFootnote();
   }
 
   // System Context Sliders
@@ -2232,7 +2240,7 @@ function initControlListeners() {
   if (chkLog) {
     chkLog.addEventListener('change', (e) => {
       state.isLogScale = e.target.checked;
-      renderScatterPlot();
+      recalculateAndRender();
     });
   }
 
@@ -2361,6 +2369,7 @@ function initZoomPanListeners() {
   const btnIn = document.getElementById('btnZoomIn');
   const btnOut = document.getElementById('btnZoomOut');
   const btnReset = document.getElementById('btnResetZoom');
+  const btnFullscreen = document.getElementById('btnFullscreenPlot');
   const lblZoom = document.getElementById('lblZoomLevel');
 
   function updateZoomLabel() {
@@ -2397,6 +2406,27 @@ function initZoomPanListeners() {
     });
   }
 
+  function setPlotFullscreen(isFullscreen) {
+    state.isPlotFullscreen = isFullscreen;
+    document.body.classList.toggle('plot-fullscreen-active', isFullscreen);
+    if (btnFullscreen) {
+      btnFullscreen.setAttribute('aria-pressed', String(isFullscreen));
+      btnFullscreen.title = isFullscreen ? 'Exit full screen' : 'Open plot full screen';
+      btnFullscreen.innerHTML = isFullscreen
+        ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v5H3M16 3v5h5M8 21v-5H3M16 21v-5h5"/></svg> Exit'
+        : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg> Full screen';
+    }
+    if (wrapper) requestAnimationFrame(() => renderScatterPlot());
+  }
+
+  if (btnFullscreen) {
+    btnFullscreen.addEventListener('click', () => setPlotFullscreen(!state.isPlotFullscreen));
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && state.isPlotFullscreen) setPlotFullscreen(false);
+  });
+
   if (wrapper) {
     wrapper.addEventListener('wheel', (e) => {
       e.preventDefault();
@@ -2411,6 +2441,71 @@ function initZoomPanListeners() {
       state.dragStartY = e.clientY - state.panY;
       wrapper.classList.add('is-panning');
     });
+
+    let touchStartDistance = 0;
+    let touchStartZoom = 1;
+    let touchStartPanX = 0;
+    let touchStartPanY = 0;
+    let touchStartMidpoint = { x: 0, y: 0 };
+
+    const getTouchDistance = (touches) => {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.hypot(dx, dy);
+    };
+
+    const getTouchMidpoint = (touches) => ({
+      x: (touches[0].clientX + touches[1].clientX) / 2,
+      y: (touches[0].clientY + touches[1].clientY) / 2
+    });
+
+    wrapper.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        touchStartDistance = getTouchDistance(e.touches);
+        touchStartZoom = state.zoomScale;
+        touchStartPanX = state.panX;
+        touchStartPanY = state.panY;
+        touchStartMidpoint = getTouchMidpoint(e.touches);
+      } else if (e.touches.length === 1 && state.isPlotFullscreen) {
+        e.preventDefault();
+        state.isDragging = true;
+        state.dragStartX = e.touches[0].clientX - state.panX;
+        state.dragStartY = e.touches[0].clientY - state.panY;
+        wrapper.classList.add('is-panning');
+      }
+    }, { passive: false });
+
+    wrapper.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 2 && touchStartDistance > 0) {
+        e.preventDefault();
+        const rect = wrapper.getBoundingClientRect();
+        const midpoint = getTouchMidpoint(e.touches);
+        const newScale = Math.max(0.6, Math.min(8.0, touchStartZoom * (getTouchDistance(e.touches) / touchStartDistance)));
+        const cx = midpoint.x - rect.left;
+        const cy = midpoint.y - rect.top;
+        const initialLocalMidpointX = touchStartMidpoint.x - rect.left;
+        const initialLocalMidpointY = touchStartMidpoint.y - rect.top;
+        state.panX = cx - (initialLocalMidpointX - touchStartPanX) * (newScale / touchStartZoom);
+        state.panY = cy - (initialLocalMidpointY - touchStartPanY) * (newScale / touchStartZoom);
+        state.zoomScale = newScale;
+        updateZoomLabel();
+        renderScatterPlot();
+      } else if (e.touches.length === 1 && state.isDragging && state.isPlotFullscreen) {
+        e.preventDefault();
+        state.panX = e.touches[0].clientX - state.dragStartX;
+        state.panY = e.touches[0].clientY - state.dragStartY;
+        renderScatterPlot();
+      }
+    }, { passive: false });
+
+    wrapper.addEventListener('touchend', () => {
+      touchStartDistance = 0;
+      if (state.isDragging) {
+        state.isDragging = false;
+        wrapper.classList.remove('is-panning');
+      }
+    }, { passive: true });
 
     window.addEventListener('mousemove', (e) => {
       if (!state.isDragging) return;
@@ -2440,9 +2535,9 @@ function updateFootnote() {
   const fn = document.getElementById('chartFootnote');
   if (fn) {
     if (state.useSystemContext) {
-      fn.textContent = `System Context is ACTIVE: Discrete GPUs include +$${state.hostCostUsd} host platform cost; Unified systems deduct ${state.macOsOverheadGb}GB OS overhead.`;
+      fn.textContent = `Optional adjustments are ON: Discrete GPUs include +$${state.hostCostUsd} host platform cost; Unified systems deduct ${state.macOsOverheadGb}GB OS memory. Trendline uses visible options and the current metric.`;
     } else {
-      fn.textContent = `System Context is OFF: Showing bare hardware purchase price ($P) and unadjusted total raw capacity ($C).`;
+      fn.textContent = `Optional adjustments are OFF: showing hardware purchase price ($P) and full listed memory ($C). Trendline uses visible options and the current metric.`;
     }
   }
 }
@@ -2672,6 +2767,62 @@ function recalculateAndRender() {
   renderOpenModelsExplorer();
   renderTaskEconomics();
   renderDeviceTable();
+  if (state.selectedDeviceId) {
+    const selectedPointStillVisible = state.selectedPointId && state.processedPoints.some(pt => pt.id === state.selectedPointId);
+    selectDevice(state.selectedDeviceId, selectedPointStillVisible ? state.selectedPointId : null);
+  }
+}
+
+// Fit the visible price/performance relationship in the same scale used by the chart.
+// Log-log regression keeps the trendline meaningful across the very wide price range.
+function calculateTrendline(points = state.processedPoints) {
+  const validPoints = points.filter(pt =>
+    Number.isFinite(pt.effPrice) && pt.effPrice > 0 &&
+    Number.isFinite(pt.activeY) && pt.activeY > 0
+  );
+  if (validPoints.length < 2) return null;
+
+  const xValues = validPoints.map(pt => state.isLogScale ? Math.log10(pt.effPrice) : pt.effPrice);
+  const yValues = validPoints.map(pt => state.isLogScale ? Math.log10(pt.activeY) : pt.activeY);
+  const xMean = xValues.reduce((sum, value) => sum + value, 0) / xValues.length;
+  const yMean = yValues.reduce((sum, value) => sum + value, 0) / yValues.length;
+  const denominator = xValues.reduce((sum, value) => sum + Math.pow(value - xMean, 2), 0);
+  if (denominator <= Number.EPSILON) return null;
+
+  const slope = xValues.reduce((sum, value, index) => sum + ((value - xMean) * (yValues[index] - yMean)), 0) / denominator;
+  const intercept = yMean - (slope * xMean);
+
+  return {
+    mode: state.isLogScale ? 'log-log' : 'linear',
+    slope,
+    intercept,
+    predictY: (price) => {
+      const x = state.isLogScale ? Math.log10(Math.max(price, 0.01)) : price;
+      const y = intercept + (slope * x);
+      return state.isLogScale ? Math.pow(10, y) : y;
+    },
+    priceForY: (performance) => {
+      if (Math.abs(slope) <= Number.EPSILON || !Number.isFinite(performance) || performance <= 0) return null;
+      const y = state.isLogScale ? Math.log10(performance) : performance;
+      const x = (y - intercept) / slope;
+      return state.isLogScale ? Math.pow(10, x) : x;
+    }
+  };
+}
+
+function comparePointToTrendline(pt, trendline = calculateTrendline()) {
+  if (!pt || !trendline) return null;
+  const expectedPrice = trendline.priceForY(pt.activeY);
+  if (!Number.isFinite(expectedPrice) || expectedPrice <= 0) return null;
+
+  const delta = expectedPrice - pt.effPrice;
+  const tolerance = Math.max(25, expectedPrice * 0.01);
+  const relation = Math.abs(delta) <= tolerance ? 'at average' : (delta > 0 ? 'ahead' : 'behind');
+  return { expectedPrice, delta, relation, relationClass: relation.replace(' ', '-') };
+}
+
+function formatUsd(value) {
+  return `$${Math.round(value).toLocaleString()}`;
 }
 
 // ================= SCATTER PLOT SVG RENDERING WITH VENDOR COLORS & SMART ANNOTATIONS =================
@@ -2726,6 +2877,8 @@ function renderScatterPlot() {
     const by = getBaseY(val);
     return state.panY + by * state.zoomScale;
   }
+
+  const trendline = calculateTrendline();
 
   // Draw Grid Lines
   const gridGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -2813,6 +2966,59 @@ function renderScatterPlot() {
   }
   svg.appendChild(yLabel);
 
+  // Draw the average price/performance trendline for the currently visible options.
+  if (trendline) {
+    const trendlinePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const trendlineStartY = Math.max(yMin, Math.min(yMax, trendline.predictY(xMin)));
+    const trendlineEndY = Math.max(yMin, Math.min(yMax, trendline.predictY(xMax)));
+    trendlinePath.setAttribute('d', `M ${getX(xMin)} ${getY(trendlineStartY)} L ${getX(xMax)} ${getY(trendlineEndY)}`);
+    trendlinePath.setAttribute('class', 'trendline');
+    trendlinePath.setAttribute('aria-label', `${trendline.mode} average price-performance trendline`);
+    svg.appendChild(trendlinePath);
+  }
+
+  // When a point is selected, project its performance onto the trendline and
+  // show the price gap on the x-axis: positive means cheaper/better value.
+  const selectedPoint = (state.selectedPointId && state.processedPoints.find(pt => pt.id === state.selectedPointId))
+    || state.processedPoints.find(pt => pt.baseId === state.selectedDeviceId && pt.multiplier === 1);
+  const selectedComparison = comparePointToTrendline(selectedPoint, trendline);
+  if (selectedPoint && selectedComparison) {
+    const actualX = getX(selectedPoint.effPrice);
+    const projectedPrice = Math.max(xMin, Math.min(xMax, selectedComparison.expectedPrice));
+    const projectedX = getX(projectedPrice);
+    const pointY = getY(selectedPoint.activeY);
+    const gapGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    gapGroup.setAttribute('class', `selection-gap-annotation ${selectedComparison.relationClass}`);
+
+    const gapLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    gapLine.setAttribute('x1', actualX);
+    gapLine.setAttribute('y1', pointY);
+    gapLine.setAttribute('x2', projectedX);
+    gapLine.setAttribute('y2', pointY);
+    gapLine.setAttribute('class', 'selection-gap-line');
+    gapGroup.appendChild(gapLine);
+
+    [actualX, projectedX].forEach(x => {
+      const endpoint = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      endpoint.setAttribute('cx', x);
+      endpoint.setAttribute('cy', pointY);
+      endpoint.setAttribute('r', 3.5);
+      endpoint.setAttribute('class', 'selection-gap-endpoint');
+      gapGroup.appendChild(endpoint);
+    });
+
+    const gapLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    gapLabel.setAttribute('x', (actualX + projectedX) / 2);
+    gapLabel.setAttribute('y', pointY - 12);
+    gapLabel.setAttribute('text-anchor', 'middle');
+    gapLabel.setAttribute('class', 'selection-gap-label');
+    gapLabel.textContent = selectedComparison.relation === 'at average'
+      ? 'At average'
+      : `${selectedComparison.relation === 'ahead' ? 'Ahead' : 'Behind'} avg by ${formatUsd(Math.abs(selectedComparison.delta))}`;
+    gapGroup.appendChild(gapLabel);
+    svg.appendChild(gapGroup);
+  }
+
   // Draw Pareto Frontier Path
   if (state.paretoPoints && state.paretoPoints.length > 1) {
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -2834,7 +3040,9 @@ function renderScatterPlot() {
   state.processedPoints.forEach(pt => {
     const px = getX(pt.effPrice);
     const py = getY(pt.activeY);
-    const isSelected = pt.baseId === state.selectedDeviceId;
+    const isSelected = state.selectedPointId
+      ? pt.id === state.selectedPointId
+      : pt.baseId === state.selectedDeviceId && pt.multiplier === 1;
     const isPareto = pt.isPareto;
 
     const vendorTheme = VENDOR_COLORS[pt.vendor] || VENDOR_COLORS['ASUS'];
@@ -2898,7 +3106,7 @@ function renderScatterPlot() {
     marker.addEventListener('mouseenter', (e) => showTooltip(e, pt));
     marker.addEventListener('mousemove', (e) => moveTooltip(e));
     marker.addEventListener('mouseleave', () => hideTooltip());
-    marker.addEventListener('click', () => selectDevice(pt.baseId));
+    marker.addEventListener('click', () => selectDevice(pt.baseId, pt.id));
 
     markersGroup.appendChild(marker);
 
@@ -2911,7 +3119,7 @@ function renderScatterPlot() {
     if (shouldShowLabel) {
       const labelGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       labelGroup.setAttribute('class', 'callout-box');
-      labelGroup.addEventListener('click', () => selectDevice(pt.baseId));
+      labelGroup.addEventListener('click', () => selectDevice(pt.baseId, pt.id));
 
       const offsetX = (px > margin.left + plotWidth * 0.75) ? -135 : 25;
       const offsetY = (py < margin.top + 50) ? 25 : -28;
@@ -2970,6 +3178,13 @@ function renderScatterPlot() {
 function showTooltip(e, pt) {
   const tt = document.getElementById('plotTooltip');
   if (!tt) return;
+  const comparison = comparePointToTrendline(pt);
+  const comparisonText = comparison
+    ? (comparison.relation === 'at average'
+      ? 'At average'
+      : `${comparison.relation === 'ahead' ? 'Ahead' : 'Behind'} by ${formatUsd(Math.abs(comparison.delta))}`)
+    : 'Unavailable';
+  const comparisonColor = comparison?.relation === 'ahead' ? '#22c55e' : (comparison?.relation === 'behind' ? '#fb923c' : '#a78bfa');
   tt.style.display = 'block';
   tt.innerHTML = `
     <div class="tooltip-title">${pt.name}</div>
@@ -2979,6 +3194,9 @@ function showTooltip(e, pt) {
 
       <span class="tooltip-lbl">Effective System Price:</span>
       <span class="tooltip-val">$${pt.effPrice.toLocaleString()}</span>
+
+      <span class="tooltip-lbl">vs. Average Trendline:</span>
+      <span class="tooltip-val" style="color:${comparisonColor}">${comparisonText}</span>
 
       <span class="tooltip-lbl">Usable AI Memory:</span>
       <span class="tooltip-val">${pt.effCap} GB (${pt.rawDevice.memory_type || 'VRAM'})</span>
@@ -3022,8 +3240,9 @@ function hideTooltip() {
 }
 
 // ================= DEVICE INSPECTOR DRAWER =================
-function selectDevice(deviceId) {
+function selectDevice(deviceId, pointId = null) {
   state.selectedDeviceId = deviceId;
+  state.selectedPointId = pointId;
   state.selectedExplorerHardwareId = deviceId;
   
   const dev = state.rawDevices.find(d => d.id === deviceId);
@@ -3038,6 +3257,9 @@ function selectDevice(deviceId) {
   catBadge.className = `badge badge-${dev.vendor.toLowerCase()}`;
 
   const calc = calculateDeviceScore(dev, 1, false);
+  const selectedPoint = (pointId && state.processedPoints.find(pt => pt.id === pointId))
+    || state.processedPoints.find(pt => pt.baseId === deviceId && pt.multiplier === 1);
+  const comparison = comparePointToTrendline(selectedPoint);
 
   body.innerHTML = `
     <div class="device-spec-hero">
@@ -3066,6 +3288,14 @@ function selectDevice(deviceId) {
         <div class="spec-metric-value" style="color:#34d399">$${calc.costPer1kTasks}</div>
       </div>
     </div>
+
+    ${comparison ? `
+    <div class="trendline-comparison-card ${comparison.relationClass}">
+      <div class="spec-metric-label">Average Trendline Position</div>
+      <div class="trendline-comparison-value">${comparison.relation === 'at average' ? 'At average' : `${comparison.relation === 'ahead' ? 'Ahead' : 'Behind'} by ${formatUsd(Math.abs(comparison.delta))}`}</div>
+      <div class="trendline-comparison-note">At this performance level, the fitted average price is ${formatUsd(comparison.expectedPrice)}.</div>
+    </div>
+    ` : ''}
 
     <div class="spec-notes-section">
       <div class="spec-note-item" style="border-left-color:#22c55e">
