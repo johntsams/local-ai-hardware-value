@@ -3317,17 +3317,10 @@ function centerPointInView(pt) {
   return true;
 }
 
-// Below 1440px the Inspector stacks under the plot and is usually below the fold,
-// so a highlight alone would land somewhere the user cannot see.
-function revealInspectorIfStacked() {
-  if (state.isPlotFullscreen) return;
-  if (window.innerWidth > 1440) return;
-  const drawer = document.getElementById('deviceDetailDrawer');
-  if (!drawer) return;
-  const box = drawer.getBoundingClientRect();
-  if (box.top >= 0 && box.bottom <= window.innerHeight) return;
-  drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
+// Deliberately no auto-scroll to the Inspector. Below 1440px the Inspector stacks
+// under the plot, and scrolling to it throws the plot — and the point just
+// highlighted — off screen. The page stays put; the Inspector fills in for
+// whenever the user scrolls down to it.
 
 function initPlotSearch() {
   const input = document.getElementById('txtSearchPlot');
@@ -3358,7 +3351,6 @@ function initPlotSearch() {
     if (!result || !result.point) return;
     centerPointInView(result.point);
     selectDevice(result.deviceId, result.point.id);
-    revealInspectorIfStacked();
     closeResults();
     input.value = result.name;
     if (clearBtn) clearBtn.hidden = false;
