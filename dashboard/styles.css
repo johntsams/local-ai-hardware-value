@@ -621,6 +621,128 @@ body.plot-fullscreen-active .main-chart-svg {
   gap: 10px;
 }
 
+/* Plot Device Search — find hardware by name and highlight it on the plot */
+.plot-search-cluster {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0 6px;
+  transition: border-color 0.2s ease;
+}
+
+.plot-search-cluster:focus-within {
+  border-color: var(--border-focus);
+}
+
+.plot-search-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.search-input.search-input-plot {
+  width: 230px;
+  background: transparent;
+  border: none;
+  padding: 7px 8px;
+  font-size: 0.8rem;
+}
+
+.search-input.search-input-plot:focus {
+  border: none;
+}
+
+.plot-search-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.plot-search-clear:hover {
+  color: var(--text-primary);
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.plot-search-results {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  min-width: 260px;
+  max-height: 280px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+  z-index: 80;
+}
+
+.plot-search-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.plot-search-item:hover,
+.plot-search-item.is-active {
+  background: rgba(56, 189, 248, 0.14);
+  color: var(--text-primary);
+}
+
+.plot-search-item .psr-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plot-search-item .psr-meta {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.plot-search-empty {
+  padding: 10px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+@media (max-width: 1024px) {
+  .plot-search-cluster {
+    order: -1;
+    width: 100%;
+  }
+  .search-input.search-input-plot {
+    width: 100%;
+  }
+}
+
 /* Zoom Cluster Controls */
 .zoom-controls-cluster {
   display: flex;
