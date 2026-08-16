@@ -2028,6 +2028,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initTabs();
   initControlListeners();
   initZoomPanListeners();
+  initPlotSearch();
   await loadData();
   recalculateAndRender();
 });
@@ -3040,6 +3041,13 @@ function renderScatterPlot() {
   state.processedPoints.forEach(pt => {
     const px = getX(pt.effPrice);
     const py = getY(pt.activeY);
+
+    // Cache the untransformed plot coordinates. Plot search needs them to work out
+    // where a point sits independently of the current pan/zoom, so it can bring an
+    // off-screen match into view.
+    pt.baseXCoord = getBaseX(pt.effPrice);
+    pt.baseYCoord = getBaseY(pt.activeY);
+
     const isSelected = state.selectedPointId
       ? pt.id === state.selectedPointId
       : pt.baseId === state.selectedDeviceId && pt.multiplier === 1;
@@ -3237,6 +3245,214 @@ function moveTooltip(e) {
 function hideTooltip() {
   const tt = document.getElementById('plotTooltip');
   if (tt) tt.style.display = 'none';
+}
+
+// ================= PLOT DEVICE SEARCH =================
+// Find hardware by name and highlight it on the scatter plot. The highlight and the
+// Inspector already exist and are driven by selectDevice(); this adds a way in by
+// typing, plus the missing "bring the point into view" step.
+
+const PLOT_SEARCH_MAX_RESULTS = 8;
+
+// Devices hidden by the vendor/datacenter filters are still listed, marked unavailable,
+// so searching for a card you filtered out explains itself instead of returning nothing.
+function findPlotSearchMatches(query) {
+  const q = query.toLowerCase().trim();
+  if (!q) return [];
+
+  const plottedByDevice = new Map();
+  state.processedPoints.forEach(pt => {
+    if (pt.multiplier === 1 && !plottedByDevice.has(pt.baseId)) {
+      plottedByDevice.set(pt.baseId, pt);
+    }
+  });
+
+  const matches = state.rawDevices
+    .filter(dev => `${dev.device_name} ${dev.vendor} ${dev.category}`.toLowerCase().includes(q))
+    .map(dev => ({
+      deviceId: dev.id,
+      name: dev.device_name,
+      vendor: dev.vendor,
+      point: plottedByDevice.get(dev.id) || null
+    }));
+
+  // Rank by where the query lands in the name, so "3090" offers "RTX 3090 24GB"
+  // before "Dual RTX 3090 48GB". A name not matching at all (matched on vendor or
+  // category instead) sorts last.
+  const namePos = (name) => {
+    const i = name.toLowerCase().indexOf(q);
+    return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+  };
+
+  matches.sort((a, b) => {
+    if (!!a.point !== !!b.point) return a.point ? -1 : 1;
+    const posDelta = namePos(a.name) - namePos(b.name);
+    if (posDelta !== 0) return posDelta;
+    return a.name.localeCompare(b.name);
+  });
+
+  return matches.slice(0, PLOT_SEARCH_MAX_RESULTS);
+}
+
+// Pan so the point sits mid-canvas, but only when it is not already comfortably
+// on screen — panning a point the user can already see is just a jump. Mutates pan
+// only; the caller re-renders.
+function centerPointInView(pt) {
+  const wrapper = document.getElementById('plotWrapper');
+  if (!wrapper || pt.baseXCoord === undefined || pt.baseYCoord === undefined) return false;
+
+  const w = wrapper.clientWidth;
+  const h = wrapper.clientHeight;
+  if (!w || !h) return false;
+
+  const px = state.panX + pt.baseXCoord * state.zoomScale;
+  const py = state.panY + pt.baseYCoord * state.zoomScale;
+  const padX = Math.min(140, w * 0.18);
+  const padY = Math.min(100, h * 0.18);
+
+  if (px >= padX && px <= w - padX && py >= padY && py <= h - padY) return false;
+
+  state.panX = w / 2 - pt.baseXCoord * state.zoomScale;
+  state.panY = h / 2 - pt.baseYCoord * state.zoomScale;
+  return true;
+}
+
+// Below 1440px the Inspector stacks under the plot and is usually below the fold,
+// so a highlight alone would land somewhere the user cannot see.
+function revealInspectorIfStacked() {
+  if (state.isPlotFullscreen) return;
+  if (window.innerWidth > 1440) return;
+  const drawer = document.getElementById('deviceDetailDrawer');
+  if (!drawer) return;
+  const box = drawer.getBoundingClientRect();
+  if (box.top >= 0 && box.bottom <= window.innerHeight) return;
+  drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function initPlotSearch() {
+  const input = document.getElementById('txtSearchPlot');
+  const list = document.getElementById('plotSearchResults');
+  const clearBtn = document.getElementById('btnClearPlotSearch');
+  if (!input || !list) return;
+
+  let results = [];
+  let activeIndex = -1;
+
+  function closeResults() {
+    list.hidden = true;
+    list.innerHTML = '';
+    input.setAttribute('aria-expanded', 'false');
+    results = [];
+    activeIndex = -1;
+  }
+
+  function paintActive() {
+    [...list.querySelectorAll('.plot-search-item')].forEach((el, i) => {
+      el.classList.toggle('is-active', i === activeIndex);
+      el.setAttribute('aria-selected', i === activeIndex ? 'true' : 'false');
+    });
+  }
+
+  function choose(index) {
+    const result = results[index];
+    if (!result || !result.point) return;
+    centerPointInView(result.point);
+    selectDevice(result.deviceId, result.point.id);
+    revealInspectorIfStacked();
+    closeResults();
+    input.value = result.name;
+    if (clearBtn) clearBtn.hidden = false;
+  }
+
+  function renderResults() {
+    list.innerHTML = '';
+
+    if (results.length === 0) {
+      const empty = document.createElement('li');
+      empty.className = 'plot-search-empty';
+      empty.textContent = 'No hardware matches that name.';
+      list.appendChild(empty);
+      list.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+      return;
+    }
+
+    results.forEach((result, i) => {
+      const item = document.createElement('li');
+      item.className = 'plot-search-item';
+      item.setAttribute('role', 'option');
+      item.setAttribute('aria-selected', 'false');
+
+      const name = document.createElement('span');
+      name.className = 'psr-name';
+      name.textContent = result.name;
+
+      const meta = document.createElement('span');
+      meta.className = 'psr-meta';
+      if (result.point) {
+        meta.textContent = `${formatUsd(result.point.effPrice)} · ${result.vendor}`;
+      } else {
+        meta.textContent = 'hidden by filters';
+        item.style.opacity = '0.5';
+        item.style.cursor = 'not-allowed';
+        item.title = 'Currently filtered out of the plot — adjust the vendor or datacenter filters to show it.';
+      }
+
+      item.append(name, meta);
+      if (result.point) {
+        item.addEventListener('mousedown', (e) => { e.preventDefault(); choose(i); });
+        item.addEventListener('mouseenter', () => { activeIndex = i; paintActive(); });
+      }
+      list.appendChild(item);
+    });
+
+    activeIndex = results.findIndex(r => r.point);
+    paintActive();
+    list.hidden = false;
+    input.setAttribute('aria-expanded', 'true');
+  }
+
+  input.addEventListener('input', () => {
+    if (clearBtn) clearBtn.hidden = input.value.length === 0;
+    if (!input.value.trim()) { closeResults(); return; }
+    results = findPlotSearchMatches(input.value);
+    renderResults();
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeResults(); input.blur(); return; }
+    if (list.hidden || results.length === 0) return;
+
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const step = e.key === 'ArrowDown' ? 1 : -1;
+      for (let n = 0; n < results.length; n++) {
+        activeIndex = (activeIndex + step + results.length) % results.length;
+        if (results[activeIndex].point) break;
+      }
+      paintActive();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      choose(activeIndex);
+    }
+  });
+
+  input.addEventListener('focus', () => {
+    if (input.value.trim() && results.length > 0) renderResults();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.plot-search-cluster')) closeResults();
+  });
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      input.value = '';
+      clearBtn.hidden = true;
+      closeResults();
+      input.focus();
+    });
+  }
 }
 
 // ================= DEVICE INSPECTOR DRAWER =================
