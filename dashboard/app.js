@@ -2028,6 +2028,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initTabs();
   initControlListeners();
   initZoomPanListeners();
+  initPlotResizeHandling();
   initPlotSearch();
   await loadData();
   recalculateAndRender();
@@ -3245,6 +3246,43 @@ function moveTooltip(e) {
 function hideTooltip() {
   const tt = document.getElementById('plotTooltip');
   if (tt) tt.style.display = 'none';
+}
+
+// ================= PLOT RESIZE HANDLING =================
+// The SVG is drawn to the pixel size the wrapper had at render time, so it does not
+// reflow on its own. That went unnoticed while the plot was a fixed 620px tall; now
+// that its height follows the window, a resize has to trigger a redraw or the chart
+// keeps the dimensions of the old window.
+function initPlotResizeHandling() {
+  const wrapper = document.getElementById('plotWrapper');
+  if (!wrapper) return;
+
+  let resizeTimer = null;
+  let lastW = 0;
+  let lastH = 0;
+
+  const redrawIfResized = () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const w = wrapper.clientWidth;
+      const h = wrapper.clientHeight;
+      // Zero while the plot tab is hidden; initTabs() redraws on the way back.
+      if (!w || !h) return;
+      if (w === lastW && h === lastH) return;
+      lastW = w;
+      lastH = h;
+      renderScatterPlot();
+    }, 150);
+  };
+
+  // Both, deliberately. The observer catches size changes the window never sees —
+  // the sidebar reflowing at a breakpoint, entering full screen — while the window
+  // listener is the dependable one for an actual window resize. The size guard above
+  // means whichever arrives second is a no-op, so listening twice costs nothing.
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(redrawIfResized).observe(wrapper);
+  }
+  window.addEventListener('resize', redrawIfResized);
 }
 
 // ================= PLOT DEVICE SEARCH =================

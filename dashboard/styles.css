@@ -562,7 +562,9 @@ input[type="range"]::-webkit-slider-thumb:hover {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  min-height: 750px;
+  /* Was a flat 750px. It only binds on short windows, and there it must not force
+     the block taller than the window itself. */
+  min-height: min(750px, 90vh);
   position: relative;
   overflow: hidden;
 }
@@ -817,7 +819,11 @@ body.plot-fullscreen-active .main-chart-svg {
 .plot-wrapper {
   flex: 1;
   position: relative;
-  min-height: 620px;
+  /* Was a flat 620px, which pushed the legend below the fold on short windows.
+     The header bar and legend footer cost about 291px together, so keep the full
+     620px canvas whenever the window can afford it and shrink the canvas — rather
+     than shoving the legend off screen — when it cannot. Never below 260px. */
+  min-height: clamp(260px, calc(100vh - 291px), 620px);
   width: 100%;
   cursor: grab;
   touch-action: pan-y;
@@ -828,9 +834,19 @@ body.plot-fullscreen-active .main-chart-svg {
 }
 
 .main-chart-svg {
+  /* Pinned to the wrapper's box rather than sized by height:100%. An SVG carrying a
+     viewBox falls back to its viewBox aspect ratio when a percentage height has
+     nothing solid to resolve against, which made the canvas resize itself to the
+     PREVIOUS render's proportions after a window resize. Filling the wrapper
+     absolutely decouples the drawn box from the viewBox. The tooltip and help hint
+     follow in the DOM and stay above it. */
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  min-height: 620px;
+  /* Was a second 620px floor, which overrode any shrinking of .plot-wrapper. The
+     wrapper is now the single source of truth for canvas height. */
+  min-height: 0;
   display: block;
   user-select: none;
 }
