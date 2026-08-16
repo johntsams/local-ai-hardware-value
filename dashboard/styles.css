@@ -834,10 +834,18 @@ body.plot-fullscreen-active .main-chart-svg {
 }
 
 .main-chart-svg {
+  /* Pinned to the wrapper's box rather than sized by height:100%. An SVG carrying a
+     viewBox falls back to its viewBox aspect ratio when a percentage height has
+     nothing solid to resolve against, which made the canvas resize itself to the
+     PREVIOUS render's proportions after a window resize. Filling the wrapper
+     absolutely decouples the drawn box from the viewBox. The tooltip and help hint
+     follow in the DOM and stay above it. */
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   /* Was a second 620px floor, which overrode any shrinking of .plot-wrapper. The
-     wrapper is now the single source of truth for canvas height; the SVG fills it. */
+     wrapper is now the single source of truth for canvas height. */
   min-height: 0;
   display: block;
   user-select: none;

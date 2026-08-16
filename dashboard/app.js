@@ -3275,14 +3275,14 @@ function initPlotResizeHandling() {
     }, 150);
   };
 
-  // Watching the canvas rather than the window catches every cause of a size change
-  // — window resize, the sidebar reflowing at a breakpoint, entering full screen —
-  // and the size guard stops a redraw from retriggering itself.
+  // Both, deliberately. The observer catches size changes the window never sees —
+  // the sidebar reflowing at a breakpoint, entering full screen — while the window
+  // listener is the dependable one for an actual window resize. The size guard above
+  // means whichever arrives second is a no-op, so listening twice costs nothing.
   if (typeof ResizeObserver !== 'undefined') {
     new ResizeObserver(redrawIfResized).observe(wrapper);
-  } else {
-    window.addEventListener('resize', redrawIfResized);
   }
+  window.addEventListener('resize', redrawIfResized);
 }
 
 // ================= PLOT DEVICE SEARCH =================
