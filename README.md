@@ -1,3 +1,5 @@
+![The interactive dashboard: hardware value scatter plot with Pareto frontier, scoring controls, and the Device Inspector](docs/dashboard.png)
+
 # Local-AI Hardware Value & Model Fit Suite
 
 An open-source interactive analysis suite, multi-factor scoring engine, and hardware-model fit matrix for local AI and Large Language Model (LLM) inference.
