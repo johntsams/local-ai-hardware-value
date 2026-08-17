@@ -931,14 +931,175 @@ const EMBEDDED_DEVICES = [
 
 const EMBEDDED_MODELS = [
   {
+    "id": "qwen_3_8_27b_instruct",
+    "name": "Qwen 3.8 27B Instruct",
+    "creator": "Alibaba Qwen",
+    "category": "Dense General",
+    "release_date": "2026-02-15",
+    "total_params_b": 27.5,
+    "active_params_b": 27.5,
+    "context_window_str": "128k",
+    "intelligence_index": 54.2,
+    "aa_mmlu_pro": 76.8,
+    "aa_gpqa": 58.4,
+    "aa_math_500": 88.2,
+    "aa_coding_humaneval": 89.6,
+    "output_speed_tok_s": 55,
+    "description": "High-demand next-gen 27.5B dense model delivering exceptional reasoning, coding, and mathematical fluency in a 24GB-32GB GPU footprint.",
+    "memory_req_gb": {
+      "fp16": 61.3,
+      "q8_0": 34.3,
+      "q6_k": 27.6,
+      "q5_k_m": 23.6,
+      "q4_k_m": 20.2,
+      "q3_k_m": 16.2,
+      "q2_k": 13.1
+    }
+  },
+  {
+    "id": "qwen_3_8_coder_27b",
+    "name": "Qwen 3.8 Coder 27B",
+    "creator": "Alibaba Qwen",
+    "category": "Dense Code Specialist",
+    "release_date": "2026-02-18",
+    "total_params_b": 27.5,
+    "active_params_b": 27.5,
+    "context_window_str": "128k",
+    "intelligence_index": 55.0,
+    "aa_mmlu_pro": 77.2,
+    "aa_gpqa": 57.8,
+    "aa_math_500": 89.4,
+    "aa_coding_humaneval": 93.4,
+    "output_speed_tok_s": 55,
+    "description": "Premier open coding model optimized for multi-file repository generation, bug repair, and SWE-bench tasks.",
+    "memory_req_gb": {
+      "fp16": 61.3,
+      "q8_0": 34.3,
+      "q6_k": 27.6,
+      "q5_k_m": 23.6,
+      "q4_k_m": 20.2,
+      "q3_k_m": 16.2,
+      "q2_k": 13.1
+    }
+  },
+  {
+    "id": "qwen_3_8_math_27b",
+    "name": "Qwen 3.8 Math 27B",
+    "creator": "Alibaba Qwen",
+    "category": "Dense Math Specialist",
+    "release_date": "2026-02-19",
+    "total_params_b": 27.5,
+    "active_params_b": 27.5,
+    "context_window_str": "64k",
+    "intelligence_index": 56.4,
+    "aa_mmlu_pro": 78.5,
+    "aa_gpqa": 62.1,
+    "aa_math_500": 92.5,
+    "aa_coding_humaneval": 84.2,
+    "output_speed_tok_s": 55,
+    "description": "Specialized mathematical powerhouse outperforming 70B models on AIME 2024 and Olympiad competitions.",
+    "memory_req_gb": {
+      "fp16": 61.3,
+      "q8_0": 34.3,
+      "q6_k": 27.6,
+      "q5_k_m": 23.6,
+      "q4_k_m": 20.2,
+      "q3_k_m": 16.2,
+      "q2_k": 13.1
+    }
+  },
+  {
+    "id": "qwen_3_8_32b_instruct",
+    "name": "Qwen 3.8 32B Instruct",
+    "creator": "Alibaba Qwen",
+    "category": "Dense General",
+    "release_date": "2026-02-20",
+    "total_params_b": 32.5,
+    "active_params_b": 32.5,
+    "context_window_str": "128k",
+    "intelligence_index": 55.6,
+    "aa_mmlu_pro": 78.9,
+    "aa_gpqa": 60.5,
+    "aa_math_500": 90.1,
+    "aa_coding_humaneval": 90.8,
+    "output_speed_tok_s": 48,
+    "description": "Flagship 32B dense model providing an optimal balance of throughput and high-tier reasoning on 24GB-48GB VRAM.",
+    "memory_req_gb": {
+      "fp16": 71.8,
+      "q8_0": 39.9,
+      "q6_k": 32.0,
+      "q5_k_m": 27.3,
+      "q4_k_m": 23.2,
+      "q3_k_m": 18.5,
+      "q2_k": 14.8
+    }
+  },
+  {
+    "id": "qwen_3_8_72b_instruct",
+    "name": "Qwen 3.8 72B Instruct",
+    "creator": "Alibaba Qwen",
+    "category": "Dense General",
+    "release_date": "2026-02-22",
+    "total_params_b": 72.7,
+    "active_params_b": 72.7,
+    "context_window_str": "128k",
+    "intelligence_index": 57.1,
+    "aa_mmlu_pro": 81.2,
+    "aa_gpqa": 64.0,
+    "aa_math_500": 92.8,
+    "aa_coding_humaneval": 92.4,
+    "output_speed_tok_s": 24,
+    "description": "Frontier 72B dense open-weights model challenging proprietary cloud APIs across all reasoning and academic benchmarks.",
+    "memory_req_gb": {
+      "fp16": 159.0,
+      "q8_0": 87.4,
+      "q6_k": 69.9,
+      "q5_k_m": 59.3,
+      "q4_k_m": 50.1,
+      "q3_k_m": 39.7,
+      "q2_k": 31.3
+    }
+  },
+  {
+    "id": "qwen_3_8_max",
+    "name": "Qwen 3.8 Max (2.4T MoE)",
+    "creator": "Alibaba Qwen",
+    "category": "Frontier MoE",
+    "release_date": "2026-02-25",
+    "total_params_b": 2400.0,
+    "active_params_b": 95.0,
+    "context_window_str": "256k",
+    "intelligence_index": 58.0,
+    "aa_mmlu_pro": 83.4,
+    "aa_gpqa": 66.8,
+    "aa_math_500": 94.6,
+    "aa_coding_humaneval": 94.0,
+    "output_speed_tok_s": 18,
+    "description": "Next-generation 2.4T parameter MoE activating 95B per token. SOTA open general intelligence for large clusters.",
+    "memory_req_gb": {
+      "fp16": 5052.8,
+      "q8_0": 2690.3,
+      "q6_k": 2111.6,
+      "q5_k_m": 1761.8,
+      "q4_k_m": 1457.3,
+      "q3_k_m": 1114.4,
+      "q2_k": 837.8
+    }
+  },
+  {
     "id": "qwq_32b_preview",
     "name": "QwQ 32B Preview (Reasoning)",
     "creator": "Alibaba Qwen",
     "category": "Dense Reasoning",
+    "release_date": "2024-11-28",
     "total_params_b": 32.5,
     "active_params_b": 32.5,
     "context_window_str": "32k",
     "intelligence_index": 52.4,
+    "aa_mmlu_pro": 74.5,
+    "aa_gpqa": 56.1,
+    "aa_math_500": 86.4,
+    "aa_coding_humaneval": 86.0,
     "output_speed_tok_s": 46,
     "description": "State-of-the-art open reasoning model using Chain-of-Thought; rivals OpenAI o1-preview on MATH 500 and GPQA Diamond.",
     "memory_req_gb": {
@@ -956,12 +1117,17 @@ const EMBEDDED_MODELS = [
     "name": "Qwen 2.5 Coder 32B Instruct",
     "creator": "Alibaba Qwen",
     "category": "Dense Code Specialist",
+    "release_date": "2024-11-12",
     "total_params_b": 32.5,
     "active_params_b": 32.5,
     "context_window_str": "128k",
     "intelligence_index": 49.8,
+    "aa_mmlu_pro": 70.8,
+    "aa_gpqa": 51.4,
+    "aa_math_500": 83.2,
+    "aa_coding_humaneval": 92.7,
     "output_speed_tok_s": 48,
-    "description": "Gold standard open-source coding model. Matches GPT-4o in Python/SWE-bench code generation.",
+    "description": "Gold standard open-source coding model. Matches GPT-4o in Python and SWE-bench code generation.",
     "memory_req_gb": {
       "fp16": 71.8,
       "q8_0": 39.9,
@@ -977,10 +1143,15 @@ const EMBEDDED_MODELS = [
     "name": "Qwen 2.5 72B Instruct",
     "creator": "Alibaba Qwen",
     "category": "Dense General",
+    "release_date": "2024-09-19",
     "total_params_b": 72.7,
     "active_params_b": 72.7,
     "context_window_str": "128k",
     "intelligence_index": 48.9,
+    "aa_mmlu_pro": 69.5,
+    "aa_gpqa": 49.8,
+    "aa_math_500": 83.1,
+    "aa_coding_humaneval": 86.4,
     "output_speed_tok_s": 24,
     "description": "Frontier open dense model with exceptional multilingual, coding, and mathematical reasoning.",
     "memory_req_gb": {
@@ -998,10 +1169,15 @@ const EMBEDDED_MODELS = [
     "name": "Qwen 2.5 32B Instruct",
     "creator": "Alibaba Qwen",
     "category": "Dense General",
+    "release_date": "2024-09-19",
     "total_params_b": 32.5,
     "active_params_b": 32.5,
     "context_window_str": "128k",
     "intelligence_index": 44.3,
+    "aa_mmlu_pro": 63.8,
+    "aa_gpqa": 44.2,
+    "aa_math_500": 78.4,
+    "aa_coding_humaneval": 82.3,
     "output_speed_tok_s": 48,
     "description": "Sweet-spot model for 24GB\u201348GB local hardware setups. High speed with top-tier reasoning.",
     "memory_req_gb": {
@@ -1019,10 +1195,15 @@ const EMBEDDED_MODELS = [
     "name": "Qwen 2.5 14B Instruct",
     "creator": "Alibaba Qwen",
     "category": "Dense General",
+    "release_date": "2024-09-19",
     "total_params_b": 14.7,
     "active_params_b": 14.7,
     "context_window_str": "128k",
     "intelligence_index": 40.5,
+    "aa_mmlu_pro": 58.6,
+    "aa_gpqa": 39.5,
+    "aa_math_500": 73.2,
+    "aa_coding_humaneval": 77.8,
     "output_speed_tok_s": 78,
     "description": "High-efficiency 14B model that runs comfortably on 12GB\u201316GB VRAM consumer GPUs.",
     "memory_req_gb": {
@@ -1040,10 +1221,15 @@ const EMBEDDED_MODELS = [
     "name": "Qwen 2.5 Coder 14B Instruct",
     "creator": "Alibaba Qwen",
     "category": "Dense Code Specialist",
+    "release_date": "2024-11-12",
     "total_params_b": 14.7,
     "active_params_b": 14.7,
     "context_window_str": "128k",
     "intelligence_index": 43.1,
+    "aa_mmlu_pro": 62.4,
+    "aa_gpqa": 42.0,
+    "aa_math_500": 76.5,
+    "aa_coding_humaneval": 84.5,
     "output_speed_tok_s": 78,
     "description": "Exceptional coding performance in a compact 14B footprint for single 16GB GPUs.",
     "memory_req_gb": {
@@ -1061,10 +1247,15 @@ const EMBEDDED_MODELS = [
     "name": "Qwen 2.5 Coder 7B Instruct",
     "creator": "Alibaba Qwen",
     "category": "Dense Code Specialist",
+    "release_date": "2024-11-12",
     "total_params_b": 7.6,
     "active_params_b": 7.6,
     "context_window_str": "128k",
     "intelligence_index": 38.6,
+    "aa_mmlu_pro": 54.2,
+    "aa_gpqa": 36.4,
+    "aa_math_500": 71.0,
+    "aa_coding_humaneval": 79.2,
     "output_speed_tok_s": 125,
     "description": "Ultra-fast local coding assistant; runs at >100 tok/s on 8GB\u201312GB VRAM cards.",
     "memory_req_gb": {
@@ -1082,10 +1273,15 @@ const EMBEDDED_MODELS = [
     "name": "Qwen 2.5 7B Instruct",
     "creator": "Alibaba Qwen",
     "category": "Dense General",
+    "release_date": "2024-09-19",
     "total_params_b": 7.6,
     "active_params_b": 7.6,
     "context_window_str": "128k",
     "intelligence_index": 36.8,
+    "aa_mmlu_pro": 51.5,
+    "aa_gpqa": 34.2,
+    "aa_math_500": 68.4,
+    "aa_coding_humaneval": 72.1,
     "output_speed_tok_s": 125,
     "description": "Lightweight general model for edge devices, budget GPUs, and high-concurrency serving.",
     "memory_req_gb": {
@@ -1103,10 +1299,15 @@ const EMBEDDED_MODELS = [
     "name": "Qwen 2.5 Math 72B Instruct",
     "creator": "Alibaba Qwen",
     "category": "Dense Math Specialist",
+    "release_date": "2024-09-19",
     "total_params_b": 72.7,
     "active_params_b": 72.7,
     "context_window_str": "32k",
     "intelligence_index": 51.5,
+    "aa_mmlu_pro": 73.8,
+    "aa_gpqa": 55.4,
+    "aa_math_500": 87.2,
+    "aa_coding_humaneval": 81.0,
     "output_speed_tok_s": 24,
     "description": "SOTA specialized mathematics reasoning model scoring 85%+ on MATH-500.",
     "memory_req_gb": {
@@ -1124,10 +1325,15 @@ const EMBEDDED_MODELS = [
     "name": "Qwen 2.5 VL 72B Instruct",
     "creator": "Alibaba Qwen",
     "category": "Vision-Language Multimodal",
+    "release_date": "2025-01-27",
     "total_params_b": 72.7,
     "active_params_b": 72.7,
     "context_window_str": "128k",
     "intelligence_index": 49.5,
+    "aa_mmlu_pro": 70.2,
+    "aa_gpqa": 51.0,
+    "aa_math_500": 82.5,
+    "aa_coding_humaneval": 85.0,
     "output_speed_tok_s": 22,
     "description": "Frontier vision-language model with document understanding, visual coding, and diagram reasoning.",
     "memory_req_gb": {
@@ -1141,98 +1347,19 @@ const EMBEDDED_MODELS = [
     }
   },
   {
-    "id": "qwen_2_5_vl_7b",
-    "name": "Qwen 2.5 VL 7B Instruct",
-    "creator": "Alibaba Qwen",
-    "category": "Vision-Language Multimodal",
-    "total_params_b": 7.6,
-    "active_params_b": 7.6,
-    "context_window_str": "128k",
-    "intelligence_index": 38.0,
-    "output_speed_tok_s": 110,
-    "description": "Compact vision-language model for local image OCR, document inspection, and diagram parsing.",
-    "memory_req_gb": {
-      "fp16": 18.0,
-      "q8_0": 10.5,
-      "q6_k": 8.6,
-      "q5_k_m": 7.5,
-      "q4_k_m": 6.6,
-      "q3_k_m": 5.5,
-      "q2_k": 4.6
-    }
-  },
-  {
-    "id": "qwen_2_5_3b_instruct",
-    "name": "Qwen 2.5 3B Instruct",
-    "creator": "Alibaba Qwen",
-    "category": "Compact Edge",
-    "total_params_b": 3.1,
-    "active_params_b": 3.1,
-    "context_window_str": "32k",
-    "intelligence_index": 31.5,
-    "output_speed_tok_s": 180,
-    "description": "Ultra-lightweight edge model running smoothly on 4GB VRAM and mobile APUs.",
-    "memory_req_gb": {
-      "fp16": 8.5,
-      "q8_0": 5.5,
-      "q6_k": 4.7,
-      "q5_k_m": 4.3,
-      "q4_k_m": 3.9,
-      "q3_k_m": 3.4,
-      "q2_k": 3.1
-    }
-  },
-  {
-    "id": "qwen_2_5_1_5b_instruct",
-    "name": "Qwen 2.5 1.5B Instruct",
-    "creator": "Alibaba Qwen",
-    "category": "Compact Edge",
-    "total_params_b": 1.5,
-    "active_params_b": 1.5,
-    "context_window_str": "32k",
-    "intelligence_index": 26.0,
-    "output_speed_tok_s": 240,
-    "description": "Micro model for autocomplete, speculative decoding, and low-latency edge tasks.",
-    "memory_req_gb": {
-      "fp16": 5.2,
-      "q8_0": 3.7,
-      "q6_k": 3.3,
-      "q5_k_m": 3.1,
-      "q4_k_m": 2.9,
-      "q3_k_m": 2.7,
-      "q2_k": 2.5
-    }
-  },
-  {
-    "id": "qwen_3_8_max",
-    "name": "Qwen 3.8 Max (2.4T MoE)",
-    "creator": "Alibaba Qwen",
-    "category": "Frontier MoE",
-    "total_params_b": 2400.0,
-    "active_params_b": 95.0,
-    "context_window_str": "256k",
-    "intelligence_index": 58.0,
-    "output_speed_tok_s": 18,
-    "description": "Next-generation 2.4T parameter MoE activating 95B per token. SOTA open general intelligence.",
-    "memory_req_gb": {
-      "fp16": 5052.8,
-      "q8_0": 2690.3,
-      "q6_k": 2111.6,
-      "q5_k_m": 1761.8,
-      "q4_k_m": 1457.3,
-      "q3_k_m": 1114.4,
-      "q2_k": 837.8
-    }
-  },
-  {
     "id": "deepseek_r1_671b",
     "name": "DeepSeek R1 (671B MoE)",
     "creator": "DeepSeek AI",
     "category": "Frontier MoE Reasoning",
+    "release_date": "2025-01-20",
     "total_params_b": 671.0,
     "active_params_b": 37.0,
     "context_window_str": "128k",
     "intelligence_index": 50.8,
+    "aa_mmlu_pro": 72.8,
+    "aa_gpqa": 54.2,
+    "aa_math_500": 85.8,
+    "aa_coding_humaneval": 87.5,
     "output_speed_tok_s": 14,
     "description": "Full open-weights reasoning model trained via large-scale reinforcement learning; matches OpenAI o1.",
     "memory_req_gb": {
@@ -1250,10 +1377,15 @@ const EMBEDDED_MODELS = [
     "name": "DeepSeek V3 (671B MoE)",
     "creator": "DeepSeek AI",
     "category": "Frontier MoE",
+    "release_date": "2024-12-26",
     "total_params_b": 671.0,
     "active_params_b": 37.0,
     "context_window_str": "128k",
     "intelligence_index": 48.6,
+    "aa_mmlu_pro": 69.1,
+    "aa_gpqa": 49.2,
+    "aa_math_500": 81.6,
+    "aa_coding_humaneval": 86.2,
     "output_speed_tok_s": 16,
     "description": "Frontier 671B MoE with Multi-head Latent Attention (MLA) and DeepSeekMoE architecture.",
     "memory_req_gb": {
@@ -1271,10 +1403,15 @@ const EMBEDDED_MODELS = [
     "name": "DeepSeek V4 Pro (1.6T MoE)",
     "creator": "DeepSeek AI",
     "category": "Next-Gen MoE",
+    "release_date": "2026-03-01",
     "total_params_b": 1600.0,
     "active_params_b": 64.0,
     "context_window_str": "1M",
     "intelligence_index": 53.2,
+    "aa_mmlu_pro": 75.6,
+    "aa_gpqa": 57.0,
+    "aa_math_500": 88.0,
+    "aa_coding_humaneval": 90.5,
     "output_speed_tok_s": 15,
     "description": "Next-generation 1.6T MoE model with native 1M context window and ultra-dense expert routing.",
     "memory_req_gb": {
@@ -1288,35 +1425,19 @@ const EMBEDDED_MODELS = [
     }
   },
   {
-    "id": "deepseek_v4_flash",
-    "name": "DeepSeek V4 Flash (671B MoE)",
-    "creator": "DeepSeek AI",
-    "category": "Next-Gen MoE Speed",
-    "total_params_b": 671.0,
-    "active_params_b": 28.0,
-    "context_window_str": "256k",
-    "intelligence_index": 49.5,
-    "output_speed_tok_s": 28,
-    "description": "High-throughput 671B MoE optimized for low-latency reasoning on unified memory systems.",
-    "memory_req_gb": {
-      "fp16": 1421.9,
-      "q8_0": 761.4,
-      "q6_k": 599.6,
-      "q5_k_m": 501.8,
-      "q4_k_m": 416.7,
-      "q3_k_m": 320.8,
-      "q2_k": 243.5
-    }
-  },
-  {
     "id": "deepseek_r1_distill_qwen_32b",
     "name": "DeepSeek R1 Distill Qwen 32B",
     "creator": "DeepSeek AI",
     "category": "Dense Reasoning Distill",
+    "release_date": "2025-01-20",
     "total_params_b": 32.5,
     "active_params_b": 32.5,
     "context_window_str": "128k",
     "intelligence_index": 47.8,
+    "aa_mmlu_pro": 68.2,
+    "aa_gpqa": 48.6,
+    "aa_math_500": 82.4,
+    "aa_coding_humaneval": 85.1,
     "output_speed_tok_s": 48,
     "description": "DeepSeek R1 reasoning knowledge distilled into Qwen 2.5 32B base. SOTA for 24GB\u201348GB VRAM.",
     "memory_req_gb": {
@@ -1334,12 +1455,17 @@ const EMBEDDED_MODELS = [
     "name": "DeepSeek R1 Distill Llama 70B",
     "creator": "DeepSeek AI",
     "category": "Dense Reasoning Distill",
+    "release_date": "2025-01-20",
     "total_params_b": 70.6,
     "active_params_b": 70.6,
     "context_window_str": "128k",
     "intelligence_index": 49.2,
+    "aa_mmlu_pro": 70.4,
+    "aa_gpqa": 50.8,
+    "aa_math_500": 84.6,
+    "aa_coding_humaneval": 86.8,
     "output_speed_tok_s": 24,
-    "description": "R1 reasoning knowledge distilled into Llama 3.3 70B. Superb mathematical proofs & code.",
+    "description": "R1 reasoning knowledge distilled into Llama 3.3 70B. Superb mathematical proofs and code.",
     "memory_req_gb": {
       "fp16": 154.6,
       "q8_0": 85.1,
@@ -1355,10 +1481,15 @@ const EMBEDDED_MODELS = [
     "name": "DeepSeek R1 Distill Qwen 14B",
     "creator": "DeepSeek AI",
     "category": "Dense Reasoning Distill",
+    "release_date": "2025-01-20",
     "total_params_b": 14.7,
     "active_params_b": 14.7,
     "context_window_str": "128k",
     "intelligence_index": 42.8,
+    "aa_mmlu_pro": 61.5,
+    "aa_gpqa": 41.5,
+    "aa_math_500": 75.8,
+    "aa_coding_humaneval": 80.2,
     "output_speed_tok_s": 78,
     "description": "Reasoning distilled into 14B. Fits in 16GB GPUs while outperforming previous 70B bases.",
     "memory_req_gb": {
@@ -1376,12 +1507,17 @@ const EMBEDDED_MODELS = [
     "name": "DeepSeek R1 Distill Qwen 7B",
     "creator": "DeepSeek AI",
     "category": "Dense Reasoning Distill",
+    "release_date": "2025-01-20",
     "total_params_b": 7.6,
     "active_params_b": 7.6,
     "context_window_str": "128k",
     "intelligence_index": 38.5,
+    "aa_mmlu_pro": 54.0,
+    "aa_gpqa": 36.2,
+    "aa_math_500": 70.5,
+    "aa_coding_humaneval": 76.4,
     "output_speed_tok_s": 125,
-    "description": "7B reasoning model capable of solving complex algorithmic puzzles locally.",
+    "description": "7B reasoning model capable of solving complex algorithmic puzzles locally on budget GPUs.",
     "memory_req_gb": {
       "fp16": 18.0,
       "q8_0": 10.5,
@@ -1393,35 +1529,19 @@ const EMBEDDED_MODELS = [
     }
   },
   {
-    "id": "deepseek_r1_distill_qwen_1_5b",
-    "name": "DeepSeek R1 Distill Qwen 1.5B",
-    "creator": "DeepSeek AI",
-    "category": "Compact Reasoning Distill",
-    "total_params_b": 1.5,
-    "active_params_b": 1.5,
-    "context_window_str": "32k",
-    "intelligence_index": 28.5,
-    "output_speed_tok_s": 240,
-    "description": "Tiny 1.5B reasoning model displaying coherent Chain-of-Thought on mobile/budget hardware.",
-    "memory_req_gb": {
-      "fp16": 5.2,
-      "q8_0": 3.7,
-      "q6_k": 3.3,
-      "q5_k_m": 3.1,
-      "q4_k_m": 2.9,
-      "q3_k_m": 2.7,
-      "q2_k": 2.5
-    }
-  },
-  {
     "id": "llama_4_scout_109b",
     "name": "Llama 4 Scout (109B MoE)",
     "creator": "Meta AI",
     "category": "MoE Long-Context",
+    "release_date": "2026-01-15",
     "total_params_b": 109.0,
     "active_params_b": 17.0,
     "context_window_str": "10M",
     "intelligence_index": 54.5,
+    "aa_mmlu_pro": 77.4,
+    "aa_gpqa": 59.2,
+    "aa_math_500": 89.0,
+    "aa_coding_humaneval": 91.2,
     "output_speed_tok_s": 38,
     "description": "Next-gen MoE architecture with unprecedented 10M token context window and native multimodal reasoning.",
     "memory_req_gb": {
@@ -1439,10 +1559,15 @@ const EMBEDDED_MODELS = [
     "name": "Llama 3.3 70B Instruct",
     "creator": "Meta AI",
     "category": "Dense General",
+    "release_date": "2024-12-06",
     "total_params_b": 70.6,
     "active_params_b": 70.6,
     "context_window_str": "128k",
     "intelligence_index": 48.4,
+    "aa_mmlu_pro": 68.9,
+    "aa_gpqa": 49.0,
+    "aa_math_500": 81.2,
+    "aa_coding_humaneval": 85.7,
     "output_speed_tok_s": 24,
     "description": "Upgraded 70B powerhouse delivering Llama 3.1 405B level capabilities in a 70B parameter size.",
     "memory_req_gb": {
@@ -1460,10 +1585,15 @@ const EMBEDDED_MODELS = [
     "name": "Llama 3.1 405B Instruct",
     "creator": "Meta AI",
     "category": "Frontier Dense",
+    "release_date": "2024-07-23",
     "total_params_b": 405.0,
     "active_params_b": 405.0,
     "context_window_str": "128k",
     "intelligence_index": 52.1,
+    "aa_mmlu_pro": 74.0,
+    "aa_gpqa": 55.8,
+    "aa_math_500": 86.0,
+    "aa_coding_humaneval": 89.0,
     "output_speed_tok_s": 4,
     "description": "Meta's flagship 405B open dense model for high-rigor synthetic data generation and distillation.",
     "memory_req_gb": {
@@ -1481,10 +1611,15 @@ const EMBEDDED_MODELS = [
     "name": "Llama 3.1 8B Instruct",
     "creator": "Meta AI",
     "category": "Dense General",
+    "release_date": "2024-07-23",
     "total_params_b": 8.0,
     "active_params_b": 8.0,
     "context_window_str": "128k",
     "intelligence_index": 35.2,
+    "aa_mmlu_pro": 49.5,
+    "aa_gpqa": 32.8,
+    "aa_math_500": 65.4,
+    "aa_coding_humaneval": 70.0,
     "output_speed_tok_s": 120,
     "description": "The industry standard 8B model for local agents, tool use, and high-speed inference.",
     "memory_req_gb": {
@@ -1502,10 +1637,15 @@ const EMBEDDED_MODELS = [
     "name": "Llama 3.2 11B Vision",
     "creator": "Meta AI",
     "category": "Vision-Language Multimodal",
+    "release_date": "2024-09-25",
     "total_params_b": 11.0,
     "active_params_b": 11.0,
     "context_window_str": "128k",
     "intelligence_index": 37.5,
+    "aa_mmlu_pro": 52.8,
+    "aa_gpqa": 35.0,
+    "aa_math_500": 67.8,
+    "aa_coding_humaneval": 73.5,
     "output_speed_tok_s": 95,
     "description": "Multimodal visual reasoning model for image understanding, chart comprehension, and captioning.",
     "memory_req_gb": {
@@ -1519,35 +1659,19 @@ const EMBEDDED_MODELS = [
     }
   },
   {
-    "id": "llama_3_2_3b_instruct",
-    "name": "Llama 3.2 3B Instruct",
-    "creator": "Meta AI",
-    "category": "Compact Edge",
-    "total_params_b": 3.2,
-    "active_params_b": 3.2,
-    "context_window_str": "128k",
-    "intelligence_index": 31.0,
-    "output_speed_tok_s": 175,
-    "description": "Ultra-lightweight edge model optimized for low-latency on-device processing.",
-    "memory_req_gb": {
-      "fp16": 8.7,
-      "q8_0": 5.6,
-      "q6_k": 4.8,
-      "q5_k_m": 4.3,
-      "q4_k_m": 3.9,
-      "q3_k_m": 3.5,
-      "q2_k": 3.1
-    }
-  },
-  {
     "id": "gemma_4_31b_it",
     "name": "Gemma 4 31B Instruct",
     "creator": "Google DeepMind",
     "category": "Dense General",
+    "release_date": "2026-02-10",
     "total_params_b": 31.0,
     "active_params_b": 31.0,
     "context_window_str": "256k",
     "intelligence_index": 48.0,
+    "aa_mmlu_pro": 68.4,
+    "aa_gpqa": 48.5,
+    "aa_math_500": 80.5,
+    "aa_coding_humaneval": 84.8,
     "output_speed_tok_s": 50,
     "description": "Next-gen DeepMind open-weights model built with cutting-edge architectural advances from Gemini.",
     "memory_req_gb": {
@@ -1565,10 +1689,15 @@ const EMBEDDED_MODELS = [
     "name": "Gemma 3 27B Instruct",
     "creator": "Google DeepMind",
     "category": "Dense General",
+    "release_date": "2025-02-28",
     "total_params_b": 27.2,
     "active_params_b": 27.2,
     "context_window_str": "128k",
     "intelligence_index": 43.0,
+    "aa_mmlu_pro": 62.0,
+    "aa_gpqa": 42.5,
+    "aa_math_500": 76.2,
+    "aa_coding_humaneval": 80.0,
     "output_speed_tok_s": 56,
     "description": "High-efficiency 27B model trained on extensive multilingual and synthetic datasets.",
     "memory_req_gb": {
@@ -1586,10 +1715,15 @@ const EMBEDDED_MODELS = [
     "name": "Gemma 3 12B Instruct",
     "creator": "Google DeepMind",
     "category": "Dense General",
+    "release_date": "2025-02-28",
     "total_params_b": 12.0,
     "active_params_b": 12.0,
     "context_window_str": "128k",
     "intelligence_index": 39.2,
+    "aa_mmlu_pro": 55.4,
+    "aa_gpqa": 37.8,
+    "aa_math_500": 71.5,
+    "aa_coding_humaneval": 75.2,
     "output_speed_tok_s": 90,
     "description": "Ideal balance of memory compactness and reasoning capabilities for 16GB consumer cards.",
     "memory_req_gb": {
@@ -1603,35 +1737,19 @@ const EMBEDDED_MODELS = [
     }
   },
   {
-    "id": "gemma_3_4b_it",
-    "name": "Gemma 3 4B Instruct",
-    "creator": "Google DeepMind",
-    "category": "Compact Edge",
-    "total_params_b": 4.0,
-    "active_params_b": 4.0,
-    "context_window_str": "64k",
-    "intelligence_index": 33.5,
-    "output_speed_tok_s": 160,
-    "description": "Fast edge model for quick local summarization, classification, and embedded AI tasks.",
-    "memory_req_gb": {
-      "fp16": 10.4,
-      "q8_0": 6.5,
-      "q6_k": 5.5,
-      "q5_k_m": 4.9,
-      "q4_k_m": 4.4,
-      "q3_k_m": 3.8,
-      "q2_k": 3.4
-    }
-  },
-  {
     "id": "gemma_2_27b_it",
     "name": "Gemma 2 27B Instruct",
     "creator": "Google DeepMind",
     "category": "Dense General",
+    "release_date": "2024-06-27",
     "total_params_b": 27.2,
     "active_params_b": 27.2,
     "context_window_str": "8k",
     "intelligence_index": 41.5,
+    "aa_mmlu_pro": 59.8,
+    "aa_gpqa": 40.2,
+    "aa_math_500": 74.0,
+    "aa_coding_humaneval": 78.4,
     "output_speed_tok_s": 56,
     "description": "Trained with knowledge distillation from Gemini models; punches well above its parameter weight.",
     "memory_req_gb": {
@@ -1649,10 +1767,15 @@ const EMBEDDED_MODELS = [
     "name": "Gemma 2 9B Instruct",
     "creator": "Google DeepMind",
     "category": "Dense General",
+    "release_date": "2024-06-27",
     "total_params_b": 9.2,
     "active_params_b": 9.2,
     "context_window_str": "8k",
     "intelligence_index": 36.0,
+    "aa_mmlu_pro": 50.4,
+    "aa_gpqa": 33.5,
+    "aa_math_500": 66.8,
+    "aa_coding_humaneval": 71.0,
     "output_speed_tok_s": 110,
     "description": "Proven 9B architecture with sliding-window attention and logit capping.",
     "memory_req_gb": {
@@ -1666,56 +1789,19 @@ const EMBEDDED_MODELS = [
     }
   },
   {
-    "id": "muse_glimmer_30b",
-    "name": "Muse Glimmer (30B 1M)",
-    "creator": "Muse AI",
-    "category": "Long-Context Specialist",
-    "total_params_b": 30.0,
-    "active_params_b": 30.0,
-    "context_window_str": "1M",
-    "intelligence_index": 46.5,
-    "output_speed_tok_s": 52,
-    "description": "Open long-context model engineered for 1M context document processing, RAG, and multi-file reasoning.",
-    "memory_req_gb": {
-      "fp16": 66.6,
-      "q8_0": 37.1,
-      "q6_k": 29.8,
-      "q5_k_m": 25.5,
-      "q4_k_m": 21.7,
-      "q3_k_m": 17.4,
-      "q2_k": 13.9
-    }
-  },
-  {
-    "id": "muse_spark_109b",
-    "name": "Muse Spark 1.2 (109B 1M)",
-    "creator": "Muse AI",
-    "category": "MoE Long-Context",
-    "total_params_b": 109.0,
-    "active_params_b": 24.0,
-    "context_window_str": "1M",
-    "intelligence_index": 51.2,
-    "output_speed_tok_s": 32,
-    "description": "Sparse MoE architecture supporting 1M tokens context with linear memory scaling and high factual retrieval.",
-    "memory_req_gb": {
-      "fp16": 235.2,
-      "q8_0": 127.9,
-      "q6_k": 101.6,
-      "q5_k_m": 85.7,
-      "q4_k_m": 71.9,
-      "q3_k_m": 56.3,
-      "q2_k": 43.8
-    }
-  },
-  {
     "id": "mistral_large_2",
     "name": "Mistral Large 2 (123B)",
     "creator": "Mistral AI",
     "category": "Dense General",
+    "release_date": "2024-07-24",
     "total_params_b": 123.0,
     "active_params_b": 123.0,
     "context_window_str": "128k",
     "intelligence_index": 48.2,
+    "aa_mmlu_pro": 68.6,
+    "aa_gpqa": 48.7,
+    "aa_math_500": 80.8,
+    "aa_coding_humaneval": 86.0,
     "output_speed_tok_s": 16,
     "description": "Frontier 123B model with exceptional reasoning, 80+ coding languages, and multilingual fluency.",
     "memory_req_gb": {
@@ -1733,10 +1819,15 @@ const EMBEDDED_MODELS = [
     "name": "Codestral 24B Instruct",
     "creator": "Mistral AI",
     "category": "Dense Code Specialist",
+    "release_date": "2024-05-29",
     "total_params_b": 24.0,
     "active_params_b": 24.0,
     "context_window_str": "32k",
     "intelligence_index": 45.0,
+    "aa_mmlu_pro": 64.5,
+    "aa_gpqa": 45.0,
+    "aa_math_500": 78.6,
+    "aa_coding_humaneval": 88.4,
     "output_speed_tok_s": 62,
     "description": "Specialized coding model trained on 80+ programming languages with fill-in-the-middle support.",
     "memory_req_gb": {
@@ -1754,10 +1845,15 @@ const EMBEDDED_MODELS = [
     "name": "Pixtral Large 123B",
     "creator": "Mistral AI",
     "category": "Vision-Language Multimodal",
+    "release_date": "2024-11-18",
     "total_params_b": 123.0,
     "active_params_b": 123.0,
     "context_window_str": "128k",
     "intelligence_index": 48.0,
+    "aa_mmlu_pro": 68.2,
+    "aa_gpqa": 48.4,
+    "aa_math_500": 80.5,
+    "aa_coding_humaneval": 85.5,
     "output_speed_tok_s": 15,
     "description": "Frontier multimodal vision-language model with native chart, document, and image reasoning.",
     "memory_req_gb": {
@@ -1775,10 +1871,15 @@ const EMBEDDED_MODELS = [
     "name": "Mixtral 8x22B Instruct",
     "creator": "Mistral AI",
     "category": "Sparse MoE",
+    "release_date": "2024-04-10",
     "total_params_b": 141.0,
     "active_params_b": 39.0,
     "context_window_str": "64k",
     "intelligence_index": 46.8,
+    "aa_mmlu_pro": 66.8,
+    "aa_gpqa": 46.9,
+    "aa_math_500": 79.2,
+    "aa_coding_humaneval": 84.0,
     "output_speed_tok_s": 22,
     "description": "141B total parameter sparse MoE activating 39B per token. High throughput and math competency.",
     "memory_req_gb": {
@@ -1796,10 +1897,15 @@ const EMBEDDED_MODELS = [
     "name": "Mistral NeMo 12B",
     "creator": "Mistral & NVIDIA",
     "category": "Dense General",
+    "release_date": "2024-07-18",
     "total_params_b": 12.2,
     "active_params_b": 12.2,
     "context_window_str": "128k",
     "intelligence_index": 38.8,
+    "aa_mmlu_pro": 55.0,
+    "aa_gpqa": 37.4,
+    "aa_math_500": 70.8,
+    "aa_coding_humaneval": 74.8,
     "output_speed_tok_s": 88,
     "description": "Jointly trained by Mistral and NVIDIA; uses Tekken tokenizer for high multilingual token efficiency.",
     "memory_req_gb": {
@@ -1817,10 +1923,15 @@ const EMBEDDED_MODELS = [
     "name": "Nemotron 3 Ultra (550B MoE)",
     "creator": "NVIDIA",
     "category": "Enterprise MoE",
+    "release_date": "2025-10-05",
     "total_params_b": 550.0,
     "active_params_b": 42.0,
     "context_window_str": "256k",
     "intelligence_index": 52.8,
+    "aa_mmlu_pro": 75.0,
+    "aa_gpqa": 56.4,
+    "aa_math_500": 87.5,
+    "aa_coding_humaneval": 89.8,
     "output_speed_tok_s": 18,
     "description": "NVIDIA flagship enterprise model optimized for TensorRT-LLM and vLLM inference engines.",
     "memory_req_gb": {
@@ -1838,10 +1949,15 @@ const EMBEDDED_MODELS = [
     "name": "Command A+ (218B MoE)",
     "creator": "Cohere",
     "category": "Enterprise Agent MoE",
+    "release_date": "2025-03-14",
     "total_params_b": 218.0,
     "active_params_b": 32.0,
     "context_window_str": "256k",
     "intelligence_index": 50.4,
+    "aa_mmlu_pro": 71.8,
+    "aa_gpqa": 53.0,
+    "aa_math_500": 84.0,
+    "aa_coding_humaneval": 87.2,
     "output_speed_tok_s": 20,
     "description": "Cohere frontier open-weights model specialized in enterprise tool use, multi-step agents, and RAG.",
     "memory_req_gb": {
@@ -1859,10 +1975,15 @@ const EMBEDDED_MODELS = [
     "name": "Kimi K3 (2.8T MoE)",
     "creator": "Moonshot AI",
     "category": "Frontier Ultra-MoE",
+    "release_date": "2026-01-25",
     "total_params_b": 2800.0,
     "active_params_b": 110.0,
     "context_window_str": "2M",
     "intelligence_index": 59.7,
+    "aa_mmlu_pro": 85.6,
+    "aa_gpqa": 69.2,
+    "aa_math_500": 96.0,
+    "aa_coding_humaneval": 95.5,
     "output_speed_tok_s": 14,
     "description": "Massive 2.8T MoE model with native 2M context window and state-of-the-art long-document comprehension.",
     "memory_req_gb": {
@@ -1880,10 +2001,15 @@ const EMBEDDED_MODELS = [
     "name": "GLM-5.2 (753B MoE)",
     "creator": "Zhipu AI",
     "category": "Frontier MoE",
+    "release_date": "2025-12-18",
     "total_params_b": 753.0,
     "active_params_b": 48.0,
     "context_window_str": "1M",
     "intelligence_index": 52.0,
+    "aa_mmlu_pro": 73.8,
+    "aa_gpqa": 55.6,
+    "aa_math_500": 86.4,
+    "aa_coding_humaneval": 88.5,
     "output_speed_tok_s": 16,
     "description": "Open frontier MoE with 1M context window and leading multilingual agent orchestration.",
     "memory_req_gb": {
@@ -1901,10 +2027,15 @@ const EMBEDDED_MODELS = [
     "name": "Phi-4 14B",
     "creator": "Microsoft",
     "category": "Dense Synthetic Specialist",
+    "release_date": "2024-12-12",
     "total_params_b": 14.0,
     "active_params_b": 14.0,
     "context_window_str": "16k",
     "intelligence_index": 44.0,
+    "aa_mmlu_pro": 63.5,
+    "aa_gpqa": 43.8,
+    "aa_math_500": 78.0,
+    "aa_coding_humaneval": 83.2,
     "output_speed_tok_s": 80,
     "description": "Microsoft dense model trained with synthetic curriculum data; beats 70B models on math benchmarks.",
     "memory_req_gb": {
@@ -1922,10 +2053,15 @@ const EMBEDDED_MODELS = [
     "name": "Hermes 3 70B Instruct",
     "creator": "Nous Research",
     "category": "Dense Agent Specialist",
+    "release_date": "2024-08-15",
     "total_params_b": 70.6,
     "active_params_b": 70.6,
     "context_window_str": "128k",
     "intelligence_index": 47.5,
+    "aa_mmlu_pro": 67.5,
+    "aa_gpqa": 48.0,
+    "aa_math_500": 80.0,
+    "aa_coding_humaneval": 85.0,
     "output_speed_tok_s": 24,
     "description": "Premier open-source uncensored agentic model with advanced structured output and function calling.",
     "memory_req_gb": {
@@ -1940,7 +2076,6 @@ const EMBEDDED_MODELS = [
   }
 ];
 
-// Global Application State
 const state = {
   rawDevices: [],
   rawModels: [],
@@ -1980,6 +2115,7 @@ const state = {
   includeModded: true,
   includeDatacenter: true,
   allowedVendors: new Set(['NVIDIA', 'Apple', 'AMD', 'ASUS']),
+  plotPriceFilter: 'all', // 'all' | 'under1k' | '1k-3k' | '3k-10k' | '10k-50k' | 'datacenter'
   
   // Zoom & Pan
   zoomScale: 1.0,
@@ -1995,16 +2131,33 @@ const state = {
   matrixContextTokens: 8192,
   modelClassFilter: 'all',
   quantAccuracyFilter: 'all',
+  matrixDateFilter: 'all',
+  matrixMinIQ: 0,
+  matrixMaxPrice: 'all',
   selectedExplorerModelId: null,
-  selectedExplorerHardwareId: null
+  selectedExplorerHardwareId: null,
+
+  // Open Models Explorer Filters & Sort
+  modelSearchQuery: '',
+  modelDateFilter: 'all',
+  modelMinIQ: 0,
+  modelSizeFilter: 'all',
+  modelLabFilter: 'all',
+  modelSort: 'intelligence_desc',
+
+  // Device Database Filters
+  deviceSearchQuery: '',
+  deviceVendorFilter: 'all',
+  devicePriceFilter: 'all',
+  deviceVramFilter: 'all'
 };
 
-// Vendor Signature Theme Colors
+// Vendor Signature Theme Colors (Marathon / GITS Tactical HUD)
 const VENDOR_COLORS = {
-  'NVIDIA': { fill: '#22c55e', stroke: '#15803d', glow: 'rgba(34, 197, 94, 0.4)', name: 'NVIDIA (Neon Green)' },
-  'Apple':  { fill: '#e2e8f0', stroke: '#94a3b8', glow: 'rgba(226, 232, 240, 0.35)', name: 'Apple Silicon (Silver)' },
-  'AMD':    { fill: '#ef4444', stroke: '#b91c1c', glow: 'rgba(239, 68, 68, 0.4)', name: 'AMD (Radeon Red)' },
-  'ASUS':   { fill: '#38bdf8', stroke: '#0284c7', glow: 'rgba(56, 189, 248, 0.4)', name: 'ASUS / Other (Cyan)' }
+  'NVIDIA': { fill: '#00ff66', stroke: '#00b848', glow: 'rgba(0, 255, 102, 0.5)', name: 'NVIDIA (Phosphor Green)' },
+  'Apple':  { fill: '#f0f6fc', stroke: '#7e93ab', glow: 'rgba(240, 246, 252, 0.4)', name: 'Apple Silicon (Titanium)' },
+  'AMD':    { fill: '#ff2a55', stroke: '#c41338', glow: 'rgba(255, 42, 85, 0.5)', name: 'AMD (Laser Crimson)' },
+  'ASUS':   { fill: '#00f0ff', stroke: '#00a8cc', glow: 'rgba(0, 240, 255, 0.5)', name: 'ASUS / Other (Cyber Cyan)' }
 };
 
 // Cloud API Pricing Baselines ($ per 1M tokens)
@@ -2157,34 +2310,34 @@ function initControlListeners() {
   bindSlider('sliderWeightMem', 'lblWeightMem', (v) => {
     state.weightMem = parseFloat(v);
     document.getElementById('fMem').textContent = parseFloat(v).toFixed(1);
-    return `${parseFloat(v).toFixed(1)}×`;
+    return `${parseFloat(v).toFixed(1)}x`;
   });
   bindSlider('sliderWeightBw', 'lblWeightBw', (v) => {
     state.weightBw = parseFloat(v);
     document.getElementById('fBw').textContent = parseFloat(v).toFixed(1);
-    return `${parseFloat(v).toFixed(1)}×`;
+    return `${parseFloat(v).toFixed(1)}x`;
   });
   bindSlider('sliderWeightFlops', 'lblWeightFlops', (v) => {
     state.weightFlops = parseFloat(v);
     document.getElementById('fFlops').textContent = parseFloat(v).toFixed(1);
-    return `${parseFloat(v).toFixed(1)}×`;
+    return `${parseFloat(v).toFixed(1)}x`;
   });
   bindSlider('sliderCudaBoost', 'lblCudaBoost', (v) => {
     state.cudaBoost = parseFloat(v);
     document.getElementById('fCuda').textContent = `${parseFloat(v).toFixed(2)}x CUDA`;
-    return `${parseFloat(v).toFixed(2)}×`;
+    return `${parseFloat(v).toFixed(2)}x`;
   });
 
   // IQ-Throughput Sliders
   bindSlider('sliderWeightIq', 'lblWeightIq', (v) => {
     state.weightIq = parseFloat(v);
     document.getElementById('fIq').textContent = parseFloat(v).toFixed(1);
-    return `${parseFloat(v).toFixed(1)}×`;
+    return `${parseFloat(v).toFixed(1)}x`;
   });
   bindSlider('sliderWeightSpeed', 'lblWeightSpeed', (v) => {
     state.weightSpeed = parseFloat(v);
     document.getElementById('fSpeed').textContent = parseFloat(v).toFixed(1);
-    return `${parseFloat(v).toFixed(1)}×`;
+    return `${parseFloat(v).toFixed(1)}x`;
   });
 
   // Preset Buttons
@@ -2194,10 +2347,10 @@ function initControlListeners() {
       btn.classList.add('active');
       const p = PRESETS[btn.dataset.preset];
       if (p) {
-        setSliderVal('sliderWeightMem', 'lblWeightMem', p.wMem, `${p.wMem.toFixed(1)}×`);
-        setSliderVal('sliderWeightBw', 'lblWeightBw', p.wBw, `${p.wBw.toFixed(1)}×`);
-        setSliderVal('sliderWeightFlops', 'lblWeightFlops', p.wFlops, `${p.wFlops.toFixed(1)}×`);
-        setSliderVal('sliderCudaBoost', 'lblCudaBoost', p.cuda, `${p.cuda.toFixed(2)}×`);
+        setSliderVal('sliderWeightMem', 'lblWeightMem', p.wMem, `${p.wMem.toFixed(1)}x`);
+        setSliderVal('sliderWeightBw', 'lblWeightBw', p.wBw, `${p.wBw.toFixed(1)}x`);
+        setSliderVal('sliderWeightFlops', 'lblWeightFlops', p.wFlops, `${p.wFlops.toFixed(1)}x`);
+        setSliderVal('sliderCudaBoost', 'lblCudaBoost', p.cuda, `${p.cuda.toFixed(2)}x`);
         state.weightMem = p.wMem;
         state.weightBw = p.wBw;
         state.weightFlops = p.wFlops;
@@ -2244,6 +2397,15 @@ function initControlListeners() {
     });
   }
 
+  // Budget / Price Range Filter for Plot
+  const selPlotPrice = document.getElementById('selPlotPriceFilter');
+  if (selPlotPrice) {
+    selPlotPrice.addEventListener('change', (e) => {
+      state.plotPriceFilter = e.target.value;
+      recalculateAndRender();
+    });
+  }
+
   // Label Density Mode
   const selLabelDensity = document.getElementById('selLabelDensity');
   if (selLabelDensity) {
@@ -2275,6 +2437,96 @@ function initControlListeners() {
     selQuant.addEventListener('change', (e) => {
       state.quantAccuracyFilter = e.target.value;
       renderFitMatrix();
+    });
+  }
+
+  const selMatrixDate = document.getElementById('selMatrixDateFilter');
+  if (selMatrixDate) {
+    selMatrixDate.addEventListener('change', (e) => {
+      state.matrixDateFilter = e.target.value;
+      renderFitMatrix();
+    });
+  }
+
+  const selMatrixMinIQ = document.getElementById('selMatrixMinIQ');
+  if (selMatrixMinIQ) {
+    selMatrixMinIQ.addEventListener('change', (e) => {
+      state.matrixMinIQ = parseFloat(e.target.value) || 0;
+      renderFitMatrix();
+    });
+  }
+
+  const selMatrixMaxPrice = document.getElementById('selMatrixMaxPrice');
+  if (selMatrixMaxPrice) {
+    selMatrixMaxPrice.addEventListener('change', (e) => {
+      state.matrixMaxPrice = e.target.value;
+      renderFitMatrix();
+    });
+  }
+
+  // Open Models Explorer Controls
+  const selModelDate = document.getElementById('selModelDateFilter');
+  if (selModelDate) {
+    selModelDate.addEventListener('change', (e) => {
+      state.modelDateFilter = e.target.value;
+      renderOpenModelsExplorer();
+    });
+  }
+
+  const selModelMinIQ = document.getElementById('selModelMinIQ');
+  if (selModelMinIQ) {
+    selModelMinIQ.addEventListener('change', (e) => {
+      state.modelMinIQ = parseFloat(e.target.value) || 0;
+      renderOpenModelsExplorer();
+    });
+  }
+
+  const selModelSize = document.getElementById('selModelSizeFilter');
+  if (selModelSize) {
+    selModelSize.addEventListener('change', (e) => {
+      state.modelSizeFilter = e.target.value;
+      renderOpenModelsExplorer();
+    });
+  }
+
+  const selModelLab = document.getElementById('selModelLabFilter');
+  if (selModelLab) {
+    selModelLab.addEventListener('change', (e) => {
+      state.modelLabFilter = e.target.value;
+      renderOpenModelsExplorer();
+    });
+  }
+
+  const selModelSort = document.getElementById('selModelSort');
+  if (selModelSort) {
+    selModelSort.addEventListener('change', (e) => {
+      state.modelSort = e.target.value;
+      renderOpenModelsExplorer();
+    });
+  }
+
+  // Device Database Filters
+  const selDevVendor = document.getElementById('selDeviceVendorFilter');
+  if (selDevVendor) {
+    selDevVendor.addEventListener('change', (e) => {
+      state.deviceVendorFilter = e.target.value;
+      renderDeviceTable();
+    });
+  }
+
+  const selDevPrice = document.getElementById('selDevicePriceFilter');
+  if (selDevPrice) {
+    selDevPrice.addEventListener('change', (e) => {
+      state.devicePriceFilter = e.target.value;
+      renderDeviceTable();
+    });
+  }
+
+  const selDevVram = document.getElementById('selDeviceVramFilter');
+  if (selDevVram) {
+    selDevVram.addEventListener('change', (e) => {
+      state.deviceVramFilter = e.target.value;
+      renderDeviceTable();
     });
   }
 
@@ -2627,7 +2879,7 @@ function calculateDeviceScore(dev, multiplier = 1, isTpCeiling = false) {
   const iqPerDollar = (iqTokS / Math.max(100, effPrice)) * 1000.0;
 
   // 4. Cost per 1,000 Reasoning Tasks ($ / 1k Tasks)
-  // Assuming 1 task ≈ 1,500 tokens. Hardware amortized across 500k lifetime tasks + $0.15/kWh electricity
+  // Assuming 1 task ~ 1,500 tokens. Hardware amortized across 500k lifetime tasks + $0.15/kWh electricity
   const powerKw = (dev.category.includes('unified') ? 0.12 : (multiplier * 0.35));
   const electricityPer1kTasks = (powerKw * 0.15 / Math.max(1, iqResult.peakSpeed * 3600)) * 1500000;
   const amortizedHardwareCost = (effPrice / 500000.0) * 1000.0;
@@ -2663,6 +2915,12 @@ function processAllPoints() {
     if (!state.includeModded && (dev.modified || 'no').toLowerCase() === 'yes') return;
     if (!state.includeDatacenter && parseFloat(dev.price_usd) > 50000) return;
 
+    if (state.plotPriceFilter === 'under1k' && parseFloat(dev.price_usd) >= 1000) return;
+    if (state.plotPriceFilter === '1k-3k' && (parseFloat(dev.price_usd) < 1000 || parseFloat(dev.price_usd) > 3000)) return;
+    if (state.plotPriceFilter === '3k-10k' && (parseFloat(dev.price_usd) < 3000 || parseFloat(dev.price_usd) > 10000)) return;
+    if (state.plotPriceFilter === '10k-50k' && (parseFloat(dev.price_usd) < 10000 || parseFloat(dev.price_usd) > 50000)) return;
+    if (state.plotPriceFilter === 'datacenter' && parseFloat(dev.price_usd) < 50000) return;
+
     const single = calculateDeviceScore(dev, 1, false);
     points.push({
       id: `${dev.id}_1x`,
@@ -2692,7 +2950,7 @@ function processAllPoints() {
       points.push({
         id: `${dev.id}_2x_cap`,
         baseId: dev.id,
-        name: `2× ${dev.device_name} (Cap Sharded)`,
+        name: `2x ${dev.device_name} (Cap Sharded)`,
         vendor: dev.vendor,
         category: dev.category,
         modified: dev.modified,
@@ -2709,7 +2967,7 @@ function processAllPoints() {
         activeY: sharded.activeY,
         peakModel: sharded.peakModel,
         rawDevice: dev,
-        label: `2× ${dev.device_name}`
+        label: `2x ${dev.device_name}`
       });
     }
 
@@ -2718,7 +2976,7 @@ function processAllPoints() {
       points.push({
         id: `${dev.id}_2x_tp`,
         baseId: dev.id,
-        name: `2× ${dev.device_name} (TP Ceiling)`,
+        name: `2x ${dev.device_name} (TP Ceiling)`,
         vendor: dev.vendor,
         category: dev.category,
         modified: dev.modified,
@@ -2735,7 +2993,7 @@ function processAllPoints() {
         activeY: tp.activeY,
         peakModel: tp.peakModel,
         rawDevice: dev,
-        label: `2× ${dev.device_name} [TP]`
+        label: `2x ${dev.device_name} [TP]`
       });
     }
   });
@@ -2968,13 +3226,34 @@ function renderScatterPlot() {
 
   // Draw the average price/performance trendline for the currently visible options.
   if (trendline) {
-    const trendlinePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    const trendlineStartY = Math.max(yMin, Math.min(yMax, trendline.predictY(xMin)));
-    const trendlineEndY = Math.max(yMin, Math.min(yMax, trendline.predictY(xMax)));
-    trendlinePath.setAttribute('d', `M ${getX(xMin)} ${getY(trendlineStartY)} L ${getX(xMax)} ${getY(trendlineEndY)}`);
-    trendlinePath.setAttribute('class', 'trendline');
-    trendlinePath.setAttribute('aria-label', `${trendline.mode} average price-performance trendline`);
-    svg.appendChild(trendlinePath);
+    // Find intersection of trendline with chart boundaries [xMin, xMax] x [yMin, yMax]
+    let x1 = xMin;
+    let y1 = trendline.predictY(x1);
+    if (y1 < yMin) {
+      y1 = yMin;
+      x1 = trendline.priceForY(y1);
+    } else if (y1 > yMax) {
+      y1 = yMax;
+      x1 = trendline.priceForY(y1);
+    }
+
+    let x2 = xMax;
+    let y2 = trendline.predictY(x2);
+    if (y2 > yMax) {
+      y2 = yMax;
+      x2 = trendline.priceForY(y2);
+    } else if (y2 < yMin) {
+      y2 = yMin;
+      x2 = trendline.priceForY(y2);
+    }
+
+    if (Number.isFinite(x1) && Number.isFinite(y1) && Number.isFinite(x2) && Number.isFinite(y2)) {
+      const trendlinePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      trendlinePath.setAttribute('d', `M ${getX(x1)} ${getY(y1)} L ${getX(x2)} ${getY(y2)}`);
+      trendlinePath.setAttribute('class', 'trendline');
+      trendlinePath.setAttribute('aria-label', `${trendline.mode} average price-performance trendline`);
+      svg.appendChild(trendlinePath);
+    }
   }
 
   // When a point is selected, project its performance onto the trendline and
@@ -2984,8 +3263,8 @@ function renderScatterPlot() {
   const selectedComparison = comparePointToTrendline(selectedPoint, trendline);
   if (selectedPoint && selectedComparison) {
     const actualX = getX(selectedPoint.effPrice);
-    const projectedPrice = Math.max(xMin, Math.min(xMax, selectedComparison.expectedPrice));
-    const projectedX = getX(projectedPrice);
+    const projectedPrice = selectedComparison.expectedPrice;
+    const clampedProjectedX = Math.max(margin.left, Math.min(width - margin.right, getX(projectedPrice)));
     const pointY = getY(selectedPoint.activeY);
     const gapGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     gapGroup.setAttribute('class', `selection-gap-annotation ${selectedComparison.relationClass}`);
@@ -2993,29 +3272,46 @@ function renderScatterPlot() {
     const gapLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     gapLine.setAttribute('x1', actualX);
     gapLine.setAttribute('y1', pointY);
-    gapLine.setAttribute('x2', projectedX);
+    gapLine.setAttribute('x2', clampedProjectedX);
     gapLine.setAttribute('y2', pointY);
     gapLine.setAttribute('class', 'selection-gap-line');
     gapGroup.appendChild(gapLine);
 
-    [actualX, projectedX].forEach(x => {
+    [actualX, clampedProjectedX].forEach((x, idx) => {
       const endpoint = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
       endpoint.setAttribute('cx', x);
       endpoint.setAttribute('cy', pointY);
-      endpoint.setAttribute('r', 3.5);
+      endpoint.setAttribute('r', idx === 1 ? 4 : 3);
       endpoint.setAttribute('class', 'selection-gap-endpoint');
       gapGroup.appendChild(endpoint);
     });
 
-    const gapLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    gapLabel.setAttribute('x', (actualX + projectedX) / 2);
-    gapLabel.setAttribute('y', pointY - 12);
-    gapLabel.setAttribute('text-anchor', 'middle');
-    gapLabel.setAttribute('class', 'selection-gap-label');
-    gapLabel.textContent = selectedComparison.relation === 'at average'
+    const labelText = selectedComparison.relation === 'at average'
       ? 'At average'
       : `${selectedComparison.relation === 'ahead' ? 'Ahead' : 'Behind'} avg by ${formatUsd(Math.abs(selectedComparison.delta))}`;
+
+    const badgeW = labelText.length * 6.5 + 16;
+    const badgeH = 18;
+    const midX = Math.max(margin.left + badgeW / 2 + 6, Math.min(width - margin.right - badgeW / 2 - 6, (actualX + clampedProjectedX) / 2));
+    const labelY = (pointY < margin.top + 35) ? pointY + 16 : pointY - 14;
+
+    const badgeRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    badgeRect.setAttribute('x', midX - badgeW / 2);
+    badgeRect.setAttribute('y', labelY - badgeH / 2);
+    badgeRect.setAttribute('width', badgeW);
+    badgeRect.setAttribute('height', badgeH);
+    badgeRect.setAttribute('rx', 2);
+    badgeRect.setAttribute('class', `selection-gap-badge-bg ${selectedComparison.relationClass}`);
+    gapGroup.appendChild(badgeRect);
+
+    const gapLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    gapLabel.setAttribute('x', midX);
+    gapLabel.setAttribute('y', labelY + 3.5);
+    gapLabel.setAttribute('text-anchor', 'middle');
+    gapLabel.setAttribute('class', `selection-gap-label ${selectedComparison.relationClass}`);
+    gapLabel.textContent = labelText;
     gapGroup.appendChild(gapLabel);
+
     svg.appendChild(gapGroup);
   }
 
@@ -3033,7 +3329,7 @@ function renderScatterPlot() {
     svg.appendChild(path);
   }
 
-  // Draw Data Markers with VENDOR COLORS & PARETO GOLD HALOS
+  // Draw Data Markers with TACTICAL RETICLES & PARETO GOLD HALOS
   const markersGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   const labelsGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 
@@ -3047,19 +3343,19 @@ function renderScatterPlot() {
 
     const vendorTheme = VENDOR_COLORS[pt.vendor] || VENDOR_COLORS['ASUS'];
     const fillColor = vendorTheme.fill;
-    const strokeColor = isSelected ? '#38bdf8' : vendorTheme.stroke;
-    const radius = (isPareto ? 8 : 6.5) * Math.min(1.4, Math.max(0.8, Math.sqrt(state.zoomScale)));
+    const strokeColor = isSelected ? '#ffffff' : vendorTheme.stroke;
+    const radius = (isPareto ? 6.5 : 5.0) * Math.min(1.3, Math.max(0.85, Math.sqrt(state.zoomScale)));
 
     const marker = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     marker.setAttribute('class', `data-marker ${isSelected ? 'is-selected' : ''}`);
     marker.setAttribute('data-id', pt.baseId);
 
-    // If Pareto, draw glowing golden halo ring
+    // If Pareto, draw glowing solar gold halo ring
     if (isPareto) {
       const halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
       halo.setAttribute('cx', px);
       halo.setAttribute('cy', py);
-      halo.setAttribute('r', radius + 5);
+      halo.setAttribute('r', radius + 4.5);
       halo.setAttribute('class', 'pareto-halo-ring');
       marker.appendChild(halo);
     }
@@ -3071,36 +3367,59 @@ function renderScatterPlot() {
       circle.setAttribute('r', radius);
       circle.setAttribute('fill', fillColor);
       circle.setAttribute('stroke', strokeColor);
-      circle.setAttribute('stroke-width', isSelected ? 3 : 1.5);
+      circle.setAttribute('stroke-width', isSelected ? 2.5 : 1.2);
       marker.appendChild(circle);
     } else if (pt.pointType === 'diamond') {
       const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-      const r = radius * 1.2;
+      const r = radius * 1.15;
       poly.setAttribute('points', `${px},${py - r} ${px + r},${py} ${px},${py + r} ${px - r},${py}`);
       poly.setAttribute('fill', fillColor);
       poly.setAttribute('stroke', strokeColor);
-      poly.setAttribute('stroke-width', isSelected ? 3 : 1.5);
+      poly.setAttribute('stroke-width', isSelected ? 2.5 : 1.2);
       marker.appendChild(poly);
     } else if (pt.pointType === 'square') {
       const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      const s = radius * 1.8;
+      const s = radius * 1.6;
       rect.setAttribute('x', px - s/2);
       rect.setAttribute('y', py - s/2);
       rect.setAttribute('width', s);
       rect.setAttribute('height', s);
-      rect.setAttribute('rx', 2);
+      rect.setAttribute('rx', 1);
       rect.setAttribute('fill', fillColor);
       rect.setAttribute('stroke', strokeColor);
-      rect.setAttribute('stroke-width', isSelected ? 3 : 1.5);
+      rect.setAttribute('stroke-width', isSelected ? 2.5 : 1.2);
       marker.appendChild(rect);
     } else if (pt.pointType === 'triangle') {
       const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-      const r = radius * 1.4;
+      const r = radius * 1.3;
       poly.setAttribute('points', `${px},${py - r} ${px + r * 0.866},${py + r * 0.5} ${px - r * 0.866},${py + r * 0.5}`);
       poly.setAttribute('fill', fillColor);
       poly.setAttribute('stroke', strokeColor);
-      poly.setAttribute('stroke-width', isSelected ? 3 : 1.5);
+      poly.setAttribute('stroke-width', isSelected ? 2.5 : 1.2);
       marker.appendChild(poly);
+    }
+
+    // Reticle Center Core
+    const core = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    core.setAttribute('cx', px);
+    core.setAttribute('cy', py);
+    core.setAttribute('r', 1.5);
+    core.setAttribute('fill', '#05080c');
+    marker.appendChild(core);
+
+    // If Selected, draw target crosshair brackets
+    if (isSelected) {
+      const crosshair = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      crosshair.setAttribute('stroke', '#00f0ff');
+      crosshair.setAttribute('stroke-width', '1.2');
+      const cr = radius + 7;
+      crosshair.innerHTML = `
+        <line x1="${px - cr}" y1="${py}" x2="${px - cr + 3}" y2="${py}" />
+        <line x1="${px + cr}" y1="${py}" x2="${px + cr - 3}" y2="${py}" />
+        <line x1="${px}" y1="${py - cr}" x2="${px}" y2="${py - cr + 3}" />
+        <line x1="${px}" y1="${py + cr}" x2="${px}" y2="${py + cr - 3}" />
+      `;
+      marker.appendChild(crosshair);
     }
 
     marker.addEventListener('mouseenter', (e) => showTooltip(e, pt));
@@ -3109,66 +3428,166 @@ function renderScatterPlot() {
     marker.addEventListener('click', () => selectDevice(pt.baseId, pt.id));
 
     markersGroup.appendChild(marker);
+  });
 
-    // ================= ADAPTIVE SMART ANNOTATIONS =================
-    let shouldShowLabel = false;
-    if (state.labelMode === 'all') shouldShowLabel = true;
-    else if (state.labelMode === 'pareto') shouldShowLabel = isPareto || isSelected;
-    else if (state.labelMode === 'auto') shouldShowLabel = (state.zoomScale >= 1.3) ? true : (isPareto || isSelected);
+  // ================= ADAPTIVE ZERO-OVERLAP HUD ANNOTATIONS =================
+  const placedBoxes = [];
 
-    if (shouldShowLabel) {
-      const labelGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      labelGroup.setAttribute('class', 'callout-box');
-      labelGroup.addEventListener('click', () => selectDevice(pt.baseId, pt.id));
-
-      const offsetX = (px > margin.left + plotWidth * 0.75) ? -135 : 25;
-      const offsetY = (py < margin.top + 50) ? 25 : -28;
-      const lx = px + offsetX;
-      const ly = py + offsetY;
-
-      const leader = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      leader.setAttribute('x1', px);
-      leader.setAttribute('y1', py);
-      leader.setAttribute('x2', lx);
-      leader.setAttribute('y2', ly + 8);
-      leader.setAttribute('class', 'leader-line');
-      labelsGroup.appendChild(leader);
-
-      const boxW = Math.max(120, pt.label.length * 6.8);
-      const boxH = 28;
-      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      rect.setAttribute('x', offsetX < 0 ? lx - boxW : lx);
-      rect.setAttribute('y', ly - 6);
-      rect.setAttribute('width', boxW);
-      rect.setAttribute('height', boxH);
-      rect.setAttribute('class', 'callout-rect');
-      labelGroup.appendChild(rect);
-
-      const textTitle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      textTitle.setAttribute('x', (offsetX < 0 ? lx - boxW : lx) + 6);
-      textTitle.setAttribute('y', ly + 6);
-      textTitle.setAttribute('class', 'callout-text-title');
-      textTitle.textContent = pt.label;
-      labelGroup.appendChild(textTitle);
-
-      const textSub = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      textSub.setAttribute('x', (offsetX < 0 ? lx - boxW : lx) + 6);
-      textSub.setAttribute('y', ly + 18);
-      textSub.setAttribute('class', 'callout-text-sub');
-
-      if (state.yMetric === 'iq-throughput') {
-        textSub.textContent = `$${pt.effPrice.toLocaleString()} · ${pt.iqTokS} IQ-tok/s`;
-      } else if (state.yMetric === 'iq-per-dollar') {
-        textSub.textContent = `$${pt.effPrice.toLocaleString()} · ${pt.iqPerDollar} IQ/$1k`;
-      } else if (state.yMetric === 'cost-per-1k-tasks') {
-        textSub.textContent = `$${pt.effPrice.toLocaleString()} · $${pt.costPer1kTasks}/1k Tasks`;
-      } else {
-        textSub.textContent = `$${pt.effPrice.toLocaleString()} · ${pt.effCap}GB · ${pt.effBw}GB/s`;
-      }
-      labelGroup.appendChild(textSub);
-
-      labelsGroup.appendChild(labelGroup);
+  // Determine candidate points to label based on mode & prominence
+  const pointsToLabel = state.processedPoints.filter(pt => {
+    const isSelected = state.selectedPointId
+      ? pt.id === state.selectedPointId
+      : pt.baseId === state.selectedDeviceId && pt.multiplier === 1;
+    
+    if (isSelected) return true;
+    if (state.labelMode === 'none') return false;
+    if (state.labelMode === 'pareto') return pt.isPareto;
+    if (state.labelMode === 'all') return true;
+    // Auto Mode: Show Pareto frontier by default; if zoomed in, show more points
+    if (state.labelMode === 'auto') {
+      return (state.zoomScale >= 1.4) ? true : pt.isPareto;
     }
+    return false;
+  });
+
+  // Sort: Selected first, then Pareto, then higher score
+  pointsToLabel.sort((a, b) => {
+    const aSel = a.baseId === state.selectedDeviceId ? 1 : 0;
+    const bSel = b.baseId === state.selectedDeviceId ? 1 : 0;
+    if (aSel !== bSel) return bSel - aSel;
+    if (a.isPareto !== b.isPareto) return (b.isPareto ? 1 : 0) - (a.isPareto ? 1 : 0);
+    return b.activeY - a.activeY;
+  });
+
+  pointsToLabel.forEach(pt => {
+    const px = getX(pt.effPrice);
+    const py = getY(pt.activeY);
+    if (px < margin.left - 20 || px > width - margin.right + 20 || py < margin.top - 20 || py > margin.top + plotHeight + 20) {
+      return; // Offscreen
+    }
+
+    const isSelected = state.selectedPointId
+      ? pt.id === state.selectedPointId
+      : pt.baseId === state.selectedDeviceId && pt.multiplier === 1;
+    const isPareto = pt.isPareto;
+    const vendorTheme = VENDOR_COLORS[pt.vendor] || VENDOR_COLORS['ASUS'];
+
+    // Concise, high-density label text
+    const shortPrice = pt.effPrice >= 1000 ? `$${(pt.effPrice/1000).toFixed(pt.effPrice >= 10000 ? 0 : 1)}k` : `$${pt.effPrice}`;
+    let labelText = `${pt.label} · ${shortPrice}`;
+    if (state.yMetric === 'iq-throughput') {
+      labelText = `${pt.label} · ${pt.iqTokS} IQ-t/s`;
+    } else if (state.yMetric === 'cost-per-1k-tasks') {
+      labelText = `${pt.label} · $${pt.costPer1kTasks}/1k`;
+    }
+
+    const boxW = Math.max(70, labelText.length * 6.2 + 10);
+    const boxH = 16; // Ultra-compact 16px height
+
+    // Candidate positions (top-right, bottom-right, top-left, bottom-left, stacked)
+    const candidateOffsets = [
+      { ox: 14, oy: -18 },
+      { ox: 14, oy: 6 },
+      { ox: -boxW - 14, oy: -18 },
+      { ox: -boxW - 14, oy: 6 },
+      { ox: 14, oy: -34 },
+      { ox: -boxW - 14, oy: -34 },
+      { ox: 14, oy: 22 },
+      { ox: -boxW - 14, oy: 22 }
+    ];
+
+    let bestBox = null;
+    let minOverlaps = Infinity;
+
+    for (const offset of candidateOffsets) {
+      const bx = px + offset.ox;
+      const by = py + offset.oy;
+
+      // Check bounds
+      if (bx < margin.left - 10 || bx + boxW > width - margin.right + 10 || by < margin.top - 10 || by + boxH > margin.top + plotHeight + 10) {
+        continue;
+      }
+
+      // Count collisions with already placed boxes
+      let overlaps = 0;
+      for (const pb of placedBoxes) {
+        const xOverlap = Math.max(0, Math.min(bx + boxW, pb.x + pb.w) - Math.max(bx, pb.x));
+        const yOverlap = Math.max(0, Math.min(by + boxH, pb.y + pb.h) - Math.max(by, pb.y));
+        if (xOverlap > 0 && yOverlap > 0) {
+          overlaps += (xOverlap * yOverlap);
+        }
+      }
+
+      if (overlaps === 0) {
+        bestBox = { x: bx, y: by, w: boxW, h: boxH, ox: offset.ox, oy: offset.oy };
+        break;
+      } else if (overlaps < minOverlaps) {
+        minOverlaps = overlaps;
+        bestBox = { x: bx, y: by, w: boxW, h: boxH, ox: offset.ox, oy: offset.oy };
+      }
+    }
+
+    if (!bestBox && !isSelected && !isPareto) {
+      return; // Skip non-essential overlapping label
+    }
+
+    if (!bestBox) {
+      bestBox = { x: px + 14, y: py - 18, w: boxW, h: boxH, ox: 14, oy: -18 };
+    }
+
+    placedBoxes.push(bestBox);
+
+    // Render Label Group
+    const labelGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    labelGroup.setAttribute('class', `callout-box ${isSelected ? 'is-selected' : ''}`);
+    labelGroup.addEventListener('click', () => selectDevice(pt.baseId, pt.id));
+
+    // Sleek Leader Line with Reticle
+    const leader = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    leader.setAttribute('x1', px);
+    leader.setAttribute('y1', py);
+    leader.setAttribute('x2', bestBox.ox > 0 ? bestBox.x : bestBox.x + bestBox.w);
+    leader.setAttribute('y2', bestBox.y + bestBox.h / 2);
+    leader.setAttribute('class', 'leader-line');
+    if (isPareto) leader.setAttribute('stroke', 'rgba(255, 215, 0, 0.6)');
+    labelsGroup.appendChild(leader);
+
+    // Callout Box Background
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', bestBox.x);
+    rect.setAttribute('y', bestBox.y);
+    rect.setAttribute('width', bestBox.w);
+    rect.setAttribute('height', bestBox.h);
+    rect.setAttribute('class', 'callout-rect');
+    
+    if (isSelected) {
+      rect.setAttribute('stroke', '#00f0ff');
+      rect.setAttribute('fill', 'rgba(0, 240, 255, 0.22)');
+    } else if (isPareto) {
+      rect.setAttribute('stroke', 'rgba(255, 215, 0, 0.8)');
+      rect.setAttribute('fill', 'rgba(10, 16, 24, 0.95)');
+    } else {
+      rect.setAttribute('stroke', 'rgba(26, 39, 54, 0.9)');
+      rect.setAttribute('fill', 'rgba(5, 8, 12, 0.92)');
+    }
+    labelGroup.appendChild(rect);
+
+    // Callout Text
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', bestBox.x + 5);
+    text.setAttribute('y', bestBox.y + 11.5);
+    text.setAttribute('class', 'callout-text-title');
+    if (isPareto && !isSelected) {
+      text.setAttribute('fill', '#ffd700');
+    } else if (isSelected) {
+      text.setAttribute('fill', '#ffffff');
+    } else {
+      text.setAttribute('fill', vendorTheme.fill);
+    }
+    text.textContent = labelText;
+    labelGroup.appendChild(text);
+
+    labelsGroup.appendChild(labelGroup);
   });
 
   svg.appendChild(markersGroup);
@@ -3184,16 +3603,16 @@ function showTooltip(e, pt) {
       ? 'At average'
       : `${comparison.relation === 'ahead' ? 'Ahead' : 'Behind'} by ${formatUsd(Math.abs(comparison.delta))}`)
     : 'Unavailable';
-  const comparisonColor = comparison?.relation === 'ahead' ? '#22c55e' : (comparison?.relation === 'behind' ? '#fb923c' : '#a78bfa');
+  const comparisonColor = comparison?.relation === 'ahead' ? '#00ff66' : (comparison?.relation === 'behind' ? '#ff6600' : '#a78bfa');
   tt.style.display = 'block';
   tt.innerHTML = `
     <div class="tooltip-title">${pt.name}</div>
     <div class="tooltip-grid">
-      <span class="tooltip-lbl">Vendor / Platform:</span>
+      <span class="tooltip-lbl">Vendor / Architecture:</span>
       <span class="tooltip-val" style="color:${VENDOR_COLORS[pt.vendor]?.fill || '#fff'}">${pt.vendor} (${pt.category})</span>
 
-      <span class="tooltip-lbl">Effective System Price:</span>
-      <span class="tooltip-val">$${pt.effPrice.toLocaleString()}</span>
+      <span class="tooltip-lbl">System TCO / Price:</span>
+      <span class="tooltip-val" style="color:#00f0ff">$${pt.effPrice.toLocaleString()}</span>
 
       <span class="tooltip-lbl">vs. Average Trendline:</span>
       <span class="tooltip-val" style="color:${comparisonColor}">${comparisonText}</span>
@@ -3204,20 +3623,20 @@ function showTooltip(e, pt) {
       <span class="tooltip-lbl">Local Memory Bandwidth:</span>
       <span class="tooltip-val">${pt.effBw} GB/s</span>
 
-      <span class="tooltip-lbl">Optimal Model Pairing:</span>
-      <span class="tooltip-val" style="color:#38bdf8">${pt.peakModel}</span>
+      <span class="tooltip-lbl">Peak Model Fit:</span>
+      <span class="tooltip-val" style="color:#d4ff00">${pt.peakModel}</span>
 
       <span class="tooltip-lbl">Peak IQ-Throughput:</span>
-      <span class="tooltip-val" style="color:#22c55e">${pt.iqTokS.toLocaleString()} IQ-tok/s</span>
+      <span class="tooltip-val" style="color:#00ff66">${pt.iqTokS.toLocaleString()} IQ-tok/s</span>
 
-      <span class="tooltip-lbl">Cost / 1k Reasoning Tasks:</span>
+      <span class="tooltip-lbl">Cost / 1k Tasks:</span>
       <span class="tooltip-val" style="color:#34d399">$${pt.costPer1kTasks}</span>
 
-      <span class="tooltip-lbl">Weighted Value Score:</span>
-      <span class="tooltip-val" style="color:#f59e0b">${pt.score.toLocaleString()}</span>
+      <span class="tooltip-lbl">Value Score:</span>
+      <span class="tooltip-val" style="color:#ffd700">${pt.score.toLocaleString()}</span>
 
-      <span class="tooltip-lbl">Pareto Status:</span>
-      <span class="tooltip-val" style="color:${pt.isPareto ? '#10b981' : '#94a3b8'}">${pt.isPareto ? '★ Pareto-Optimal' : 'Dominated'}</span>
+      <span class="tooltip-lbl">Pareto Frontier:</span>
+      <span class="tooltip-val" style="color:${pt.isPareto ? '#ffd700' : '#728aa3'}">${pt.isPareto ? '★ Pareto-Optimal' : 'Dominated'}</span>
     </div>
   `;
   moveTooltip(e);
@@ -3256,9 +3675,11 @@ function selectDevice(deviceId, pointId = null) {
   catBadge.textContent = `${dev.vendor} · ${dev.category}`;
   catBadge.className = `badge badge-${dev.vendor.toLowerCase()}`;
 
-  const calc = calculateDeviceScore(dev, 1, false);
   const selectedPoint = (pointId && state.processedPoints.find(pt => pt.id === pointId))
     || state.processedPoints.find(pt => pt.baseId === deviceId && pt.multiplier === 1);
+  const multiplier = selectedPoint ? (selectedPoint.multiplier || 1) : 1;
+  const isTp = selectedPoint ? (selectedPoint.pointType === 'triangle') : false;
+  const calc = calculateDeviceScore(dev, multiplier, isTp);
   const comparison = comparePointToTrendline(selectedPoint);
 
   body.innerHTML = `
@@ -3273,7 +3694,7 @@ function selectDevice(deviceId, pointId = null) {
     <div class="spec-metrics-grid">
       <div class="spec-metric-card">
         <div class="spec-metric-label">Memory Capacity</div>
-        <div class="spec-metric-value">${calc.effCap} GB <small style="font-size:0.7rem;color:#94a3b8">(${dev.memory_capacity_gb}GB raw)</small></div>
+        <div class="spec-metric-value">${calc.effCap} GB <small style="font-size:0.65rem;color:#728aa3">(${dev.memory_capacity_gb}GB raw)</small></div>
       </div>
       <div class="spec-metric-card">
         <div class="spec-metric-label">Memory Bandwidth</div>
@@ -3281,7 +3702,7 @@ function selectDevice(deviceId, pointId = null) {
       </div>
       <div class="spec-metric-card">
         <div class="spec-metric-label">Peak IQ-Throughput</div>
-        <div class="spec-metric-value" style="color:#22c55e">${calc.iqTokS.toLocaleString()} <small style="font-size:0.65rem">IQ-tok/s</small></div>
+        <div class="spec-metric-value" style="color:#00ff66">${calc.iqTokS.toLocaleString()} <small style="font-size:0.62rem">IQ-tok/s</small></div>
       </div>
       <div class="spec-metric-card">
         <div class="spec-metric-label">Cost / 1k Tasks</div>
@@ -3298,7 +3719,7 @@ function selectDevice(deviceId, pointId = null) {
     ` : ''}
 
     <div class="spec-notes-section">
-      <div class="spec-note-item" style="border-left-color:#22c55e">
+      <div class="spec-note-item" style="border-left-color:#d4ff00">
         <div class="spec-note-title">Optimal Model Pairing</div>
         <div class="spec-note-desc"><strong>${calc.peakModel}</strong></div>
       </div>
@@ -3323,7 +3744,7 @@ function selectDevice(deviceId, pointId = null) {
       </div>
 
       ${dev.caveats ? `
-      <div class="spec-note-item" style="border-left-color:#f59e0b">
+      <div class="spec-note-item" style="border-left-color:#ff6600">
         <div class="spec-note-title">System Caveats</div>
         <div class="spec-note-desc">${dev.caveats}</div>
       </div>
@@ -3340,11 +3761,20 @@ function renderFitMatrix() {
   const headerRow = document.getElementById('matrixHeaderRow');
   if (!tableBody || !headerRow || state.rawModels.length === 0) return;
 
+  // Filter models
   let models = state.rawModels;
   if (state.modelClassFilter === 'compact') models = models.filter(m => m.total_params_b <= 14);
   else if (state.modelClassFilter === 'mid') models = models.filter(m => m.total_params_b > 14 && m.total_params_b <= 70.6);
   else if (state.modelClassFilter === 'large') models = models.filter(m => m.total_params_b > 70.6 && m.total_params_b <= 150);
   else if (state.modelClassFilter === 'ultra') models = models.filter(m => m.total_params_b > 150);
+
+  if (state.matrixDateFilter === '2026') models = models.filter(m => (m.release_date || '').startsWith('2026'));
+  else if (state.matrixDateFilter === '2025') models = models.filter(m => (m.release_date || '') >= '2025-01-01');
+  else if (state.matrixDateFilter === '2024') models = models.filter(m => (m.release_date || '').startsWith('2024'));
+
+  if (state.matrixMinIQ > 0) {
+    models = models.filter(m => (m.intelligence_index || 0) >= state.matrixMinIQ);
+  }
 
   while (headerRow.children.length > 2) {
     headerRow.removeChild(headerRow.lastChild);
@@ -3352,9 +3782,14 @@ function renderFitMatrix() {
 
   models.forEach(m => {
     const th = document.createElement('th');
+    const relYear = (m.release_date || '').slice(0, 7);
     th.innerHTML = `
       <div style="font-weight:700;color:#fff">${m.name}</div>
-      <div style="font-size:0.7rem;color:#94a3b8">${m.total_params_b}B · ${m.category} · IQ ${m.intelligence_index}</div>
+      <div style="font-size:0.68rem;color:#00f0ff;font-family:var(--font-mono);margin-top:2px;">
+        <span class="badge" style="background:rgba(0,240,255,0.12);color:#00f0ff;border:1px solid rgba(0,240,255,0.3);font-size:0.62rem;padding:1px 4px;">${relYear}</span>
+        ${m.total_params_b}B · IQ <strong>${m.intelligence_index}</strong>
+      </div>
+      <div style="font-size:0.62rem;color:#728aa3;margin-top:1px;">MATH: ${m.aa_math_500 || '-'}% · Code: ${m.aa_coding_humaneval || '-'}%</div>
     `;
     headerRow.appendChild(th);
   });
@@ -3366,6 +3801,14 @@ function renderFitMatrix() {
     if (!state.includeDatacenter && parseFloat(dev.price_usd) > 50000) return;
 
     const calc = calculateDeviceScore(dev, 1, false);
+
+    // Matrix Max Hardware Price Filter
+    if (state.matrixMaxPrice === 'under1k' && calc.effPrice >= 1000) return;
+    if (state.matrixMaxPrice === '1k-3k' && (calc.effPrice < 1000 || calc.effPrice > 3000)) return;
+    if (state.matrixMaxPrice === '3k-10k' && (calc.effPrice < 3000 || calc.effPrice > 10000)) return;
+    if (state.matrixMaxPrice === '10k-50k' && (calc.effPrice < 10000 || calc.effPrice > 50000)) return;
+    if (state.matrixMaxPrice === 'datacenter' && calc.effPrice < 50000) return;
+
     const usableVram = calc.effCap;
     const bw = parseFloat(dev.local_memory_bandwidth_gbs) || 1;
     const vendorTheme = VENDOR_COLORS[dev.vendor] || VENDOR_COLORS['ASUS'];
@@ -3549,11 +3992,14 @@ function renderHardwareToModelsFit(dev) {
 function renderOpenModelsExplorer() {
   const grid = document.getElementById('modelsGrid');
   const txtSearch = document.getElementById('txtSearchModels');
+  const lblCount = document.getElementById('lblModelFilterCount');
   if (!grid || state.rawModels.length === 0) return;
 
   const query = (txtSearch ? txtSearch.value : '').toLowerCase().trim();
 
-  let models = state.rawModels;
+  let models = [...state.rawModels];
+
+  // 1. Text Search Filter
   if (query) {
     models = models.filter(m => 
       m.name.toLowerCase().includes(query) ||
@@ -3561,6 +4007,58 @@ function renderOpenModelsExplorer() {
       m.category.toLowerCase().includes(query) ||
       (m.description || '').toLowerCase().includes(query)
     );
+  }
+
+  // 2. Release Date Filter
+  if (state.modelDateFilter === '2026') {
+    models = models.filter(m => (m.release_date || '').startsWith('2026'));
+  } else if (state.modelDateFilter === '2025') {
+    models = models.filter(m => (m.release_date || '') >= '2025-01-01');
+  } else if (state.modelDateFilter === '2024') {
+    models = models.filter(m => (m.release_date || '').startsWith('2024'));
+  }
+
+  // 3. Min AA Intelligence Index Filter
+  if (state.modelMinIQ > 0) {
+    models = models.filter(m => (m.intelligence_index || 0) >= state.modelMinIQ);
+  }
+
+  // 4. Parameter Size Filter
+  if (state.modelSizeFilter === 'compact') {
+    models = models.filter(m => m.total_params_b <= 14);
+  } else if (state.modelSizeFilter === 'mid') {
+    models = models.filter(m => m.total_params_b > 14 && m.total_params_b <= 35);
+  } else if (state.modelSizeFilter === 'large') {
+    models = models.filter(m => m.total_params_b > 35 && m.total_params_b <= 100);
+  } else if (state.modelSizeFilter === 'frontier') {
+    models = models.filter(m => m.total_params_b > 100);
+  }
+
+  // 5. Creator / Lab Filter
+  if (state.modelLabFilter !== 'all') {
+    models = models.filter(m => m.creator.toLowerCase().includes(state.modelLabFilter.toLowerCase()));
+  }
+
+  // 6. Sorting
+  const sortMode = state.modelSort || 'intelligence_desc';
+  if (sortMode === 'intelligence_desc') {
+    models.sort((a, b) => (b.intelligence_index || 0) - (a.intelligence_index || 0));
+  } else if (sortMode === 'date_desc') {
+    models.sort((a, b) => (b.release_date || '').localeCompare(a.release_date || ''));
+  } else if (sortMode === 'math_desc') {
+    models.sort((a, b) => (b.aa_math_500 || 0) - (a.aa_math_500 || 0));
+  } else if (sortMode === 'code_desc') {
+    models.sort((a, b) => (b.aa_coding_humaneval || 0) - (a.aa_coding_humaneval || 0));
+  } else if (sortMode === 'speed_desc') {
+    models.sort((a, b) => (b.output_speed_tok_s || 0) - (a.output_speed_tok_s || 0));
+  } else if (sortMode === 'params_desc') {
+    models.sort((a, b) => (b.total_params_b || 0) - (a.total_params_b || 0));
+  } else if (sortMode === 'params_asc') {
+    models.sort((a, b) => (a.total_params_b || 0) - (b.total_params_b || 0));
+  }
+
+  if (lblCount) {
+    lblCount.textContent = `Showing ${models.length} of ${state.rawModels.length} Models`;
   }
 
   grid.innerHTML = '';
@@ -3572,32 +4070,48 @@ function renderOpenModelsExplorer() {
       <div class="model-card-top">
         <div>
           <h3 class="model-name">${m.name}</h3>
-          <p class="model-creator">${m.creator} · ${m.category} Architecture</p>
+          <p class="model-creator">
+            ${m.creator} · ${m.category}
+            ${m.release_date ? `<span class="model-release-badge">📅 ${m.release_date}</span>` : ''}
+          </p>
         </div>
         <span class="badge badge-accent">${m.total_params_b}B</span>
       </div>
 
-      <div class="model-stats-row">
-        <div class="model-stat-box">
-          <span class="model-stat-lbl">Intelligence</span>
-          <span class="model-stat-val">${m.intelligence_index || '—'}</span>
+      <div class="model-benchmark-grid">
+        <div class="benchmark-box highlight">
+          <span class="benchmark-lbl">AA Intelligence</span>
+          <span class="benchmark-val">${m.intelligence_index || '—'}</span>
         </div>
-        <div class="model-stat-box">
-          <span class="model-stat-lbl">Speed</span>
-          <span class="model-stat-val">${m.output_speed_tok_s ? `${m.output_speed_tok_s} t/s` : '—'}</span>
+        <div class="benchmark-box">
+          <span class="benchmark-lbl">MMLU-Pro</span>
+          <span class="benchmark-val">${m.aa_mmlu_pro ? `${m.aa_mmlu_pro}%` : '—'}</span>
         </div>
-        <div class="model-stat-box">
-          <span class="model-stat-lbl">Context</span>
-          <span class="model-stat-val">${m.context_window_str || '128k'}</span>
+        <div class="benchmark-box">
+          <span class="benchmark-lbl">GPQA Diamond</span>
+          <span class="benchmark-val">${m.aa_gpqa ? `${m.aa_gpqa}%` : '—'}</span>
+        </div>
+        <div class="benchmark-box">
+          <span class="benchmark-lbl">MATH 500</span>
+          <span class="benchmark-val">${m.aa_math_500 ? `${m.aa_math_500}%` : '—'}</span>
+        </div>
+        <div class="benchmark-box">
+          <span class="benchmark-lbl">HumanEval Code</span>
+          <span class="benchmark-val">${m.aa_coding_humaneval ? `${m.aa_coding_humaneval}%` : '—'}</span>
+        </div>
+        <div class="benchmark-box">
+          <span class="benchmark-lbl">Speed / Context</span>
+          <span class="benchmark-val">${m.output_speed_tok_s ? `${m.output_speed_tok_s} t/s` : '—'} · ${m.context_window_str || '128k'}</span>
         </div>
       </div>
 
       <p class="model-desc">${m.description || ''}</p>
 
-      <div style="font-size:0.72rem;color:#94a3b8;margin-top:2px;">Unsloth VRAM Requirements & Accuracy:</div>
+      <div style="font-size:0.72rem;color:#94a3b8;margin-top:4px;font-family:var(--font-mono)">Unsloth VRAM Requirements & Accuracy:</div>
       <div class="model-quant-mem-pills">
         <span class="quant-pill">FP16: <strong>${req.fp16 || '—'}GB</strong> (100%)</span>
         <span class="quant-pill">Q8: <strong>${req.q8_0 || '—'}GB</strong> (99.8%)</span>
+        <span class="quant-pill">Q6: <strong>${req.q6_k || '—'}GB</strong> (99.2%)</span>
         <span class="quant-pill">Q5: <strong>${req.q5_k_m || '—'}GB</strong> (98.6%)</span>
         <span class="quant-pill">Q4: <strong>${req.q4_k_m || '—'}GB</strong> (97.4%)</span>
         <span class="quant-pill">Q3: <strong>${req.q3_k_m || '—'}GB</strong> (93%)</span>
@@ -3653,15 +4167,15 @@ function renderTaskEconomics() {
     tr.innerHTML = `
       <td>
         <strong style="color:${vendorTheme.fill}">${dev.device_name}</strong>
-        <div style="font-size:0.7rem;color:#94a3b8">${dev.vendor} (${dev.category})</div>
+        <div style="font-size:0.68rem;color:#728aa3;font-family:var(--font-mono)">${dev.vendor} (${dev.category})</div>
       </td>
       <td style="font-family:var(--font-mono)">$${calc.effPrice.toLocaleString()}</td>
-      <td style="color:#38bdf8">${calc.peakModel}</td>
+      <td style="color:#00f0ff;font-family:var(--font-mono)">${calc.peakModel}</td>
       <td style="font-family:var(--font-mono)">${calc.peakSpeed} tok/s</td>
-      <td style="font-family:var(--font-mono);color:#34d399"><strong>$${calc.costPer1kTasks}</strong></td>
-      <td style="font-family:var(--font-mono);color:#f87171">$${Math.round(dailyCloudCost * 100) / 100}/day</td>
-      <td style="font-family:var(--font-mono);color:#f59e0b"><strong>${breakEvenDays < 1000 ? `${breakEvenDays} days` : 'N/A'}</strong></td>
-      <td style="font-family:var(--font-mono);color:${threeYearNetSavings > 0 ? '#10b981' : '#94a3b8'}">
+      <td style="font-family:var(--font-mono);color:#00ff66"><strong>$${calc.costPer1kTasks}</strong></td>
+      <td style="font-family:var(--font-mono);color:#ff2a55">$${Math.round(dailyCloudCost * 100) / 100}/day</td>
+      <td style="font-family:var(--font-mono);color:#ffd700"><strong>${breakEvenDays < 1000 ? `${breakEvenDays} days` : 'N/A'}</strong></td>
+      <td style="font-family:var(--font-mono);color:${threeYearNetSavings > 0 ? '#00ff66' : '#728aa3'}">
         ${threeYearNetSavings > 0 ? `+$${threeYearNetSavings.toLocaleString()}` : `-$${Math.abs(threeYearNetSavings).toLocaleString()}`}
       </td>
     `;
@@ -3681,7 +4195,7 @@ function renderTaskEconomics() {
         </div>
         <div style="text-align:right">
           <span class="badge badge-fit-fp16">Break-even: ${rec.breakEvenDays} days</span>
-          <div style="font-size:0.72rem;color:#34d399;margin-top:2px">3-Yr ROI: +$${rec.threeYearNetSavings.toLocaleString()}</div>
+          <div style="font-size:0.7rem;color:#00ff66;font-family:var(--font-mono);margin-top:2px">3-Yr ROI: +$${rec.threeYearNetSavings.toLocaleString()}</div>
         </div>
       `;
       summaryContainer.appendChild(item);
@@ -3697,14 +4211,37 @@ function renderDeviceTable() {
 
   const query = (txtSearch ? txtSearch.value : '').toLowerCase().trim();
 
-  let devices = state.rawDevices;
+  let devices = [...state.rawDevices];
+
+  // 1. Text Search Filter
   if (query) {
     devices = devices.filter(d => 
       d.device_name.toLowerCase().includes(query) ||
       d.vendor.toLowerCase().includes(query) ||
-      d.category.toLowerCase().includes(query)
+      d.category.toLowerCase().includes(query) ||
+      (d.caveats || '').toLowerCase().includes(query)
     );
   }
+
+  // 2. Vendor Filter
+  if (state.deviceVendorFilter && state.deviceVendorFilter !== 'all') {
+    devices = devices.filter(d => d.vendor === state.deviceVendorFilter);
+  }
+
+  // 3. Price Filter
+  if (state.devicePriceFilter === 'under1k') devices = devices.filter(d => parseFloat(d.price_usd) < 1000);
+  else if (state.devicePriceFilter === '1k-3k') devices = devices.filter(d => parseFloat(d.price_usd) >= 1000 && parseFloat(d.price_usd) <= 3000);
+  else if (state.devicePriceFilter === '3k-10k') devices = devices.filter(d => parseFloat(d.price_usd) > 3000 && parseFloat(d.price_usd) <= 10000);
+  else if (state.devicePriceFilter === '10k-50k') devices = devices.filter(d => parseFloat(d.price_usd) > 10000 && parseFloat(d.price_usd) <= 50000);
+  else if (state.devicePriceFilter === 'datacenter') devices = devices.filter(d => parseFloat(d.price_usd) > 50000);
+
+  // 4. VRAM Filter
+  if (state.deviceVramFilter === '12') devices = devices.filter(d => parseFloat(d.memory_capacity_gb) >= 12);
+  else if (state.deviceVramFilter === '16') devices = devices.filter(d => parseFloat(d.memory_capacity_gb) >= 16);
+  else if (state.deviceVramFilter === '24') devices = devices.filter(d => parseFloat(d.memory_capacity_gb) >= 24);
+  else if (state.deviceVramFilter === '48') devices = devices.filter(d => parseFloat(d.memory_capacity_gb) >= 48);
+  else if (state.deviceVramFilter === '64') devices = devices.filter(d => parseFloat(d.memory_capacity_gb) >= 64);
+  else if (state.deviceVramFilter === '128') devices = devices.filter(d => parseFloat(d.memory_capacity_gb) >= 128);
 
   tbody.innerHTML = '';
   devices.forEach(dev => {
@@ -3719,14 +4256,14 @@ function renderDeviceTable() {
       <td><span class="badge badge-${dev.vendor.toLowerCase()}">${dev.vendor}</span></td>
       <td><span class="badge ${dev.category.includes('unified') ? 'badge-accent' : 'badge-subtle'}">${dev.category}</span></td>
       <td style="font-family:var(--font-mono)">$${parseFloat(dev.price_usd).toLocaleString()}</td>
-      <td style="font-family:var(--font-mono);color:#38bdf8"><strong>$${calc.effPrice.toLocaleString()}</strong></td>
+      <td style="font-family:var(--font-mono);color:#00f0ff"><strong>$${calc.effPrice.toLocaleString()}</strong></td>
       <td style="font-family:var(--font-mono)">${dev.memory_capacity_gb} GB</td>
-      <td style="font-family:var(--font-mono);color:#34d399">${calc.effCap} GB</td>
+      <td style="font-family:var(--font-mono);color:#00ff66">${calc.effCap} GB</td>
       <td style="font-family:var(--font-mono)">${dev.local_memory_bandwidth_gbs} GB/s</td>
       <td style="font-family:var(--font-mono)">${dev.fp16_tflops || '—'}</td>
-      <td style="font-size:0.75rem;color:#94a3b8">${dev.nvlink === 'yes' ? 'NVLink' : (dev.thunderbolt5 === 'yes' ? 'TB5' : (dev.connectx7 === 'yes' ? 'ConnectX-7' : 'PCIe'))}</td>
-      <td style="font-family:var(--font-mono);font-weight:700;color:#f59e0b">${calc.activeY.toLocaleString()}</td>
-      <td>${isPareto ? '<span class="badge badge-fit-fp16">★ Pareto</span>' : '<span style="color:#64748b">—</span>'}</td>
+      <td style="font-size:0.72rem;color:#728aa3;font-family:var(--font-mono)">${dev.nvlink === 'yes' ? 'NVLink' : (dev.thunderbolt5 === 'yes' ? 'TB5' : (dev.connectx7 === 'yes' ? 'ConnectX-7' : 'PCIe'))}</td>
+      <td style="font-family:var(--font-mono);font-weight:700;color:#ffd700">${calc.activeY.toLocaleString()}</td>
+      <td>${isPareto ? '<span class="badge badge-fit-fp16">★ Pareto</span>' : '<span style="color:#566c82">—</span>'}</td>
     `;
     tr.style.cursor = 'pointer';
     tr.addEventListener('click', () => {

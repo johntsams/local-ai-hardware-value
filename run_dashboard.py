@@ -62,7 +62,7 @@ def main():
     os.chdir(ROOT)
     url = f"http://localhost:{PORT}/dashboard/index.html"
     print("=" * 70)
-    print("🚀 LOCAL-AI HARDWARE VALUE & ARTIFICIAL ANALYSIS MODEL FIT SUITE")
+    print(">> LOCAL-AI HARDWARE VALUE & ARTIFICIAL ANALYSIS MODEL FIT SUITE")
     print("=" * 70)
     print(f"Serving dashboard at: {url}")
     print("Press Ctrl+C to stop the server.\n")

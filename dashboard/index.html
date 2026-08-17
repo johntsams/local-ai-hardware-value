@@ -3,32 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Local-AI Hardware Value & Model Fit Dashboard</title>
+  <title>Local-AI Hardware Value & Model Fit Suite // Cyberpunk Edition</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20260814-fullscreen">
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=20260816-cyberpunk">
 </head>
-<body class="dark-theme">
+<body class="dark-theme cyberpunk-hud">
   <div class="app-layout">
     <!-- Top Navigation Header -->
     <header class="app-header">
       <div class="header-left">
         <div class="brand-logo">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="url(#brandGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M2 17L12 22L22 17" stroke="url(#brandGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M2 12L12 17L22 12" stroke="url(#brandGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <defs>
-              <linearGradient id="brandGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#38bdf8"/>
-                <stop offset="1" stop-color="#818cf8"/>
-              </linearGradient>
-            </defs>
-          </svg>
+          <div class="brand-badge-icon">
+            <span class="hud-status-blink"></span>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#00f0ff" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M2 17L12 22L22 17" stroke="#d4ff00" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M2 12L12 17L22 12" stroke="#00ff66" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+          </div>
           <div>
-            <h1 class="brand-title">Local-AI Hardware & Model Suite</h1>
-            <p class="brand-subtitle">Interactive Value Analysis · IQ-Throughput (IQ-tok/s) · Task Economics · Unsloth Fit</p>
+            <div class="brand-meta-code">// SEC_09 :: LOCAL_AI_VAL_CORE</div>
+            <h1 class="brand-title">LOCAL-AI // HARDWARE &amp; MODEL FIT</h1>
+            <p class="brand-subtitle">IQ-Throughput (IQ-tok/s) · Multi-Factor Pareto · Task Economics · Unsloth Fit</p>
           </div>
         </div>
       </div>
@@ -236,16 +234,27 @@
 
             </div>
 
-            <!-- Hardware Filters with Color Indicators -->
+            <!-- Hardware Filters with Color Indicators & Price Range -->
             <div class="panel-card">
               <div class="panel-card-header">
-                <h3 class="panel-title">Filter by Vendor</h3>
+                <h3 class="panel-title">Hardware Filters</h3>
               </div>
               <div class="filter-chips-grid">
                 <label class="filter-chip chip-nvidia"><input type="checkbox" class="vendor-filter" value="NVIDIA" checked> <span class="vendor-dot dot-nvidia"></span> NVIDIA</label>
                 <label class="filter-chip chip-apple"><input type="checkbox" class="vendor-filter" value="Apple" checked> <span class="vendor-dot dot-apple"></span> Apple</label>
                 <label class="filter-chip chip-amd"><input type="checkbox" class="vendor-filter" value="AMD" checked> <span class="vendor-dot dot-amd"></span> AMD</label>
                 <label class="filter-chip chip-asus"><input type="checkbox" class="vendor-filter" value="ASUS" checked> <span class="vendor-dot dot-asus"></span> ASUS / Other</label>
+              </div>
+              <div class="filter-field-group" style="margin-top:10px;">
+                <label class="field-label-sm">Budget / Price Range:</label>
+                <select id="selPlotPriceFilter" class="select-input-sm">
+                  <option value="all" selected>All Prices ($280 – $280k)</option>
+                  <option value="under1k">Budget: Under $1,000</option>
+                  <option value="1k-3k">Sweet Spot: $1k – $3k</option>
+                  <option value="3k-10k">Pro / Workstation: $3k – $10k</option>
+                  <option value="10k-50k">Enterprise High-End: $10k – $50k</option>
+                  <option value="datacenter">Datacenter Beasts: $50k+</option>
+                </select>
               </div>
               <div class="filter-checkboxes-row">
                 <label class="checkbox-label"><input type="checkbox" id="chkIncludeModded" checked> Include Modded GPUs</label>
@@ -367,11 +376,40 @@
               <div class="control-group-inline">
                 <label>Model Parameter Class:</label>
                 <select id="selModelClass" class="select-input">
-                  <option value="all" selected>All Models (45+)</option>
-                  <option value="compact">Compact (&le;14B)</option>
-                  <option value="mid">Mid-Range (15B–70B)</option>
-                  <option value="large">Large (71B–150B)</option>
+                  <option value="all" selected>All Models (50+)</option>
+                  <option value="compact">Compact (≤14B)</option>
+                  <option value="mid">Mid-Range (15B–35B · Qwen 27B/32B)</option>
+                  <option value="large">Large (36B–150B)</option>
                   <option value="ultra">Ultra / Frontier (>150B)</option>
+                </select>
+              </div>
+              <div class="control-group-inline">
+                <label>Release Date:</label>
+                <select id="selMatrixDateFilter" class="select-input">
+                  <option value="all" selected>All Dates</option>
+                  <option value="2026">2026 (Latest SOTA)</option>
+                  <option value="2025">2025–2026</option>
+                  <option value="2024">2024</option>
+                </select>
+              </div>
+              <div class="control-group-inline">
+                <label>Min AA Intelligence:</label>
+                <select id="selMatrixMinIQ" class="select-input">
+                  <option value="0" selected>All (0+)</option>
+                  <option value="40">≥ 40 IQ</option>
+                  <option value="48">≥ 48 IQ (GPT-4 Class)</option>
+                  <option value="52">≥ 52 IQ (Frontier)</option>
+                  <option value="55">≥ 55 IQ (SOTA)</option>
+                </select>
+              </div>
+              <div class="control-group-inline">
+                <label>Hardware Max Price:</label>
+                <select id="selMatrixMaxPrice" class="select-input">
+                  <option value="all" selected>All Prices</option>
+                  <option value="under1k">&lt; $1,000</option>
+                  <option value="1k-3k">$1,000 – $3,000</option>
+                  <option value="3k-10k">$3,000 – $10,000</option>
+                  <option value="10k-plus">$10,000+</option>
                 </select>
               </div>
             </div>
@@ -445,10 +483,72 @@
           <div class="models-header-bar">
             <div>
               <h2 class="section-title">Artificial Analysis &amp; Unsloth Open-Source AI Models</h2>
-              <p class="section-subtitle">Independently benchmarked intelligence, output speed, parameter count, and Unsloth quantization quality metrics</p>
+              <p class="section-subtitle">Independently benchmarked intelligence (MMLU-Pro, GPQA, MATH-500, HumanEval), release dates, output speeds, and Unsloth quantization footprints</p>
             </div>
-            <div class="models-search-box">
-              <input type="text" id="txtSearchModels" placeholder="Search models by name, creator, architecture..." class="search-input">
+            <div class="models-header-stats">
+              <span id="lblModelFilterCount" class="badge badge-accent">53 models loaded</span>
+            </div>
+          </div>
+
+          <!-- Comprehensive Models Filter Toolbar -->
+          <div class="models-filter-toolbar">
+            <div class="filter-item-search">
+              <input type="text" id="txtSearchModels" placeholder="Search models, labs, architectures..." class="search-input">
+            </div>
+            <div class="filter-item">
+              <label>Release Date:</label>
+              <select id="selModelDateFilter" class="select-input">
+                <option value="all" selected>All Release Dates</option>
+                <option value="2026">2026 (Latest SOTA)</option>
+                <option value="2025">2025–2026 (Recent)</option>
+                <option value="2024">2024</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>Min AA Intelligence:</label>
+              <select id="selModelMinIQ" class="select-input">
+                <option value="0" selected>All Intelligence (0+)</option>
+                <option value="35">≥ 35 (Capable)</option>
+                <option value="42">≥ 42 (Strong)</option>
+                <option value="48">≥ 48 (Advanced / GPT-4o)</option>
+                <option value="52">≥ 52 (Frontier Reasoning)</option>
+                <option value="55">≥ 55 (SOTA High-IQ)</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>Parameter Size:</label>
+              <select id="selModelSizeFilter" class="select-input">
+                <option value="all" selected>All Sizes</option>
+                <option value="compact">Compact (≤14B)</option>
+                <option value="mid">Mid-Range (15B–35B · Qwen 27B/32B)</option>
+                <option value="large">Large (36B–100B)</option>
+                <option value="frontier">Frontier (>100B)</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>Creator / Lab:</label>
+              <select id="selModelLabFilter" class="select-input">
+                <option value="all" selected>All Labs</option>
+                <option value="Alibaba Qwen">Alibaba Qwen</option>
+                <option value="DeepSeek AI">DeepSeek AI</option>
+                <option value="Meta AI">Meta AI</option>
+                <option value="Google DeepMind">Google DeepMind</option>
+                <option value="Mistral AI">Mistral AI</option>
+                <option value="Microsoft">Microsoft</option>
+                <option value="Other">Other Labs</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>Sort By:</label>
+              <select id="selModelSort" class="select-input">
+                <option value="intelligence_desc" selected>AA Intelligence (High → Low)</option>
+                <option value="date_desc">Release Date (Newest First)</option>
+                <option value="math_desc">MATH-500 Score (High → Low)</option>
+                <option value="code_desc">Coding HumanEval (High → Low)</option>
+                <option value="speed_desc">Generation Speed (tok/s)</option>
+                <option value="params_desc">Model Size (Large → Small)</option>
+                <option value="params_asc">Model Size (Small → Large)</option>
+              </select>
             </div>
           </div>
 
@@ -554,8 +654,32 @@
                 <h2 class="section-title">Local-AI Hardware Database &amp; Total Cost Analysis</h2>
                 <p class="section-subtitle">34 audited hardware options: budget consumer GPUs, multi-GPU rigs, Mac Studio systems, and $100k+ enterprise beasts</p>
               </div>
-              <div class="table-actions">
-                <input type="text" id="txtSearchDevices" placeholder="Filter devices..." class="search-input">
+              <div class="table-actions-bar">
+                <input type="text" id="txtSearchDevices" placeholder="Filter devices by name..." class="search-input">
+                <select id="selDeviceVendorFilter" class="select-input-sm">
+                  <option value="all" selected>All Vendors</option>
+                  <option value="NVIDIA">NVIDIA</option>
+                  <option value="Apple">Apple Silicon</option>
+                  <option value="AMD">AMD</option>
+                  <option value="ASUS">ASUS / Other</option>
+                </select>
+                <select id="selDevicePriceFilter" class="select-input-sm">
+                  <option value="all" selected>All Prices</option>
+                  <option value="under1k">Under $1,000</option>
+                  <option value="1k-3k">$1,000 – $3,000</option>
+                  <option value="3k-10k">$3,000 – $10,000</option>
+                  <option value="10k-plus">$10,000+</option>
+                </select>
+                <select id="selDeviceVramFilter" class="select-input-sm">
+                  <option value="all" selected>All VRAM Sizes</option>
+                  <option value="12">≥ 12 GB VRAM</option>
+                  <option value="16">≥ 16 GB VRAM</option>
+                  <option value="24">≥ 24 GB VRAM</option>
+                  <option value="32">≥ 32 GB VRAM</option>
+                  <option value="48">≥ 48 GB VRAM</option>
+                  <option value="96">≥ 96 GB VRAM</option>
+                  <option value="128">≥ 128 GB VRAM</option>
+                </select>
               </div>
             </div>
 
